@@ -1,0 +1,131 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Configuration" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Configuration" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ output extension=".cs" #>
+<#
+var namespaceName = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("NamespaceHint").ToString();
+var templateFileName = Path.GetFileNameWithoutExtension(Host.TemplateFile);
+
+var configFileName = "";
+
+try
+{
+    configFileName = Host.ResolvePath("Web.config");
+}
+catch
+{
+    configFileName = Host.ResolvePath("App.config");
+}
+
+var configFile = new ExeConfigurationFileMap
+{
+    ExeConfigFilename = configFileName
+};
+
+var config = ConfigurationManager.OpenMappedExeConfiguration(configFile, ConfigurationUserLevel.None);
+var appSettings = config.AppSettings.Settings;
+
+var root = new Entry(templateFileName);
+
+foreach (var key in appSettings.AllKeys.OrderBy(p => p))
+{
+    root.AddEntry(key);
+}
+#>
+using System.Configuration;
+
+namespace <#= namespaceName #>
+{
+    [System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+<# WriteClass(root); #>
+}
+
+<#+
+void WriteClass(Entry parent)
+{
+#>
+    public static class <#= parent.Name #>
+    {
+<#+
+PushIndent("    ");
+
+for (int i = 0; i < parent.Count; i++)
+{
+    var entry = parent[i];
+
+    if (i != 0)
+    {
+        WriteLine("");
+    }
+
+    if (entry.IsLeaf)
+    {
+        WriteProperty(entry);
+    }
+    else
+    {
+        WriteClass(entry);
+    }
+}
+
+PopIndent();
+#>
+    }
+<#+
+}
+
+void WriteProperty(Entry entry)
+{
+#>
+    public static string <#= entry.Name #>
+    {
+        get { return ConfigurationManager.AppSettings["<#= entry.FullName #>"]; }
+    }
+<#+
+}
+
+public class Entry : List<Entry>
+{
+    public Entry(string name)
+    {
+        Name = name;
+    }
+
+    public string Name { get; private set; }
+
+    public string FullName { get; set; }
+
+    public bool IsLeaf
+    {
+        get { return Count == 0; }
+    }
+
+    public void AddEntry(string path)
+    {
+        var entry = this;
+
+        foreach (var token in path.Split(new[] { '.', ':' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+			var name = Char.ToUpper(token[0]) + token.Substring(1);
+
+            var next = entry.FirstOrDefault(p => p.Name == name);
+
+            if (next == null)
+            {
+                next = new Entry(name);
+
+                entry.Add(next);
+            }
+
+            entry = next;
+        }
+
+        entry.FullName = path;
+    }
+}
+#>

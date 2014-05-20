@@ -1,0 +1,25 @@
+﻿@model System.Collections.Generic.IEnumerable<ClickOnceGet.Models.ClickOnceAppInfo>
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>@Localize.SiteTitle</h1>
+    <p class="lead">
+    </p>
+    <p>
+        <a href="@Url.Action("MyApps")" class="btn btn-info btn-lg">Show Your CickOnce Applications &raquo;</a>
+        <a href="@Url.Action("Regist", "Publish")" class="btn btn-primary btn-lg">Regist Your ClickOnce Application &raquo;</a>
+    </p>
+    <p>
+    </p>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>Registerd ClickOnce Applications</h2>
+        <ul>
+            @Html.Partial("_AppList_Partial", Model)
+        </ul>
+    </div>
+</div>

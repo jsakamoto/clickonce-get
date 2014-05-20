@@ -1,0 +1,11 @@
+﻿@model System.Collections.Generic.IEnumerable<ClickOnceGet.Models.ClickOnceAppInfo>
+@foreach (var app in Model.OrderByDescending(a => a.RegisteredAt))
+{
+    <li>
+        <a href="@Url.RouteUrl("Publish", new { appId = app.Name })">
+            <span>@app.Name</span>
+            <span>@app.RegisteredAt.ToString("d")</span>
+        </a>
+    </li>
+}
+

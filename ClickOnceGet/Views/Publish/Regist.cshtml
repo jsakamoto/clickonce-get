@@ -1,0 +1,18 @@
+﻿@{
+    ViewBag.Title = "Regist";
+}
+
+<h2>Upload Your ClickOnce Application that packaged as a Zip file.</h2>
+
+<form method="post" action="@Url.Action("Regist")" enctype="multipart/form-data" ng-app="Publish" ng-controller="Regist">
+    <p>
+        <input type="file" name="zipedPackage" onchange="angular.element(this).scope().file_changed(this)" />
+    </p>
+    <p>
+        <input type="submit" value="Begin Upload" class="btn btn-success" ng-disabled="zipedPackage.src == ''" />
+    </p>
+</form>
+
+@section scripts {
+    <script src="~/Views/Publish/Regist.js"></script>
+}

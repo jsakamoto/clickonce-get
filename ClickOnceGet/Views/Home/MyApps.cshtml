@@ -1,0 +1,30 @@
+﻿@{
+    ViewBag.Title = "My Applications";
+}
+<div class="row myapps-page" ng-app="Home" ng-controller="MyApps">
+    <div class="col-md-12">
+        <h2>My Applications</h2>
+
+        <a href="@Url.Action("Regist", "Publish")" class="btn btn-primary btn-lg goto-regist">Regist Your ClickOnce Application &raquo;</a>
+
+        <ul class="apps-list">
+            <li ng-repeat="app in apps" class="a-app">
+                <div class="app-info">
+                    <a href="/app/{{app.Name}}" class="app-link">
+                        <span class="app-name">{{app.Name}}</span>
+                    </a>
+                    <span class="timestamp">{{app.RegisteredAt|date}}</span>
+                </div>
+                <div class="commands">
+                    <a href="#" ng-click="remove($index)" class="btn btn-default delete-app">Delete</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+@section scripts {
+    <script src="~/Views/Home/MyApps.js"></script>
+}
+
