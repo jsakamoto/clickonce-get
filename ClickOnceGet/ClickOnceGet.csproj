@@ -519,7 +519,6 @@
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Views\Home\Index.js" />
     <Content Include="Views\Home\MyApps.js" />
     <Content Include="Views\Publish\Regist.js" />
     <Content Include="Web.config" />
@@ -540,7 +539,6 @@
     <Content Include="Views\Shared\_SignInPartial.cshtml" />
     <Content Include="Views\Publish\Regist.cshtml" />
     <Content Include="Scripts\version.json" />
-    <Content Include="Views\Home\_AppList_Partial.cshtml" />
     <Content Include="Views\Home\MyApps.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -568,7 +566,6 @@
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular-scenario.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
-    <TypeScriptCompile Include="Views\Home\Index.ts" />
     <TypeScriptCompile Include="Views\Home\MyApps.ts" />
     <TypeScriptCompile Include="Views\Publish\Regist.ts" />
   </ItemGroup>

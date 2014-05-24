@@ -18,8 +18,19 @@
 <div class="row">
     <div class="col-md-12">
         <h2>Registerd ClickOnce Applications</h2>
-        <ul>
-            @Html.Partial("_AppList_Partial", Model)
+
+        <ul class="apps-list">
+            @foreach (var app in Model.OrderByDescending(a => a.RegisteredAt))
+            {
+            <li class="a-app">
+                <div class="app-info">
+                    <a href="@Url.RouteUrl("Publish", new { appId = app.Name })" class="app-link">
+                        <span class="app-name">@app.Name</span>
+                    </a>
+                    <span class="timestamp">@app.RegisteredAt.ToString("d")</span>
+                </div>
+            </li>
+            }
         </ul>
     </div>
 </div>
