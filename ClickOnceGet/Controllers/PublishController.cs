@@ -32,9 +32,9 @@ namespace ClickOnceGet.Controllers
         public ActionResult Get(string appId, string pathInfo)
         {
             pathInfo = (pathInfo ?? "").Replace('/', '\\');
-            var fileBytes = pathInfo == "" ?
-                this.ClickOnceFileRepository.GetDefaultFile(appId) :
-                this.ClickOnceFileRepository.GetFile(appId, pathInfo);
+            if (pathInfo == "") 
+                return Redirect(Url.RouteUrl("Publish", new { appId, pathInfo = appId + ".application" }));
+            var fileBytes = this.ClickOnceFileRepository.GetFileContent(appId, pathInfo);
             if (fileBytes == null) return HttpNotFound();
 
             var ext = Path.GetExtension(pathInfo).ToLower();
@@ -73,7 +73,7 @@ namespace ClickOnceGet.Controllers
                     var success = this.ClickOnceFileRepository.GetOwnerRight(userId, appName);
                     if (success == false) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", appName);
 
-                    this.ClickOnceFileRepository.ClearAllFiles(appName);
+                    this.ClickOnceFileRepository.ClearUpFiles(appName);
 
                     foreach (var item in zip.Entries)
                     {
@@ -81,7 +81,7 @@ namespace ClickOnceGet.Controllers
                         using (var reader = item.Open())
                         {
                             reader.Read(buff, 0, buff.Length);
-                            this.ClickOnceFileRepository.SetFile(appName, item.FullName, buff);
+                            this.ClickOnceFileRepository.SaveFileContent(appName, item.FullName, buff);
                             if (Path.GetExtension(item.FullName).ToLower() == ".application")
                             {
                                 var error = CheckCodeBaseUrl(appName, buff);

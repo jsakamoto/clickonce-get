@@ -22,7 +22,7 @@ namespace ClickOnceGet.Controllers
         [HttpGet, Route("apps")]
         public IEnumerable<ClickOnceAppInfo> GetApps()
         {
-            return this.ClickOnceFileRepository.EnumAllApplications();
+            return this.ClickOnceFileRepository.EnumAllApps();
         }
 
         // GET api/apps/appname

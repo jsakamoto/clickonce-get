@@ -8,17 +8,15 @@ namespace ClickOnceGet.Models
 {
     public interface IClickOnceFileRepository
     {
-        byte[] GetDefaultFile(string appName);
-
-        byte[] GetFile(string appName, string subPath);
+        byte[] GetFileContent(string appName, string subPath);
 
         bool GetOwnerRight(string userId, string appName);
 
-        void ClearAllFiles(string appName);
+        void ClearUpFiles(string appName);
 
-        void SetFile(string appName, string subPath, byte[] contents);
+        void SaveFileContent(string appName, string subPath, byte[] contents);
 
-        IEnumerable<ClickOnceAppInfo> EnumAllApplications();
+        IEnumerable<ClickOnceAppInfo> EnumAllApps();
 
         void DeleteApp(string appName);
     }

@@ -21,20 +21,11 @@ namespace ClickOnceGet.Models
         private static string GetRepositoryDir()
         {
             var repositoryDir = HttpContext.Current.Server.MapPath("~/App_Data/Repository");
+            if (Directory.Exists(repositoryDir) == false) Directory.CreateDirectory(repositoryDir);
             return repositoryDir;
         }
 
-        public byte[] GetDefaultFile(string appName)
-        {
-            var appDir = GetApplicationDir(appName);
-            if (appDir == null) return null;
-            var appPath = Directory.GetFiles(appDir, "*.application").FirstOrDefault();
-            if (appPath == null) return null;
-
-            return File.ReadAllBytes(appPath);
-        }
-
-        public byte[] GetFile(string appName, string subPath)
+        public byte[] GetFileContent(string appName, string subPath)
         {
             var appDir = GetApplicationDir(appName);
             if (appDir == null) return null;
@@ -55,7 +46,7 @@ namespace ClickOnceGet.Models
             var userDir = Path.Combine(repositoryDir, userId);
             if (Directory.Exists(userDir) == false) Directory.CreateDirectory(userDir);
 
-            var theApp = EnumAllApplications()
+            var theApp = EnumAllApps()
                 .FirstOrDefault(a => a.Name.ToLower() == appName.ToLower());
 
             if (theApp != null) return theApp.OwnerId == userId;
@@ -64,7 +55,7 @@ namespace ClickOnceGet.Models
             return true;
         }
 
-        public void ClearAllFiles(string appName)
+        public void ClearUpFiles(string appName)
         {
             var appDir = GetApplicationDir(appName);
             foreach (var dirPath in Directory.GetDirectories(appDir, "*.*", SearchOption.TopDirectoryOnly))
@@ -77,7 +68,7 @@ namespace ClickOnceGet.Models
             }
         }
 
-        public void SetFile(string appName, string subPath, byte[] contents)
+        public void SaveFileContent(string appName, string subPath, byte[] contents)
         {
             var appDir = GetApplicationDir(appName);
             
@@ -92,7 +83,7 @@ namespace ClickOnceGet.Models
             File.WriteAllBytes(filePath, contents);
         }
 
-        public IEnumerable<ClickOnceAppInfo> EnumAllApplications()
+        public IEnumerable<ClickOnceAppInfo> EnumAllApps()
         {
             var repositoryDir = GetRepositoryDir();
             var apps = from userDir in Directory.GetDirectories(repositoryDir)
