@@ -29,6 +29,7 @@ namespace ClickOnceGet.Controllers
         [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public ActionResult ExternalSignIn(string provider, string returnUrl)
         {
+#if DEBUG
             if (provider == "demo")
             {
                 var signInInfo = new ExternalLoginInfo
@@ -42,7 +43,7 @@ namespace ClickOnceGet.Controllers
                 };
                 return ExternalSignInCore(returnUrl, signInInfo);
             }
-
+#endif
             // Request a redirect to the external sign in  provider
             return new ChallengeResult(provider, Url.Action("ExternalSignInCallback", "Account", new { ReturnUrl = returnUrl }));
         }
