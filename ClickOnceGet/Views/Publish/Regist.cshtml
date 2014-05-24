@@ -2,6 +2,13 @@
     ViewBag.Title = "Regist";
 }
 
+@if (ViewData.ModelState.IsValid == false)
+{
+    <div class="alert alert-danger">
+        @Html.ValidationSummary()
+    </div>
+}
+
 <h2>Upload Your ClickOnce Application that packaged as a Zip file.</h2>
 
 <form method="post" action="@Url.Action("Regist")" enctype="multipart/form-data" ng-app="Publish" ng-controller="Regist">

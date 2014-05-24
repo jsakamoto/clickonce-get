@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
 using System.Web;
+using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 
 namespace ClickOnceGet
@@ -24,6 +25,11 @@ namespace ClickOnceGet
             var claimsIdentty = principal.Identity as ClaimsIdentity;
             if (claimsIdentty == null) return null;
             return claimsIdentty.FindFirstValue(CustomClaimTypes.HasedUserId);
+        }
+
+        public static string AppUrl(this Uri requestUrl)
+        {
+            return requestUrl.GetLeftPart(UriPartial.Scheme | UriPartial.Authority);
         }
     }
 }

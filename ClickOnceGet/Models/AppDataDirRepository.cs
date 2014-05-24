@@ -39,7 +39,11 @@ namespace ClickOnceGet.Models
             var appDir = GetApplicationDir(appName);
             if (appDir == null) return null;
 
-            var filePath = Path.Combine(appDir, subPath.Replace('/', '\\'));
+            subPath = subPath.Replace('/', '\\');
+            if (subPath.Split('\\').Contains("..")) return null; // reject relative up path.
+            if (Path.IsPathRooted(subPath)) return null;         // reject absolute up path.
+
+            var filePath = Path.Combine(appDir, subPath);
             if (File.Exists(filePath) == false) return null;
 
             return File.ReadAllBytes(filePath);
@@ -76,6 +80,11 @@ namespace ClickOnceGet.Models
         public void SetFile(string appName, string subPath, byte[] contents)
         {
             var appDir = GetApplicationDir(appName);
+            
+            subPath = subPath.Replace('/', '\\');
+            if (subPath.Split('\\').Contains("..")) return;  // reject relative up path.
+            if (Path.IsPathRooted(subPath)) return;         // reject absolute up path.
+
             var filePath = Path.Combine(appDir, subPath);
             var fileDir = Path.GetDirectoryName(filePath);
             if (Directory.Exists(fileDir) == false) Directory.CreateDirectory(fileDir);

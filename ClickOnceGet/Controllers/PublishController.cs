@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.XPath;
 using ClickOnceGet.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
@@ -41,6 +47,7 @@ namespace ClickOnceGet.Controllers
         [HttpGet]
         public ActionResult Regist()
         {
+            //return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", "FooBar");
             return View();
         }
 
@@ -50,13 +57,22 @@ namespace ClickOnceGet.Controllers
             var userId = User.GetHashedUserId();
             if (userId == null) throw new Exception("hased user id is null.");
 
-            using (var zip = new ZipArchive(zipedPackage.InputStream))
+            try
             {
-                var appFile = zip.Entries.First(e => Path.GetExtension(e.FullName).ToLower() == ".application");
-                var appName = Path.GetFileNameWithoutExtension(appFile.FullName);
-                var success = this.ClickOnceFileRepository.GetOwnerRight(userId, appName);
-                if (success)
+
+                using (var zip = new ZipArchive(zipedPackage.InputStream))
                 {
+                    var appFile = zip.Entries
+                        .Where(e => Path.GetExtension(e.FullName).ToLower() == ".application")
+                        .OrderBy(e => e.FullName.Length)
+                        .FirstOrDefault();
+                    if (appFile == null) return Error("The .zip file you uploaded did not contain .application file.");
+                    if (Path.GetDirectoryName(appFile.FullName) != "") return Error("The .zip file you uploaded contain .application file, but it was not in root of the .zip file.");
+
+                    var appName = Path.GetFileNameWithoutExtension(appFile.FullName);
+                    var success = this.ClickOnceFileRepository.GetOwnerRight(userId, appName);
+                    if (success == false) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", appName);
+
                     this.ClickOnceFileRepository.ClearAllFiles(appName);
 
                     foreach (var item in zip.Entries)
@@ -66,12 +82,61 @@ namespace ClickOnceGet.Controllers
                         {
                             reader.Read(buff, 0, buff.Length);
                             this.ClickOnceFileRepository.SetFile(appName, item.FullName, buff);
+                            if (Path.GetExtension(item.FullName).ToLower() == ".application")
+                            {
+                                var error = CheckCodeBaseUrl(appName, buff);
+                                if (error != null) return error;
+                            }
                         }
                     }
                 }
             }
+            catch (System.IO.InvalidDataException)
+            {
+                return Error("The file you uploaded did not looks like valid Zip format.");
+            }
 
             return RedirectToAction("MyApps", "Home");
+        }
+
+        private ActionResult CheckCodeBaseUrl(string appName, byte[] buff)
+        {
+            var appManifest = default(XDocument);
+            try
+            {
+                using (var ms = new MemoryStream(buff))
+                    appManifest = XDocument.Load(ms);
+            }
+            catch (XmlException)
+            {
+                return Error("The .application file that contained in .zip file you uploaded is may not be valid XML format.");
+            }
+
+            var xnm = new XmlNamespaceManager(new NameTable());
+            xnm.AddNamespace("asmv1", "urn:schemas-microsoft-com:asm.v1");
+            xnm.AddNamespace("asmv2", "urn:schemas-microsoft-com:asm.v2");
+            var codeBaseAttr = (appManifest.XPathEvaluate("/asmv1:assembly/asmv2:deployment/asmv2:deploymentProvider/@codebase", xnm) as IEnumerable).Cast<XAttribute>().FirstOrDefault();
+            if (codeBaseAttr == null)
+                return Error("The .application file that contained in .zip file you uploaded is may not be valid format. " +
+                    "(assembly/deployment/deploymentProvider@codebase node colud not found.)");
+            var codebase = codeBaseAttr.Value.ToLower();
+            if (Regex.IsMatch(codebase, "^http(s)?://") == false)
+                return Error("The .application file that contained in .zip file you uploaded has invalid format codebase url as HTTP(s) protocol.");
+
+            var appUrl = this.Request.Url.AppUrl();
+            var actionUrl = this.Url.RouteUrl("Publish", new { appId = appName });
+            var baseUrl = appUrl + actionUrl;
+            if (codebase != (baseUrl + "/" + appName + ".application").ToLower())
+                return Error("The install URL is invalid. You should re-publish the application with fix the install URL as \"{0}\".", baseUrl);
+
+            //throw new NotImplementedException();
+            return null; // Valid/Success.
+        }
+
+        private ActionResult Error(string message, params string[] args)
+        {
+            this.ModelState.AddModelError("Error", string.Format(message, args));
+            return View();
         }
     }
 }

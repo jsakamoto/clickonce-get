@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 
 namespace ClickOnceGet.Controllers
@@ -28,6 +29,20 @@ namespace ClickOnceGet.Controllers
         [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public ActionResult ExternalSignIn(string provider, string returnUrl)
         {
+            if (provider == "demo")
+            {
+                var signInInfo = new ExternalLoginInfo
+                {
+                    DefaultUserName = "demo",
+                    Email = "demo@example.com",
+                    ExternalIdentity = new ClaimsIdentity(new Claim[] { 
+                        new Claim(ClaimTypes.NameIdentifier, "abc123")
+                    }),
+                    Login = new UserLoginInfo("demo", "abc123")
+                };
+                return ExternalSignInCore(returnUrl, signInInfo);
+            }
+
             // Request a redirect to the external sign in  provider
             return new ChallengeResult(provider, Url.Action("ExternalSignInCallback", "Account", new { ReturnUrl = returnUrl }));
         }
@@ -38,10 +53,12 @@ namespace ClickOnceGet.Controllers
         public async Task<ActionResult> ExternalSignInCallback(string returnUrl)
         {
             var signInInfo = await AuthenticationManager.GetExternalLoginInfoAsync();
-            if (signInInfo == null)
-            {
-                return RedirectToAction("SignIn");
-            }
+            return ExternalSignInCore(returnUrl, signInInfo);
+        }
+
+        private ActionResult ExternalSignInCore(string returnUrl, ExternalLoginInfo signInInfo)
+        {
+            if (signInInfo == null) return RedirectToAction("SignIn");
 
             var login = signInInfo.Login;
             var claimsIdentity = new ClaimsIdentity(signInInfo.ExternalIdentity.Claims, DefaultAuthenticationTypes.ApplicationCookie.ToString());

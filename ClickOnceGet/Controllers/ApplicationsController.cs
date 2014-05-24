@@ -49,6 +49,7 @@ namespace ClickOnceGet.Controllers
         [Authorize, HttpDelete, Route("apps/{appName}"), Route("myapps/{appName}")]
         public void DeleteApp(string appName)
         {
+            //this.Request.RequestUri.
             var userId = User.GetHashedUserId();
             if (userId == null) throw new Exception("hashed user id is null.");
 
