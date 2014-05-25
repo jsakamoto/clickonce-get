@@ -32,7 +32,7 @@ namespace ClickOnceGet.Controllers
         public ActionResult Get(string appId, string pathInfo)
         {
             pathInfo = (pathInfo ?? "").Replace('/', '\\');
-            if (pathInfo == "") 
+            if (pathInfo == "")
                 return Redirect(Url.RouteUrl("Publish", new { appId, pathInfo = appId + ".application" }));
             var fileBytes = this.ClickOnceFileRepository.GetFileContent(appId, pathInfo);
             if (fileBytes == null) return HttpNotFound();
@@ -75,7 +75,7 @@ namespace ClickOnceGet.Controllers
 
                     this.ClickOnceFileRepository.ClearUpFiles(appName);
 
-                    foreach (var item in zip.Entries)
+                    foreach (var item in zip.Entries.Where(_ => _.Name != ""))
                     {
                         var buff = new byte[item.Length];
                         using (var reader = item.Open())
