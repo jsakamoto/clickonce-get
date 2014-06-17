@@ -24,6 +24,19 @@ namespace ClickOnceGet
             get { return ConfigurationManager.AppSettings["Salt"]; }
         }
 
+        public static class SourceCode
+        {
+            public static string FaviconURL
+            {
+                get { return ConfigurationManager.AppSettings["SourceCode.FaviconURL"]; }
+            }
+
+            public static string RepositoryURL
+            {
+                get { return ConfigurationManager.AppSettings["SourceCode.RepositoryURL"]; }
+            }
+        }
+
         public static string UnobtrusiveJavaScriptEnabled
         {
             get { return ConfigurationManager.AppSettings["UnobtrusiveJavaScriptEnabled"]; }

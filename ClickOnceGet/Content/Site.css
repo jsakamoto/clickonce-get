@@ -3,6 +3,14 @@
     padding-bottom: 20px;
 }
 
+.navbar-brand {
+    margin-left:1em;
+    padding-left:40px;
+    background-image:url(../favicon.png);
+    background-repeat:no-repeat;
+    background-position:left center;
+}
+
 /* Set padding to keep content from hitting the edges */
 .body-content {
     padding-left: 15px;
@@ -83,4 +91,41 @@ textarea {
 .commands {
     display:inline-block;
     float:right;
+}
+
+    footer .acknowledgment {
+    }
+
+        footer .acknowledgment .banner {
+            background-position: left center;
+            background-repeat: no-repeat;
+            padding-left: 20px;
+            display: inline-block;
+            min-height: 1.4em;
+            line-height: 1.4em;
+        }
+
+        footer .acknowledgment .angularjs {
+            background-image: url(images/angularjs-g-16.png);
+        }
+
+        footer .acknowledgment .mono {
+            background-image: url(images/mono-g-16.png);
+        }
+
+        footer .acknowledgment .bootstrapcss {
+            background-image: url(images/bootstrapcss-g-16.png);
+        }
+
+        footer .acknowledgment .aspnet {
+            padding-left: 28px;
+            background-image: url(images/aspnet-16.png);
+        }
+
+.sourcecode-repository {
+    background-repeat:no-repeat;
+    background-position:left center;
+    background-size:1.2em;
+    display:inline-block;
+    padding-left:20px;
 }
