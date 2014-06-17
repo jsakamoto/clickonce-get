@@ -61,6 +61,15 @@ namespace ClickOnceGet {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &quot;ClickOnce Get&quot; is a web site that is publishing point of your ClickOnce applications..
+        /// </summary>
+        public static string Description {
+            get {
+                return ResourceManager.GetString("Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ClickOnce Get.
         /// </summary>
         public static string SiteTitle {
