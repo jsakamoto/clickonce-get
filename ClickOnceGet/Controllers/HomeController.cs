@@ -28,6 +28,7 @@ namespace ClickOnceGet.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         public ActionResult HowToPackage()
         {
             return View();
