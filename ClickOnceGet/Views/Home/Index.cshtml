@@ -8,12 +8,25 @@
     <p class="lead">
         @Localize.Description
     </p>
-    <p>
-        <a href="@Url.Action("MyApps")" class="btn btn-info btn-lg">Show Your CickOnce Applications &raquo;</a>
-        <a href="@Url.Action("Regist", "Publish")" class="btn btn-primary btn-lg">Regist Your ClickOnce Application &raquo;</a>
-    </p>
-    <p>
-    </p>
+    <div class="row">
+        <div class="col-md-5">
+            <a href="@Url.Action("MyApps")" class="btn btn-info btn-lg">
+                Show Your CickOnce Applications &raquo;
+            </a>
+        </div>
+        <div class="col-md-5">
+            <a href="@Url.Action("Regist", "Publish")" class="btn btn-primary btn-lg">
+                Regist Your ClickOnce Application &raquo;
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-5 col-md-offset-5">
+            <a href="@Url.Action("HowToPackage")" class="btn btn-default">
+                How to package? Learn more &raquo;
+            </a>
+        </div>
+    </div>
 </div>
 
 <div class="row">
@@ -23,14 +36,14 @@
         <ul class="apps-list">
             @foreach (var app in Model.OrderByDescending(a => a.RegisteredAt))
             {
-            <li class="a-app">
-                <div class="app-info">
-                    <a href="@Url.RouteUrl("Publish", new { appId = app.Name })" class="app-link">
-                        <span class="app-name">@app.Name</span>
-                    </a>
-                    <span class="timestamp">@app.RegisteredAt.ToString("d")</span>
-                </div>
-            </li>
+                <li class="a-app">
+                    <div class="app-info">
+                        <a href="@Url.RouteUrl("Publish", new { appId = app.Name })" class="app-link">
+                            <span class="app-name">@app.Name</span>
+                        </a>
+                        <span class="timestamp">@app.RegisteredAt.ToString("d")</span>
+                    </div>
+                </li>
             }
         </ul>
     </div>

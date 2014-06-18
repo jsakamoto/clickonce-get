@@ -27,5 +27,10 @@ namespace ClickOnceGet.Controllers
         {
             return View();
         }
+
+        public ActionResult HowToPackage()
+        {
+            return View();
+        }
     }
 }

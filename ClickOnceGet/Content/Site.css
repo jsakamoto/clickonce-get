@@ -4,11 +4,15 @@
 }
 
 .navbar-brand {
-    margin-left:1em;
-    padding-left:40px;
-    background-image:url(../favicon.png);
-    background-repeat:no-repeat;
-    background-position:left center;
+    margin-left: 1em;
+    padding-left: 40px;
+    background-image: url(../favicon.png);
+    background-repeat: no-repeat;
+    background-position: left center;
+}
+
+.jumbotron .row a {
+    margin-bottom: 1em;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -68,15 +72,16 @@ textarea {
 /* Application List */
 .a-app {
     height: 5em;
-    display:block;
-    clear:both;
+    display: block;
+    clear: both;
 }
 
 .app-link {
     display: block;
 }
+
 .app-name {
-    font-size:200%;
+    font-size: 200%;
 }
 
 .timestamp {
@@ -89,43 +94,111 @@ textarea {
 }
 
 .commands {
-    display:inline-block;
-    float:right;
+    display: inline-block;
+    float: right;
 }
 
-    footer .acknowledgment {
+footer .acknowledgment {
+}
+
+    footer .acknowledgment .banner {
+        background-position: left center;
+        background-repeat: no-repeat;
+        padding-left: 20px;
+        display: inline-block;
+        min-height: 1.4em;
+        line-height: 1.4em;
     }
 
-        footer .acknowledgment .banner {
-            background-position: left center;
-            background-repeat: no-repeat;
-            padding-left: 20px;
-            display: inline-block;
-            min-height: 1.4em;
-            line-height: 1.4em;
-        }
+    footer .acknowledgment .angularjs {
+        background-image: url(images/angularjs-g-16.png);
+    }
 
-        footer .acknowledgment .angularjs {
-            background-image: url(images/angularjs-g-16.png);
-        }
+    footer .acknowledgment .mono {
+        background-image: url(images/mono-g-16.png);
+    }
 
-        footer .acknowledgment .mono {
-            background-image: url(images/mono-g-16.png);
-        }
+    footer .acknowledgment .bootstrapcss {
+        background-image: url(images/bootstrapcss-g-16.png);
+    }
 
-        footer .acknowledgment .bootstrapcss {
-            background-image: url(images/bootstrapcss-g-16.png);
-        }
-
-        footer .acknowledgment .aspnet {
-            padding-left: 28px;
-            background-image: url(images/aspnet-16.png);
-        }
+    footer .acknowledgment .aspnet {
+        padding-left: 28px;
+        background-image: url(images/aspnet-16.png);
+    }
 
 .sourcecode-repository {
-    background-repeat:no-repeat;
-    background-position:left center;
-    background-size:1.2em;
-    display:inline-block;
-    padding-left:20px;
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: 1.2em;
+    display: inline-block;
+    padding-left: 20px;
 }
+
+/* How to package and publish */
+.how-to-package-body {
+    padding-left: 2em;
+}
+
+    .how-to-package-body h2 {
+        margin-left: -1em;
+    }
+
+    .how-to-package-body h3 {
+        margin-left: -1em;
+        margin-top: 2em;
+        margin-bottom: 1em;
+    }
+
+    .how-to-package-body .assembly-name-part {
+        color: #0094ff;
+        font-style: italic;
+        font-weight: bold;
+        font-size: 120%;
+    }
+
+    .how-to-package-body .fig-zip {
+        display: inline-block;
+        margin-right: 1em;
+    }
+
+        .how-to-package-body .fig-zip .caption {
+            display: block;
+            font-size: 150%;
+            color: #038203;
+            font-weight: bold;
+        }
+
+        .how-to-package-body .fig-zip.nogood .caption {
+            color: #b20303;
+        }
+
+/* Regist App */
+.regist-app .how-to-package-link {
+    margin-top: 3em;
+    height: 3em;
+    overflow: hidden;
+    -moz-transition: height linear 0.1s;
+    -o-transition: height linear 0.1s;
+    -webkit-transition: height linear 0.1s;
+    transition: height linear 0.1s;
+}
+
+    .regist-app .how-to-package-link.showing {
+        height: 0em;
+    }
+
+.regist-app .how-to-package-body {
+    opacity: 0;
+    height: 0px;
+    overflow: hidden;
+    -moz-transition: opacity linear 0.5s;
+    -o-transition: opacity linear 0.5s;
+    -webkit-transition: opacity linear 0.5s;
+    transition: opacity linear 0.5s;
+}
+
+    .regist-app .how-to-package-body.showing {
+        height: auto;
+        opacity: 1;
+    }

@@ -4,8 +4,9 @@
     app.controller('Regist', ($scope: any) => {
         $scope.greeting = { text: 'Hey!' };
         $scope.zipedPackage = { src: '' };
-        $scope.wow = () => {
-            alert('WOW!');
+        $scope.visibleHowToText = false;
+        $scope.showHowToText = () => {
+            $scope.visibleHowToText = true;
         };
         $scope.file_changed = (element) => {
             $scope.$apply(() => {

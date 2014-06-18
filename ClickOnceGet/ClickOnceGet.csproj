@@ -523,6 +523,10 @@
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="Views\Home\fig-zip-good.PNG" />
+    <Content Include="Views\Home\fig-zip-nogood.PNG" />
+    <Content Include="Views\Home\fig01.PNG" />
+    <Content Include="Views\Home\fig02.PNG" />
     <Content Include="Views\Home\MyApps.js" />
     <Content Include="Views\Publish\Regist.js" />
     <Content Include="Web.config" />
@@ -544,6 +548,8 @@
     <Content Include="Views\Publish\Regist.cshtml" />
     <Content Include="Scripts\version.json" />
     <Content Include="Views\Home\MyApps.cshtml" />
+    <Content Include="Views\Home\HowToPackage.cshtml" />
+    <Content Include="Views\Home\HowToPackage_Partial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
