@@ -17,6 +17,11 @@ namespace ClickOnceGet
             {
                 get { return ConfigurationManager.AppSettings["Key.GitHub"]; }
             }
+
+            public static string Microsoft
+            {
+                get { return ConfigurationManager.AppSettings["Key.Microsoft"]; }
+            }
         }
 
         public static string Salt

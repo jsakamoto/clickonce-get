@@ -2,6 +2,7 @@
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.MicrosoftAccount;
 using Newtonsoft.Json;
 using Owin;
 using Owin.Security.Providers.GitHub;
@@ -32,6 +33,12 @@ namespace ClickOnceGet
             if (gitHubAuthOpt.ClientId.Contains("*") == false)
             {
                 app.UseGitHubAuthentication(gitHubAuthOpt);
+            }
+            
+            var msAuthOpt = JsonConvert.DeserializeObject<MicrosoftAccountAuthenticationOptions>(AppSettings.Key.Microsoft);
+            if (msAuthOpt.ClientId.Contains("*") == false)
+            {
+                app.UseMicrosoftAccountAuthentication(msAuthOpt);
             }
 
             #region Uncomment the following lines to enable logging in with third party sign in providers
