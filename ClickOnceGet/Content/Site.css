@@ -58,7 +58,7 @@ textarea {
     float: left;
 }
 
-.myapps-page .goto-regist {
+.myapps-page .goto-register {
     margin-top: 1em;
     margin-bottom: 1em;
     float: right;
@@ -173,8 +173,8 @@ footer .acknowledgment {
             color: #b20303;
         }
 
-/* Regist App */
-.regist-app .how-to-package-link {
+/* Register App */
+.register-app .how-to-package-link {
     margin-top: 3em;
     height: 3em;
     overflow: hidden;
@@ -184,11 +184,11 @@ footer .acknowledgment {
     transition: height linear 0.1s;
 }
 
-    .regist-app .how-to-package-link.showing {
+    .register-app .how-to-package-link.showing {
         height: 0em;
     }
 
-.regist-app .how-to-package-body {
+.register-app .how-to-package-body {
     opacity: 0;
     height: 0px;
     overflow: hidden;
@@ -198,7 +198,7 @@ footer .acknowledgment {
     transition: opacity linear 0.5s;
 }
 
-    .regist-app .how-to-package-body.showing {
+    .register-app .how-to-package-body.showing {
         height: auto;
         opacity: 1;
     }

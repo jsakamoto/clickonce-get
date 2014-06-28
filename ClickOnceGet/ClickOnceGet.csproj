@@ -528,7 +528,7 @@
     <Content Include="Views\Home\fig01.PNG" />
     <Content Include="Views\Home\fig02.PNG" />
     <Content Include="Views\Home\MyApps.js" />
-    <Content Include="Views\Publish\Regist.js" />
+    <Content Include="Views\Publish\Register.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -545,7 +545,7 @@
     <Content Include="Views\Account\ExternalSignInFailure.cshtml" />
     <Content Include="Views\Account\SignIn.cshtml" />
     <Content Include="Views\Shared\_SignInPartial.cshtml" />
-    <Content Include="Views\Publish\Regist.cshtml" />
+    <Content Include="Views\Publish\Register.cshtml" />
     <Content Include="Scripts\version.json" />
     <Content Include="Views\Home\MyApps.cshtml" />
     <Content Include="Views\Home\HowToPackage.cshtml" />
@@ -577,7 +577,7 @@
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Views\Home\MyApps.ts" />
-    <TypeScriptCompile Include="Views\Publish\Regist.ts" />
+    <TypeScriptCompile Include="Views\Publish\Register.ts" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

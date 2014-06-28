@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Regist";
+    ViewBag.Title = "Register";
 }
 
 @if (ViewData.ModelState.IsValid == false)
@@ -11,8 +11,8 @@
 
 <h2>Upload Your ClickOnce Application that packaged as a Zip file.</h2>
 
-<div class="regist-app" ng-app="Publish" ng-controller="Regist">
-    <form method="post" action="@Url.Action("Regist")" enctype="multipart/form-data">
+<div class="register-app" ng-app="Publish" ng-controller="Register">
+    <form method="post" action="@Url.Action("Register")" enctype="multipart/form-data">
         <p>
             <input type="file" name="zipedPackage" onchange="angular.element(this).scope().file_changed(this)" />
         </p>
@@ -34,5 +34,5 @@
 
 
 @section scripts {
-    <script src="~/Views/Publish/Regist.js"></script>
+    <script src="~/Views/Publish/Register.js"></script>
 }

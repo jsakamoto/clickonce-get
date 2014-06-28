@@ -2,7 +2,7 @@
 (function (Publish) {
     var app = angular.module('Publish', []);
 
-    app.controller('Regist', function ($scope) {
+    app.controller('Register', function ($scope) {
         $scope.greeting = { text: 'Hey!' };
         $scope.zipedPackage = { src: '' };
         $scope.visibleHowToText = false;
@@ -16,4 +16,4 @@
         };
     });
 })(Publish || (Publish = {}));
-//# sourceMappingURL=Regist.js.map
+//# sourceMappingURL=Register.js.map
