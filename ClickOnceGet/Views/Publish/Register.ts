@@ -1,7 +1,7 @@
 ﻿module Publish {
     var app = angular.module('Publish', []);
 
-    app.controller('Regist', ($scope: any) => {
+    app.controller('Register', ($scope: any) => {
         $scope.greeting = { text: 'Hey!' };
         $scope.zipedPackage = { src: '' };
         $scope.visibleHowToText = false;

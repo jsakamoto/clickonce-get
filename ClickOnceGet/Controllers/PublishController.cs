@@ -45,14 +45,14 @@ namespace ClickOnceGet.Controllers
         }
 
         [HttpGet]
-        public ActionResult Regist()
+        public ActionResult Register()
         {
             //return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", "FooBar");
             return View();
         }
 
         [HttpPost]
-        public ActionResult Regist(HttpPostedFileBase zipedPackage)
+        public ActionResult Register(HttpPostedFileBase zipedPackage)
         {
             var userId = User.GetHashedUserId();
             if (userId == null) throw new Exception("hased user id is null.");
