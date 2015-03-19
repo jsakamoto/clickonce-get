@@ -1,4 +1,5 @@
-﻿@{
+﻿@model ClickOnceGet.Models.ClickOnceAppInfo
+@{
     ViewBag.Title = "Register";
 }
 
@@ -9,13 +10,36 @@
     </div>
 }
 
+<style>
+    #register-form {
+        width: 100%;
+    }
+
+    #Title, #Description {
+        width: 50%;
+        max-width: 50%;
+    }
+</style>
+
 <h2>Upload Your ClickOnce Application that packaged as a Zip file.</h2>
 
 <div class="register-app" ng-app="Publish" ng-controller="Register">
-    <form method="post" action="@Url.Action("Register")" enctype="multipart/form-data">
+    <form id="register-form" method="post" action="@Url.Action("Register")" enctype="multipart/form-data">
         <p>
             <input type="file" name="zipedPackage" onchange="angular.element(this).scope().file_changed(this)" />
         </p>
+        <div>
+            <label for="title">Title (optional)</label>
+        </div>
+        <div>
+            @Html.TextBoxFor(m => m.Title)
+        </div>
+        <div>
+            <label for="description">Description (optional)</label>
+        </div>
+        <div>
+            @Html.TextAreaFor(m => m.Description, new { rows = 7 })
+        </div>
         <p>
             <input type="submit" value="Begin Upload" class="btn btn-success" ng-disabled="zipedPackage.src == ''" />
         </p>

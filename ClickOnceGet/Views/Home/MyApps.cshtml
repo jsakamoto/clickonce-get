@@ -8,15 +8,16 @@
         <a href="@Url.Action("Register", "Publish")" class="btn btn-primary btn-lg goto-register">Register Your ClickOnce Application &raquo;</a>
 
         <ul class="apps-list">
-            <li ng-repeat="app in apps" class="a-app">
+            <li ng-repeat="app in apps | orderBy:'-RegisteredAt'" class="a-app">
+                <div class="commands">
+                    <a href="#" ng-click="remove(app)" class="btn btn-default delete-app">Delete</a>
+                </div>
                 <div class="app-info">
                     <a href="/app/{{app.Name}}" class="app-link">
-                        <span class="app-name">{{app.Name}}</span>
+                        <span class="app-name">{{app.Title || app.Name}}</span>
                     </a>
+                    <div class="description">{{app.Description}}</div>
                     <span class="timestamp">{{app.RegisteredAt|date}}</span>
-                </div>
-                <div class="commands">
-                    <a href="#" ng-click="remove($index)" class="btn btn-default delete-app">Delete</a>
                 </div>
             </li>
         </ul>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace ClickOnceGet.Models
 {
@@ -83,20 +84,38 @@ namespace ClickOnceGet.Models
             File.WriteAllBytes(filePath, contents);
         }
 
+        public void SaveAppInfo(string appName, ClickOnceAppInfo appInfo)
+        {
+            var appDir = GetApplicationDir(appName);
+            var appInfoPath = Path.Combine(GetApplicationDir(appName), ".appinfo");
+            File.WriteAllText(appInfoPath, JsonConvert.SerializeObject(appInfo));
+        }
+
         public IEnumerable<ClickOnceAppInfo> EnumAllApps()
         {
             var repositoryDir = GetRepositoryDir();
             var apps = from userDir in Directory.GetDirectories(repositoryDir)
+                       let ownerId = Path.GetFileName(userDir)
                        from appDir in Directory.GetDirectories(userDir)
-                       let appFile = Directory.GetFiles(appDir, "*.application").FirstOrDefault()
-                       where appFile != null
-                       select new ClickOnceAppInfo
+                       let appFilePath = Directory.GetFiles(appDir, "*.application").FirstOrDefault()
+                       where appFilePath != null
+                       let appInfoPath = Directory.GetFiles(appDir, ".appinfo").FirstOrDefault()
+                       let appInfo = new ClickOnceAppInfo
                        {
                            Name = Path.GetFileName(appDir),
-                           OwnerId = Path.GetFileName(userDir),
-                           RegisteredAt = File.GetLastWriteTimeUtc(appFile)
-                       };
-            return apps;
+                           OwnerId = ownerId,
+                           RegisteredAt = File.GetLastWriteTimeUtc(appFilePath)
+                       }
+                       select new { appInfoPath, appInfo };
+
+            return apps.Select(x =>
+            {
+                if (x.appInfoPath != null)
+                {
+                    JsonConvert.PopulateObject(File.ReadAllText(x.appInfoPath), x.appInfo);
+                }
+                return x.appInfo;
+            });
         }
 
         public void DeleteApp(string appName)

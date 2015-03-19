@@ -3,8 +3,6 @@ using System.Collections;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
@@ -12,8 +10,6 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using ClickOnceGet.Models;
-using Microsoft.AspNet.Identity;
-using Microsoft.Owin.Security;
 
 namespace ClickOnceGet.Controllers
 {
@@ -47,19 +43,19 @@ namespace ClickOnceGet.Controllers
         [HttpGet]
         public ActionResult Register()
         {
-            //return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", "FooBar");
             return View();
         }
 
         [HttpPost]
-        public ActionResult Register(HttpPostedFileBase zipedPackage)
+        public ActionResult Register(HttpPostedFileBase zipedPackage, ClickOnceAppInfo appInfo)
         {
             var userId = User.GetHashedUserId();
             if (userId == null) throw new Exception("hased user id is null.");
 
+            if (ModelState.IsValid == false) return View(appInfo);
+
             try
             {
-
                 using (var zip = new ZipArchive(zipedPackage.InputStream))
                 {
                     var appFile = zip.Entries
@@ -74,6 +70,11 @@ namespace ClickOnceGet.Controllers
                     if (success == false) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", appName);
 
                     this.ClickOnceFileRepository.ClearUpFiles(appName);
+
+                    appInfo.Name = appName;
+                    appInfo.OwnerId = userId;
+                    appInfo.RegisteredAt = DateTime.UtcNow;
+                    this.ClickOnceFileRepository.SaveAppInfo(appName, appInfo);
 
                     foreach (var item in zip.Entries.Where(_ => _.Name != ""))
                     {
@@ -129,7 +130,6 @@ namespace ClickOnceGet.Controllers
             if (codebase != (baseUrl + "/" + appName + ".application").ToLower())
                 return Error("The install URL is invalid. You should re-publish the application with fix the install URL as \"{0}\".", baseUrl);
 
-            //throw new NotImplementedException();
             return null; // Valid/Success.
         }
 

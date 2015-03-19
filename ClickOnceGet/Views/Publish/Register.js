@@ -1,9 +1,7 @@
-﻿var Publish;
+var Publish;
 (function (Publish) {
     var app = angular.module('Publish', []);
-
-    app.controller('Register', function ($scope) {
-        $scope.greeting = { text: 'Hey!' };
+    app.controller('Register', function ($scope, $http) {
         $scope.zipedPackage = { src: '' };
         $scope.visibleHowToText = false;
         $scope.showHowToText = function () {

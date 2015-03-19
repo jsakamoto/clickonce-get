@@ -14,6 +14,8 @@ namespace ClickOnceGet.Models
 
         void ClearUpFiles(string appName);
 
+        void SaveAppInfo(string appName, ClickOnceAppInfo appInfo);
+
         void SaveFileContent(string appName, string subPath, byte[] contents);
 
         IEnumerable<ClickOnceAppInfo> EnumAllApps();

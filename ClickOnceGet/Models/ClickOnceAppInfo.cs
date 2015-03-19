@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
@@ -16,5 +17,16 @@ namespace ClickOnceGet.Models
 
         [DataMember]
         public DateTime RegisteredAt { get; set; }
+
+        [DataMember, StringLength(140)]
+        public string Title { get; set; }
+
+        [DataMember, StringLength(140)]
+        public string Description { get; set; }
+
+        public string GetTitleOrName()
+        {
+            return string.IsNullOrEmpty(this.Title) ? this.Name : this.Title;
+        }
     }
 }

@@ -71,9 +71,9 @@ textarea {
 
 /* Application List */
 .a-app {
-    height: 5em;
+    min-height: 4em;
     display: block;
-    clear: both;
+    margin-bottom: 1em;
 }
 
 .app-link {
@@ -84,16 +84,22 @@ textarea {
     font-size: 200%;
 }
 
-.timestamp {
+.a-app .description {
+    color: #888;
     display: block;
 }
 
-.app-info {
-    display: inline-block;
-    float: left;
+.a-app .timestamp {
+    color: #2f7eb7;
+    display: block;
 }
 
-.commands {
+.a-app .app-info {
+    display: inline-block;
+}
+
+.a-app .commands {
+    clear: both;
     display: inline-block;
     float: right;
 }
@@ -185,12 +191,12 @@ footer .acknowledgment {
 }
 
     .register-app .how-to-package-link.showing {
-        height: 0em;
+        height: 0;
     }
 
 .register-app .how-to-package-body {
     opacity: 0;
-    height: 0px;
+    height: 0;
     overflow: hidden;
     -moz-transition: opacity linear 0.5s;
     -o-transition: opacity linear 0.5s;

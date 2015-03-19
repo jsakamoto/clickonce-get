@@ -39,8 +39,9 @@
                 <li class="a-app">
                     <div class="app-info">
                         <a href="@Url.RouteUrl("Publish", new { appId = app.Name })" class="app-link">
-                            <span class="app-name">@app.Name</span>
+                            <span class="app-name">@app.GetTitleOrName()</span>
                         </a>
+                        <div class="description">@app.Description</div>
                         <span class="timestamp">@app.RegisteredAt.ToString("d")</span>
                     </div>
                 </li>
