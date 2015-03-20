@@ -15,9 +15,13 @@
         width: 100%;
     }
 
-    #Title, #Description {
+    #Title, #Description, #ProjectURL {
         width: 50%;
         max-width: 50%;
+    }
+
+    #btn-begin-upload {
+        margin-top: 1em;
     }
 </style>
 
@@ -29,19 +33,25 @@
             <input type="file" name="zipedPackage" onchange="angular.element(this).scope().file_changed(this)" />
         </p>
         <div>
-            <label for="title">Title (optional)</label>
+            <label for="Title">Title (optional)</label>
         </div>
         <div>
             @Html.TextBoxFor(m => m.Title)
         </div>
         <div>
-            <label for="description">Description (optional)</label>
+            <label for="Description">Description (optional)</label>
         </div>
         <div>
             @Html.TextAreaFor(m => m.Description, new { rows = 7 })
         </div>
+        <div>
+            <label for="ProjectURL">Project URL (optional)</label>
+        </div>
+        <div>
+            @Html.EditorFor(m => m.ProjectURL)
+        </div>
         <p>
-            <input type="submit" value="Begin Upload" class="btn btn-success" ng-disabled="zipedPackage.src == ''" />
+            <input type="submit" value="Begin Upload" id="btn-begin-upload" class="btn btn-success" ng-disabled="zipedPackage.src == ''" />
         </p>
     </form>
 

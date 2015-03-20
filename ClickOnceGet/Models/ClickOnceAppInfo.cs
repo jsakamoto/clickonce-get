@@ -24,6 +24,9 @@ namespace ClickOnceGet.Models
         [DataMember, StringLength(140)]
         public string Description { get; set; }
 
+        [DataMember, Url]
+        public string ProjectURL { get; set; }
+
         public string GetTitleOrName()
         {
             return string.IsNullOrEmpty(this.Title) ? this.Name : this.Title;

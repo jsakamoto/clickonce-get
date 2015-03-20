@@ -13,10 +13,15 @@
                     <a href="#" ng-click="remove(app)" class="btn btn-default delete-app">Delete</a>
                 </div>
                 <div class="app-info">
-                    <a href="/app/{{app.Name}}" class="app-link">
+                    <a href="/app/{{app.Name}}" class="app-link" title="Click here to start download, install, and launch the app.">
                         <span class="app-name">{{app.Title || app.Name}}</span>
                     </a>
                     <div class="description">{{app.Description}}</div>
+                    <div class="project-url" ng-show="app.ProjectURL != null">
+                        <a target="_blank" ng-href="{{app.ProjectURL}}">
+                            {{app.ProjectURL}}
+                        </a>
+                    </div>
                     <span class="timestamp">{{app.RegisteredAt|date}}</span>
                 </div>
             </li>

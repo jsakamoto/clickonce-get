@@ -83,11 +83,13 @@ namespace ClickOnceGet.Controllers
                         {
                             reader.Read(buff, 0, buff.Length);
                             this.ClickOnceFileRepository.SaveFileContent(appName, item.FullName, buff);
+#if !DEBUG
                             if (Path.GetExtension(item.FullName).ToLower() == ".application")
                             {
                                 var error = CheckCodeBaseUrl(appName, buff);
                                 if (error != null) return error;
                             }
+#endif
                         }
                     }
                 }
