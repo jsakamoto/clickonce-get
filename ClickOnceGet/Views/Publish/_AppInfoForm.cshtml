@@ -1,0 +1,20 @@
+﻿@model ClickOnceGet.Models.ClickOnceAppInfo
+<div>
+    <label for="Title">Title (optional)</label>
+</div>
+<div>
+    @Html.TextBoxFor(m => m.Title)
+</div>
+<div>
+    <label for="Description">Description (optional)</label>
+</div>
+<div>
+    @Html.TextAreaFor(m => m.Description, new { rows = 7 })
+</div>
+<div>
+    <label for="ProjectURL">Project URL (optional)</label>
+</div>
+<div>
+    @Html.EditorFor(m => m.ProjectURL)
+</div>
+

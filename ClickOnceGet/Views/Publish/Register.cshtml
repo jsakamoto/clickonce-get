@@ -9,21 +9,9 @@
         @Html.ValidationSummary()
     </div>
 }
-
-<style>
-    #register-form {
-        width: 100%;
-    }
-
-    #Title, #Description, #ProjectURL {
-        width: 50%;
-        max-width: 50%;
-    }
-
-    #btn-begin-upload {
-        margin-top: 1em;
-    }
-</style>
+@section head {
+    <link href="~/Views/Publish/appinfo-form.css" rel="stylesheet" />
+}
 
 <h2>Upload Your ClickOnce Application that packaged as a Zip file.</h2>
 
@@ -32,24 +20,7 @@
         <p>
             <input type="file" name="zipedPackage" onchange="angular.element(this).scope().file_changed(this)" />
         </p>
-        <div>
-            <label for="Title">Title (optional)</label>
-        </div>
-        <div>
-            @Html.TextBoxFor(m => m.Title)
-        </div>
-        <div>
-            <label for="Description">Description (optional)</label>
-        </div>
-        <div>
-            @Html.TextAreaFor(m => m.Description, new { rows = 7 })
-        </div>
-        <div>
-            <label for="ProjectURL">Project URL (optional)</label>
-        </div>
-        <div>
-            @Html.EditorFor(m => m.ProjectURL)
-        </div>
+        @Html.Partial("_AppInfoForm", Model)
         <p>
             <input type="submit" value="Begin Upload" id="btn-begin-upload" class="btn btn-success" ng-disabled="zipedPackage.src == ''" />
         </p>

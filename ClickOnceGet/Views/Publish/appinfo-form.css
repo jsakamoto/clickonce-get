@@ -1,0 +1,12 @@
+﻿#app-id {
+    margin-top: 0;
+}
+
+#Title, #Description, #ProjectURL {
+    width: 50%;
+    max-width: 50%;
+}
+
+.btn {
+    margin-top: 1em;
+}

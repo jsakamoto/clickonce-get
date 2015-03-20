@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
@@ -50,7 +51,7 @@ namespace ClickOnceGet.Controllers
         public ActionResult Register(HttpPostedFileBase zipedPackage, ClickOnceAppInfo appInfo)
         {
             var userId = User.GetHashedUserId();
-            if (userId == null) throw new Exception("hased user id is null.");
+            if (userId == null) throw new Exception("hashed user id is null.");
 
             if (ModelState.IsValid == false) return View(appInfo);
 
@@ -100,6 +101,46 @@ namespace ClickOnceGet.Controllers
             }
 
             return RedirectToAction("MyApps", "Home");
+        }
+
+        [HttpGet]
+        public ActionResult Edit(string id)
+        {
+            var result = GetMyAppInfo(id);
+            if (result is ActionResult) return result as ActionResult;
+
+            var theApp = result as ClickOnceAppInfo;
+            return View(theApp);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult Edit(string id, ClickOnceAppInfo model)
+        {
+            var result = GetMyAppInfo(id);
+            if (result is ActionResult) return result as ActionResult;
+
+            if (ModelState.IsValid == false) return View(model);
+            
+            var theApp = result as ClickOnceAppInfo;
+            theApp.Title = model.Title;
+            theApp.Description = model.Description;
+            theApp.ProjectURL = model.ProjectURL;
+
+            this.ClickOnceFileRepository.SaveAppInfo(id, theApp);
+
+            return RedirectToAction("MyApps", "Home");
+        }
+
+        private object GetMyAppInfo(string id)
+        {
+            var userId = User.GetHashedUserId();
+            if (userId == null) throw new Exception("hashed user id is null.");
+
+            var theApp = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(app => app.Name == id);
+            if (theApp == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            if (theApp.OwnerId != userId) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", id);
+
+            return theApp;
         }
 
         private ActionResult CheckCodeBaseUrl(string appName, byte[] buff)

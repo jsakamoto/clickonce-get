@@ -1,0 +1,31 @@
+﻿@model ClickOnceGet.Models.ClickOnceAppInfo
+@{
+    ViewBag.Title = "Edit App Info";
+    var appId = ViewContext.RouteData.Values["id"];
+}
+@section head {
+    <link href="~/Views/Publish/appinfo-form.css" rel="stylesheet" />
+}
+@if (ViewData.ModelState.IsValid == false)
+{
+    <div class="alert alert-danger">
+        @Html.ValidationSummary()
+    </div>
+}
+
+<h2>Edit application information</h2>
+
+<label for="app-id">Application ID</label>
+<h3 id="app-id">@appId</h3>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+
+    @Html.Partial("_AppInfoForm", Model)
+
+    <p>
+        <input type="submit" value="Save" id="btn-save" class="btn btn-success" />
+        <a href="@Url.Action("MyApps", "Home")" class="btn btn-default">Back</a>
+    </p>
+</form>
+
