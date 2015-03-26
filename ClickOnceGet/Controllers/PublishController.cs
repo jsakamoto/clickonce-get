@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
@@ -12,6 +14,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using ClickOnceGet.Models;
 using Toolbelt.Drawing;
+using Toolbelt.Web;
 
 namespace ClickOnceGet.Controllers
 {
@@ -45,6 +48,21 @@ namespace ClickOnceGet.Controllers
         // GET: /app/{appId}/icon
         [AllowAnonymous]
         public ActionResult GetIcon(string appId)
+        {
+            var appInfo = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(app => app.Name.ToLower() == appId.ToLower());
+            if (appInfo == null) return HttpNotFound();
+
+            var etag = appInfo.RegisteredAt.Ticks.ToString();
+            return new CacheableContentResult(
+                    cacheability: HttpCacheability.ServerAndPrivate,
+                    lastModified: appInfo.RegisteredAt,
+                    etag: etag,
+                    contentType: "image/png",
+                    getContent: () => InternalGetIcon(appId)
+                );
+        }
+
+        private byte[] InternalGetIcon(string appId)
         {
             var dotAppBytes = this.ClickOnceFileRepository.GetFileContent(appId, appId + ".application");
             if (dotAppBytes == null) return NoImagePng();
@@ -84,23 +102,27 @@ namespace ClickOnceGet.Controllers
             System.IO.File.WriteAllBytes(tmpPath, commandBytes);
             try
             {
-                using (var ms = new MemoryStream())
+                using (var msIco = new MemoryStream())
+                using (var msPng = new MemoryStream())
                 {
-                    IconExtractor.Extract1stIconTo(tmpPath, ms);
-                    // TODO: convert extracted icon file to png format, and respond it.
+                    IconExtractor.Extract1stIconTo(tmpPath, msIco);
+
+                    msIco.Seek(0, SeekOrigin.Begin);
+                    var icon = new FromMono.System.Drawing.Icon(msIco, 48, 48);
+
+                    icon.ToBitmap().Save(msPng, ImageFormat.Png);
+                    return msPng.ToArray();
                 }
             }
             finally
             {
                 System.IO.File.Delete(tmpPath);
             }
-
-            return NoImagePng();
         }
 
-        private ActionResult NoImagePng()
+        private byte[] NoImagePng()
         {
-            return File("~/Content/images/no-image.png", "image/png");
+            return System.IO.File.ReadAllBytes(Server.MapPath("~/Content/images/no-image.png"));
         }
 
         [HttpGet]
