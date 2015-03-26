@@ -11,6 +11,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using ClickOnceGet.Models;
+using Toolbelt.Drawing;
 
 namespace ClickOnceGet.Controllers
 {
@@ -24,7 +25,7 @@ namespace ClickOnceGet.Controllers
             this.ClickOnceFileRepository = new AppDataDirRepository();
         }
 
-        // GET: Publish
+        // GET: /app/{appId}/{*pathInfo}
         [AllowAnonymous]
         public ActionResult Get(string appId, string pathInfo)
         {
@@ -39,6 +40,67 @@ namespace ClickOnceGet.Controllers
                 "application/x-ms-application" :
                 MimeMapping.GetMimeMapping(pathInfo);
             return File(fileBytes, contentType);
+        }
+
+        // GET: /app/{appId}/icon
+        [AllowAnonymous]
+        public ActionResult GetIcon(string appId)
+        {
+            var dotAppBytes = this.ClickOnceFileRepository.GetFileContent(appId, appId + ".application");
+            if (dotAppBytes == null) return NoImagePng();
+
+            // parse .application
+            var ns_asmv2 = "urn:schemas-microsoft-com:asm.v2";
+            var dotApp = XDocument.Load(new MemoryStream(dotAppBytes));
+            var codebasePath =
+                (from node in dotApp.Descendants(XName.Get("dependentAssembly", ns_asmv2))
+                 let dependencyType = node.Attribute("dependencyType")
+                 where dependencyType != null
+                 where dependencyType.Value == "install"
+                 select node.Attribute("codebase").Value).FirstOrDefault();
+            if (codebasePath == null) return NoImagePng();
+
+            // parse .manifest to detect .exe file path
+            var mnifestBytes = this.ClickOnceFileRepository.GetFileContent(appId, codebasePath);
+            if (mnifestBytes == null) return NoImagePng();
+            var manifest = XDocument.Load(new MemoryStream(mnifestBytes));
+            var commandName =
+                (from entryPoint in manifest.Descendants(XName.Get("entryPoint", ns_asmv2))
+                 from commandLine in entryPoint.Descendants(XName.Get("commandLine", ns_asmv2))
+                 let file = commandLine.Attribute("file")
+                 where file != null
+                 select file.Value).FirstOrDefault();
+            if (commandName == null) return NoImagePng();
+
+            // load command(.exe) content binary.
+            var pathParts = codebasePath.Split('\\');
+            var commandPath = string.Join("\\", pathParts.Take(pathParts.Length - 1).Concat(new[] { commandName + ".deploy" }));
+            var commandBytes = this.ClickOnceFileRepository.GetFileContent(appId, commandPath);
+            if (commandBytes == null) return NoImagePng();
+
+            // extract icon from .exe
+            // note: `IconExtractor` use LoadLibrary Win32API, so I need save the command binary into file.
+            var tmpPath = Server.MapPath("~/App_Data/" + Guid.NewGuid().ToString("N") + ".exe");
+            System.IO.File.WriteAllBytes(tmpPath, commandBytes);
+            try
+            {
+                using (var ms = new MemoryStream())
+                {
+                    IconExtractor.Extract1stIconTo(tmpPath, ms);
+                    // TODO: convert extracted icon file to png format, and respond it.
+                }
+            }
+            finally
+            {
+                System.IO.File.Delete(tmpPath);
+            }
+
+            return NoImagePng();
+        }
+
+        private ActionResult NoImagePng()
+        {
+            return File("~/Content/images/no-image.png", "image/png");
         }
 
         [HttpGet]
@@ -120,7 +182,7 @@ namespace ClickOnceGet.Controllers
             if (result is ActionResult) return result as ActionResult;
 
             if (ModelState.IsValid == false) return View(model);
-            
+
             var theApp = result as ClickOnceAppInfo;
             theApp.Title = model.Title;
             theApp.Description = model.Description;

@@ -76,8 +76,17 @@ textarea {
     margin-bottom: 1em;
 }
 
+.app-icon {
+    display: inline-block;
+    margin-right: 0.3em;
+    height: 48px;
+    line-height: 48px;
+}
+
 .app-link {
-    display: block;
+    line-height: 48px;
+    height: 48px;
+    display: inline-block;
 }
 
 .app-name {

@@ -14,6 +14,12 @@ namespace ClickOnceGet
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                name: "Icon",
+                url: "app/{appId}/icon",
+                defaults: new { controller = "Publish", action = "GetIcon" }
+            );
+
+            routes.MapRoute(
                 name: "Publish",
                 url: "app/{appId}/{*pathInfo}",
                 defaults: new { controller = "Publish", action = "Get" }
