@@ -8,6 +8,8 @@
 //   Sanjay Gupta (gsanjay@novell.com)
 //   Peter Dennis Bartok (pbartok@novell.com)
 //   Sebastien Pouliot  <sebastien@ximian.com>
+//   -- This MOD version --
+//   J.Sakamoto
 //
 // Copyright (C) 2002 Ximian, Inc. http://www.ximian.com
 // Copyright (C) 2004-2008 Novell, Inc (http://www.novell.com)
@@ -31,6 +33,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+#define COMPATIBLE_WITH_AZUREWEBAPPS
 
 using System.Collections;
 using System.ComponentModel;
@@ -39,14 +42,16 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
+using System;
+using System.Drawing;
 
-namespace System.Drawing
+namespace FromMono.System.Drawing
 {
-	[Serializable]	
-#if !MONOTOUCH
+	[Serializable]
+#if !MONOTOUCH && !COMPATIBLE_WITH_AZUREWEBAPPS
 	[Editor ("System.Drawing.Design.IconEditor, " + Consts.AssemblySystem_Drawing_Design, typeof (System.Drawing.Design.UITypeEditor))]
 #endif
-	[TypeConverter(typeof(IconConverter))]
+    [TypeConverter(typeof(IconConverter))]
 
 	public sealed class Icon : MarshalByRefObject, ISerializable, ICloneable, IDisposable
 	{
@@ -116,7 +121,7 @@ namespace System.Drawing
 		{
 		}
 
-#if !MONOTOUCH
+#if !MONOTOUCH && !COMPATIBLE_WITH_AZUREWEBAPPS
 		private Icon (IntPtr handle)
 		{
 			this.handle = handle;
@@ -140,7 +145,7 @@ namespace System.Drawing
 		}
 #endif
 
-		public Icon (Icon original, int width, int height)
+        public Icon (Icon original, int width, int height)
 			: this (original, new Size (width, height))
 		{
 		}
@@ -232,7 +237,7 @@ namespace System.Drawing
 
 			using (Stream s = type.Assembly.GetManifestResourceStream (type, resource)) {
 				if (s == null) {
-					string msg = Locale.GetText ("Resource '{0}' was not found.", resource);
+					string msg = string.Format("Resource '{0}' was not found.", resource);
 					throw new FileNotFoundException (msg);
 				}
 				InitFromStreamWithSize (s, 32, 32);		// 32x32 is default
@@ -264,7 +269,7 @@ namespace System.Drawing
 		{
 			using (Stream s = typeof (Icon).Assembly.GetManifestResourceStream (resourceName)) {
 				if (s == null) {
-					string msg = Locale.GetText ("Resource '{0}' was not found.", resourceName);
+					string msg = string.Format("Resource '{0}' was not found.", resourceName);
 					throw new FileNotFoundException (msg);
 				}
 				InitFromStreamWithSize (s, 32, 32);		// 32x32 is default
@@ -299,15 +304,18 @@ namespace System.Drawing
 			}
 		}
 
-		[MonoLimitation ("The same icon, SystemIcons.WinLogo, is returned for all file types.")]
 		public static Icon ExtractAssociatedIcon (string filePath)
 		{
+#if COMPATIBLE_WITH_AZUREWEBAPPS
+            throw new NotImplementedException();
+#else
 			if (String.IsNullOrEmpty (filePath))
-				throw new ArgumentException (Locale.GetText ("Null or empty path."), "filePath");
+				throw new ArgumentException ("Null or empty path.", "filePath");
 			if (!File.Exists (filePath))
-				throw new FileNotFoundException (Locale.GetText ("Couldn't find specified file."), filePath);
+				throw new FileNotFoundException ("Couldn't find specified file.", filePath);
 
 			return SystemIcons.WinLogo;
+#endif
 		}	
 
 		public void Dispose ()
@@ -316,14 +324,15 @@ namespace System.Drawing
 			if (undisposable)
 				return;
 			
-			if (!disposed) {
-#if !MONOTOUCH
+			if (!disposed)
+            {
+#if !MONOTOUCH && !COMPATIBLE_WITH_AZUREWEBAPPS
 				if (GDIPlus.RunningOnWindows () && (handle != IntPtr.Zero)) {
 					GDIPlus.DestroyIcon (handle);
 					handle = IntPtr.Zero;
 				}
 #endif
-				if (bitmap != null) {
+                if (bitmap != null) {
 					bitmap.Dispose ();
 					bitmap = null;
 				}
@@ -336,8 +345,8 @@ namespace System.Drawing
 		{
 			return new Icon (this, Size);
 		}
-		
-#if !MONOTOUCH
+
+#if !MONOTOUCH && !COMPATIBLE_WITH_AZUREWEBAPPS
 		[SecurityPermission (SecurityAction.LinkDemand, UnmanagedCode = true)]
 		public static Icon FromHandle (IntPtr handle)
 		{
@@ -347,7 +356,7 @@ namespace System.Drawing
 			return new Icon (handle);
 		}
 #endif
-		private void SaveIconImage (BinaryWriter writer, IconImage ii)
+        private void SaveIconImage (BinaryWriter writer, IconImage ii)
 		{
 			BitmapInfoHeader bih = ii.iconHeader;
 			writer.Write (bih.biSize);
@@ -551,7 +560,7 @@ namespace System.Drawing
 				bmp = new Bitmap (bih.biWidth, biHeight, PixelFormat.Format32bppArgb);
 				break;
 			default:
-				string msg = Locale.GetText ("Unexpected number of bits: {0}", bih.biBitCount);
+                string msg = string.Format("Unexpected number of bits: {0}", bih.biBitCount);
 				throw new Exception (msg);
 			}
 
@@ -594,7 +603,8 @@ namespace System.Drawing
 		internal Bitmap GetInternalBitmap ()
 		{
 			if (bitmap == null) {
-				if (GDIPlus.RunningOnUnix ()) {
+#if !COMPATIBLE_WITH_AZUREWEBAPPS
+                if (GDIPlus.RunningOnUnix ()) {
 					// Mono's libgdiplus doesn't require to keep the stream alive when loading images
 					using (MemoryStream ms = new MemoryStream ()) {
 						// save the current icon
@@ -605,10 +615,13 @@ namespace System.Drawing
 						bitmap = (Bitmap) Image.LoadFromStream (ms, false);
 					}
 				} else {
+#endif
 					// MS GDI+ ICO codec is more limited than the MS Icon class
 					// so we can't, reliably, get bitmap using it. We need to do this the "slow" way
 					bitmap = BuildBitmapOnWin32 ();
-				}
+#if !COMPATIBLE_WITH_AZUREWEBAPPS
+                }
+#endif
 			}
 			return bitmap;
 		}
@@ -617,7 +630,7 @@ namespace System.Drawing
 		public Bitmap ToBitmap ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException (Locale.GetText ("Icon instance was disposed."));
+				throw new ObjectDisposedException ("Icon instance was disposed.");
 
 			// note: we can't return the original image because
 			// (a) we have no control over the bitmap instance we return (i.e. it could be disposed)
@@ -631,8 +644,8 @@ namespace System.Drawing
 			//is this correct, this is what returned by .Net
 			return "<Icon>";			
 		}
-		
-#if !MONOTOUCH
+
+#if !MONOTOUCH && !COMPATIBLE_WITH_AZUREWEBAPPS
 		[Browsable (false)]
 		public IntPtr Handle {
 			get {
@@ -653,7 +666,7 @@ namespace System.Drawing
 			}
 		}
 #endif
-		[Browsable (false)]
+        [Browsable (false)]
 		public int Height {
 			get {
 				return iconSize.Height;
@@ -682,18 +695,18 @@ namespace System.Drawing
 		{
 			//read the icon header
 			if (stream == null || stream.Length == 0)
-				throw new System.ArgumentException ("The argument 'stream' must be a picture that can be used as a Icon", "stream");
+				throw new ArgumentException ("The argument 'stream' must be a picture that can be used as a Icon", "stream");
 			
 			BinaryReader reader = new BinaryReader (stream);
 
 			//iconDir = new IconDir ();
 			iconDir.idReserved = reader.ReadUInt16();
 			if (iconDir.idReserved != 0) //must be 0
-				throw new System.ArgumentException ("Invalid Argument", "stream");
+				throw new ArgumentException ("Invalid Argument", "stream");
 			
 			iconDir.idType = reader.ReadUInt16();
 			if (iconDir.idType != 1) //must be 1
-				throw new System.ArgumentException ("Invalid Argument", "stream");
+				throw new ArgumentException ("Invalid Argument", "stream");
 
 			ushort dirEntryCount = reader.ReadUInt16();
 			imageData = new ImageData [dirEntryCount]; 
@@ -846,7 +859,7 @@ Console.WriteLine ("\tbih.biClrImportant: {0}", bih.biClrImportant);
 				iidata.iconXOR = new byte [xorSize];
 				int nread = bihReader.Read (iidata.iconXOR, 0, xorSize);
 				if (nread != xorSize) {
-					string msg = Locale.GetText ("{0} data length expected {1}, read {2}", "XOR", xorSize, nread);
+                    string msg = string.Format("{0} data length expected {1}, read {2}", "XOR", xorSize, nread);
 					throw new ArgumentException (msg, "stream");
 				}
 				
@@ -856,7 +869,7 @@ Console.WriteLine ("\tbih.biClrImportant: {0}", bih.biClrImportant);
 				iidata.iconAND = new byte [andSize];
 				nread = bihReader.Read (iidata.iconAND, 0, andSize);
 				if (nread != andSize) {
-					string msg = Locale.GetText ("{0} data length expected {1}, read {2}", "AND", andSize, nread);
+                    string msg = string.Format("{0} data length expected {1}, read {2}", "AND", andSize, nread);
 					throw new ArgumentException (msg, "stream");
 				}
 				
