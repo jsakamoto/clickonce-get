@@ -51,7 +51,14 @@
                                 </a>
                             </div>
                         }
-                        <span class="timestamp">@app.RegisteredAt.ToString("d")</span>
+                        <span class="timestamp">
+                            Update: @app.RegisteredAt.ToString("d") |
+                            Published by
+                            <a target="_blank" href="@app.PublisherURL">
+                                <img src="@(app.PublisherAvatorImageURL ?? Url.Content("~/Content/images/no-image.png"))" alt="@(app.PublisherName ?? "(anonymous)") " class=" avator" />
+                                @(app.PublisherName ?? "(anonymous)")
+                            </a>
+                        </span>
                     </div>
                 </li>
             }
