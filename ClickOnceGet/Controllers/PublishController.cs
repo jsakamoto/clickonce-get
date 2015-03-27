@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
@@ -11,6 +13,8 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using ClickOnceGet.Models;
+using Toolbelt.Drawing;
+using Toolbelt.Web;
 
 namespace ClickOnceGet.Controllers
 {
@@ -24,7 +28,7 @@ namespace ClickOnceGet.Controllers
             this.ClickOnceFileRepository = new AppDataDirRepository();
         }
 
-        // GET: Publish
+        // GET: /app/{appId}/{*pathInfo}
         [AllowAnonymous]
         public ActionResult Get(string appId, string pathInfo)
         {
@@ -39,6 +43,86 @@ namespace ClickOnceGet.Controllers
                 "application/x-ms-application" :
                 MimeMapping.GetMimeMapping(pathInfo);
             return File(fileBytes, contentType);
+        }
+
+        // GET: /app/{appId}/icon
+        [AllowAnonymous]
+        public ActionResult GetIcon(string appId)
+        {
+            var appInfo = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(app => app.Name.ToLower() == appId.ToLower());
+            if (appInfo == null) return HttpNotFound();
+
+            var etag = appInfo.RegisteredAt.Ticks.ToString();
+            return new CacheableContentResult(
+                    cacheability: HttpCacheability.ServerAndPrivate,
+                    lastModified: appInfo.RegisteredAt,
+                    etag: etag,
+                    contentType: "image/png",
+                    getContent: () => InternalGetIcon(appId)
+                );
+        }
+
+        private byte[] InternalGetIcon(string appId)
+        {
+            var dotAppBytes = this.ClickOnceFileRepository.GetFileContent(appId, appId + ".application");
+            if (dotAppBytes == null) return NoImagePng();
+
+            // parse .application
+            var ns_asmv2 = "urn:schemas-microsoft-com:asm.v2";
+            var dotApp = XDocument.Load(new MemoryStream(dotAppBytes));
+            var codebasePath =
+                (from node in dotApp.Descendants(XName.Get("dependentAssembly", ns_asmv2))
+                 let dependencyType = node.Attribute("dependencyType")
+                 where dependencyType != null
+                 where dependencyType.Value == "install"
+                 select node.Attribute("codebase").Value).FirstOrDefault();
+            if (codebasePath == null) return NoImagePng();
+
+            // parse .manifest to detect .exe file path
+            var mnifestBytes = this.ClickOnceFileRepository.GetFileContent(appId, codebasePath);
+            if (mnifestBytes == null) return NoImagePng();
+            var manifest = XDocument.Load(new MemoryStream(mnifestBytes));
+            var commandName =
+                (from entryPoint in manifest.Descendants(XName.Get("entryPoint", ns_asmv2))
+                 from commandLine in entryPoint.Descendants(XName.Get("commandLine", ns_asmv2))
+                 let file = commandLine.Attribute("file")
+                 where file != null
+                 select file.Value).FirstOrDefault();
+            if (commandName == null) return NoImagePng();
+
+            // load command(.exe) content binary.
+            var pathParts = codebasePath.Split('\\');
+            var commandPath = string.Join("\\", pathParts.Take(pathParts.Length - 1).Concat(new[] { commandName + ".deploy" }));
+            var commandBytes = this.ClickOnceFileRepository.GetFileContent(appId, commandPath);
+            if (commandBytes == null) return NoImagePng();
+
+            // extract icon from .exe
+            // note: `IconExtractor` use LoadLibrary Win32API, so I need save the command binary into file.
+            var tmpPath = Server.MapPath("~/App_Data/" + Guid.NewGuid().ToString("N") + ".exe");
+            System.IO.File.WriteAllBytes(tmpPath, commandBytes);
+            try
+            {
+                using (var msIco = new MemoryStream())
+                using (var msPng = new MemoryStream())
+                {
+                    IconExtractor.Extract1stIconTo(tmpPath, msIco);
+
+                    msIco.Seek(0, SeekOrigin.Begin);
+                    var icon = new FromMono.System.Drawing.Icon(msIco, 48, 48);
+
+                    icon.ToBitmap().Save(msPng, ImageFormat.Png);
+                    return msPng.ToArray();
+                }
+            }
+            finally
+            {
+                System.IO.File.Delete(tmpPath);
+            }
+        }
+
+        private byte[] NoImagePng()
+        {
+            return System.IO.File.ReadAllBytes(Server.MapPath("~/Content/images/no-image.png"));
         }
 
         [HttpGet]
@@ -120,7 +204,7 @@ namespace ClickOnceGet.Controllers
             if (result is ActionResult) return result as ActionResult;
 
             if (ModelState.IsValid == false) return View(model);
-            
+
             var theApp = result as ClickOnceAppInfo;
             theApp.Title = model.Title;
             theApp.Description = model.Description;
