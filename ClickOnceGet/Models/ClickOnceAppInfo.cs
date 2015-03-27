@@ -27,6 +27,15 @@ namespace ClickOnceGet.Models
         [DataMember, Url]
         public string ProjectURL { get; set; }
 
+        [DataMember]
+        public string PublisherName { get; set; }
+
+        [DataMember]
+        public string PublisherAvatorImageURL { get; set; }
+
+        [DataMember]
+        public string PublisherURL { get; set; }
+
         public string GetTitleOrName()
         {
             return string.IsNullOrEmpty(this.Title) ? this.Name : this.Title;

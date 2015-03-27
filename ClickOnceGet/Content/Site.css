@@ -3,6 +3,10 @@
     padding-bottom: 20px;
 }
 
+a:not([href]) {
+    text-decoration: none;
+}
+
 .navbar-brand {
     margin-left: 1em;
     padding-left: 40px;
@@ -101,6 +105,12 @@ textarea {
 .a-app .timestamp {
     color: #2f7eb7;
     display: block;
+}
+
+.a-app img.avator {
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 0.7em;
 }
 
 .a-app .app-info {

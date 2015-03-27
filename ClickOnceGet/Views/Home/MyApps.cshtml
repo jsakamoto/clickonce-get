@@ -26,7 +26,14 @@
                             {{app.ProjectURL}}
                         </a>
                     </div>
-                    <span class="timestamp">{{app.RegisteredAt|date}}</span>
+                    <span class="timestamp">
+                        Update: {{app.RegisteredAt|date}} |
+                        Published by
+                        <a target="_blank" href="{{app.PublisherURL}}">
+                            <img src="{{app.PublisherAvatorImageURL || '/Content/images/no-image.png'}}" alt="{{app.PublisherName || '(anonymous)'}}" class="avator" />
+                            {{app.PublisherName || '(anonymous)'}}
+                        </a>
+                    </span>
                 </div>
             </li>
         </ul>

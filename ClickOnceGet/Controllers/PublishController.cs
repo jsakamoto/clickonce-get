@@ -13,6 +13,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using ClickOnceGet.Models;
+using Microsoft.AspNet.Identity;
 using Toolbelt.Drawing;
 using Toolbelt.Web;
 
@@ -198,7 +199,7 @@ namespace ClickOnceGet.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult Edit(string id, ClickOnceAppInfo model)
+        public ActionResult Edit(string id, ClickOnceAppInfo model, bool disclosePublisher)
         {
             var result = GetMyAppInfo(id);
             if (result is ActionResult) return result as ActionResult;
@@ -209,6 +210,19 @@ namespace ClickOnceGet.Controllers
             theApp.Title = model.Title;
             theApp.Description = model.Description;
             theApp.ProjectURL = model.ProjectURL;
+            if (disclosePublisher)
+            {
+                var gitHubUserName = User.Identity.GetUserName();
+                theApp.PublisherName = gitHubUserName;
+                theApp.PublisherURL = "https://github.com/jsakamoto" + gitHubUserName;
+                theApp.PublisherAvatorImageURL = "https://avatars.githubusercontent.com/" + gitHubUserName;
+            }
+            else
+            {
+                theApp.PublisherName = null;
+                theApp.PublisherURL = null;
+                theApp.PublisherAvatorImageURL = null;
+            }
 
             this.ClickOnceFileRepository.SaveAppInfo(id, theApp);
 
