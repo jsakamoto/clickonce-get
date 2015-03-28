@@ -107,6 +107,7 @@ namespace ClickOnceGet.Controllers
                 using (var msPng = new MemoryStream())
                 {
                     IconExtractor.Extract1stIconTo(tmpPath, msIco);
+                    if (msIco.Length == 0) return NoImagePng();
 
                     msIco.Seek(0, SeekOrigin.Begin);
                     var icon = new FromMono.System.Drawing.Icon(msIco, 48, 48);
