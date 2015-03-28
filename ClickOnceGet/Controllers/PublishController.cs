@@ -134,7 +134,7 @@ namespace ClickOnceGet.Controllers
         }
 
         [HttpPost]
-        public ActionResult Register(HttpPostedFileBase zipedPackage, ClickOnceAppInfo appInfo)
+        public ActionResult Register(HttpPostedFileBase zipedPackage, ClickOnceAppInfo appInfo, bool disclosePublisher)
         {
             var userId = User.GetHashedUserId();
             if (userId == null) throw new Exception("hashed user id is null.");
@@ -145,6 +145,7 @@ namespace ClickOnceGet.Controllers
             {
                 using (var zip = new ZipArchive(zipedPackage.InputStream))
                 {
+                    // Validate files structure that are included in a .zip file.
                     var appFile = zip.Entries
                         .Where(e => Path.GetExtension(e.FullName).ToLower() == ".application")
                         .OrderBy(e => e.FullName.Length)
@@ -152,6 +153,7 @@ namespace ClickOnceGet.Controllers
                     if (appFile == null) return Error("The .zip file you uploaded did not contain .application file.");
                     if (Path.GetDirectoryName(appFile.FullName) != "") return Error("The .zip file you uploaded contain .application file, but it was not in root of the .zip file.");
 
+                    // Validate app name does not conflict.
                     var appName = Path.GetFileNameWithoutExtension(appFile.FullName);
                     var success = this.ClickOnceFileRepository.GetOwnerRight(userId, appName);
                     if (success == false) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", appName);
@@ -161,6 +163,8 @@ namespace ClickOnceGet.Controllers
                     appInfo.Name = appName;
                     appInfo.OwnerId = userId;
                     appInfo.RegisteredAt = DateTime.UtcNow;
+                    SetupPublisherInformtion(disclosePublisher, appInfo);
+                    
                     this.ClickOnceFileRepository.SaveAppInfo(appName, appInfo);
 
                     foreach (var item in zip.Entries.Where(_ => _.Name != ""))
@@ -207,27 +211,32 @@ namespace ClickOnceGet.Controllers
 
             if (ModelState.IsValid == false) return View(model);
 
-            var theApp = result as ClickOnceAppInfo;
-            theApp.Title = model.Title;
-            theApp.Description = model.Description;
-            theApp.ProjectURL = model.ProjectURL;
+            var appInfo = result as ClickOnceAppInfo;
+            appInfo.Title = model.Title;
+            appInfo.Description = model.Description;
+            appInfo.ProjectURL = model.ProjectURL;
+            SetupPublisherInformtion(disclosePublisher, appInfo);
+
+            this.ClickOnceFileRepository.SaveAppInfo(id, appInfo);
+
+            return RedirectToAction("MyApps", "Home");
+        }
+
+        private void SetupPublisherInformtion(bool disclosePublisher, ClickOnceAppInfo appInfo)
+        {
             if (disclosePublisher)
             {
                 var gitHubUserName = User.Identity.GetUserName();
-                theApp.PublisherName = gitHubUserName;
-                theApp.PublisherURL = "https://github.com/jsakamoto" + gitHubUserName;
-                theApp.PublisherAvatorImageURL = "https://avatars.githubusercontent.com/" + gitHubUserName;
+                appInfo.PublisherName = gitHubUserName;
+                appInfo.PublisherURL = "https://github.com/jsakamoto" + gitHubUserName;
+                appInfo.PublisherAvatorImageURL = "https://avatars.githubusercontent.com/" + gitHubUserName;
             }
             else
             {
-                theApp.PublisherName = null;
-                theApp.PublisherURL = null;
-                theApp.PublisherAvatorImageURL = null;
+                appInfo.PublisherName = null;
+                appInfo.PublisherURL = null;
+                appInfo.PublisherAvatorImageURL = null;
             }
-
-            this.ClickOnceFileRepository.SaveAppInfo(id, theApp);
-
-            return RedirectToAction("MyApps", "Home");
         }
 
         private object GetMyAppInfo(string id)
