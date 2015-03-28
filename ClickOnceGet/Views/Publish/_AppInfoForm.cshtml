@@ -3,7 +3,7 @@
     var disclosePublisher = true;
     if (this.Request.Form.AllKeys.Contains("disclosePublisher"))
     {
-        disclosePublisher = bool.Parse(this.Request.Form["disclosePublisher"]);
+        disclosePublisher = bool.Parse(this.Request.Form["disclosePublisher"].Split(',').First());
     }
     else if (Model != null)
     {
