@@ -36,6 +36,9 @@ namespace ClickOnceGet.Models
         [DataMember]
         public string PublisherURL { get; set; }
 
+        [DataMember]
+        public int NumberOfDownloads { get; set; }
+
         public string GetTitleOrName()
         {
             return string.IsNullOrEmpty(this.Title) ? this.Name : this.Title;

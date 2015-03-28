@@ -43,6 +43,19 @@ namespace ClickOnceGet.Controllers
             var contentType = pathInfo == "" || ext == ".application" ?
                 "application/x-ms-application" :
                 MimeMapping.GetMimeMapping(pathInfo);
+
+            // Increment downloads counter.
+            if (ext == ".deploy")
+            {
+                var commandPath = GetEntryPointCommandPath(appId);
+                if (pathInfo == commandPath)
+                {
+                    var appInfo = this.ClickOnceFileRepository.EnumAllApps().First(a => a.Name == appId);
+                    appInfo.NumberOfDownloads++;
+                    this.ClickOnceFileRepository.SaveAppInfo(appId, appInfo);
+                }
+            }
+
             return File(fileBytes, contentType);
         }
 
@@ -65,35 +78,9 @@ namespace ClickOnceGet.Controllers
 
         private byte[] InternalGetIcon(string appId)
         {
-            var dotAppBytes = this.ClickOnceFileRepository.GetFileContent(appId, appId + ".application");
-            if (dotAppBytes == null) return NoImagePng();
+            var commandPath = GetEntryPointCommandPath(appId);
+            if (commandPath == null) return NoImagePng();
 
-            // parse .application
-            var ns_asmv2 = "urn:schemas-microsoft-com:asm.v2";
-            var dotApp = XDocument.Load(new MemoryStream(dotAppBytes));
-            var codebasePath =
-                (from node in dotApp.Descendants(XName.Get("dependentAssembly", ns_asmv2))
-                 let dependencyType = node.Attribute("dependencyType")
-                 where dependencyType != null
-                 where dependencyType.Value == "install"
-                 select node.Attribute("codebase").Value).FirstOrDefault();
-            if (codebasePath == null) return NoImagePng();
-
-            // parse .manifest to detect .exe file path
-            var mnifestBytes = this.ClickOnceFileRepository.GetFileContent(appId, codebasePath);
-            if (mnifestBytes == null) return NoImagePng();
-            var manifest = XDocument.Load(new MemoryStream(mnifestBytes));
-            var commandName =
-                (from entryPoint in manifest.Descendants(XName.Get("entryPoint", ns_asmv2))
-                 from commandLine in entryPoint.Descendants(XName.Get("commandLine", ns_asmv2))
-                 let file = commandLine.Attribute("file")
-                 where file != null
-                 select file.Value).FirstOrDefault();
-            if (commandName == null) return NoImagePng();
-
-            // load command(.exe) content binary.
-            var pathParts = codebasePath.Split('\\');
-            var commandPath = string.Join("\\", pathParts.Take(pathParts.Length - 1).Concat(new[] { commandName + ".deploy" }));
             var commandBytes = this.ClickOnceFileRepository.GetFileContent(appId, commandPath);
             if (commandBytes == null) return NoImagePng();
 
@@ -120,6 +107,41 @@ namespace ClickOnceGet.Controllers
             {
                 System.IO.File.Delete(tmpPath);
             }
+        }
+
+        private string GetEntryPointCommandPath(string appId)
+        {
+            var dotAppBytes = this.ClickOnceFileRepository.GetFileContent(appId, appId + ".application");
+            if (dotAppBytes == null) return null;
+
+            // parse .application
+            var ns_asmv2 = "urn:schemas-microsoft-com:asm.v2";
+            var dotApp = XDocument.Load(new MemoryStream(dotAppBytes));
+            var codebasePath =
+                (from node in dotApp.Descendants(XName.Get("dependentAssembly", ns_asmv2))
+                 let dependencyType = node.Attribute("dependencyType")
+                 where dependencyType != null
+                 where dependencyType.Value == "install"
+                 select node.Attribute("codebase").Value).FirstOrDefault();
+            if (codebasePath == null) return null;
+
+            // parse .manifest to detect .exe file path
+            var mnifestBytes = this.ClickOnceFileRepository.GetFileContent(appId, codebasePath);
+            if (mnifestBytes == null) return null;
+            var manifest = XDocument.Load(new MemoryStream(mnifestBytes));
+            var commandName =
+                (from entryPoint in manifest.Descendants(XName.Get("entryPoint", ns_asmv2))
+                 from commandLine in entryPoint.Descendants(XName.Get("commandLine", ns_asmv2))
+                 let file = commandLine.Attribute("file")
+                 where file != null
+                 select file.Value).FirstOrDefault();
+            if (commandName == null) return null;
+
+            // load command(.exe) content binary.
+            var pathParts = codebasePath.Split('\\');
+            var commandPath = string.Join("\\", pathParts.Take(pathParts.Length - 1).Concat(new[] { commandName + ".deploy" }));
+            
+            return commandPath;
         }
 
         private byte[] NoImagePng()
@@ -158,11 +180,14 @@ namespace ClickOnceGet.Controllers
                     var success = this.ClickOnceFileRepository.GetOwnerRight(userId, appName);
                     if (success == false) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", appName);
 
+                    var prevAppInfo = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(a => a.Name == appName);
+
                     this.ClickOnceFileRepository.ClearUpFiles(appName);
 
                     appInfo.Name = appName;
                     appInfo.OwnerId = userId;
                     appInfo.RegisteredAt = DateTime.UtcNow;
+                    appInfo.NumberOfDownloads = prevAppInfo != null ? prevAppInfo.NumberOfDownloads : 0;
                     SetupPublisherInformtion(disclosePublisher, appInfo);
                     
                     this.ClickOnceFileRepository.SaveAppInfo(appName, appInfo);
