@@ -537,6 +537,7 @@
     <Content Include="Views\Home\fig02.PNG" />
     <Content Include="Views\Home\MyApps.js" />
     <Content Include="Views\Publish\appinfo-form.css" />
+    <Content Include="Views\Publish\Edit.js" />
     <Content Include="Views\Publish\Register.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -560,7 +561,6 @@
     <Content Include="Views\Home\HowToPackage.cshtml" />
     <Content Include="Views\Home\HowToPackage_Partial.cshtml" />
     <Content Include="Views\Publish\Edit.cshtml" />
-    <Content Include="Views\Publish\_AppInfoForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -588,6 +588,7 @@
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Views\Home\MyApps.ts" />
+    <TypeScriptCompile Include="Views\Publish\Edit.ts" />
     <TypeScriptCompile Include="Views\Publish\Register.ts" />
   </ItemGroup>
   <PropertyGroup>

@@ -2,10 +2,23 @@
     margin-top: 0;
 }
 
-#Title, #Description, #ProjectURL {
+#Title, #Description, #ProjectURL, .charcounter {
     width: 50%;
     max-width: 50%;
 }
+
+.charcounter {
+    text-align: right;
+    color: #ccc;
+}
+
+    .charcounter.a1 {
+        color: #a00000;
+    }
+
+    .charcounter.a2 {
+        color: red;
+    }
 
 .btn {
     margin-top: 1em;
