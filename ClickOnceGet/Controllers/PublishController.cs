@@ -140,7 +140,7 @@ namespace ClickOnceGet.Controllers
             // load command(.exe) content binary.
             var pathParts = codebasePath.Split('\\');
             var commandPath = string.Join("\\", pathParts.Take(pathParts.Length - 1).Concat(new[] { commandName + ".deploy" }));
-            
+
             return commandPath;
         }
 
@@ -156,12 +156,12 @@ namespace ClickOnceGet.Controllers
         }
 
         [HttpPost]
-        public ActionResult Register(HttpPostedFileBase zipedPackage, ClickOnceAppInfo appInfo, bool disclosePublisher)
+        public ActionResult Register(HttpPostedFileBase zipedPackage)
         {
             var userId = User.GetHashedUserId();
             if (userId == null) throw new Exception("hashed user id is null.");
 
-            if (ModelState.IsValid == false) return View(appInfo);
+            if (ModelState.IsValid == false) return View();
 
             try
             {
@@ -180,16 +180,14 @@ namespace ClickOnceGet.Controllers
                     var success = this.ClickOnceFileRepository.GetOwnerRight(userId, appName);
                     if (success == false) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", appName);
 
-                    var prevAppInfo = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(a => a.Name == appName);
-
-                    this.ClickOnceFileRepository.ClearUpFiles(appName);
-
-                    appInfo.Name = appName;
-                    appInfo.OwnerId = userId;
+                    var appInfo = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(a => a.Name == appName);
+                    if (appInfo == null)
+                    {
+                        appInfo.Name = appName;
+                        appInfo.OwnerId = userId;
+                    }
                     appInfo.RegisteredAt = DateTime.UtcNow;
-                    appInfo.NumberOfDownloads = prevAppInfo != null ? prevAppInfo.NumberOfDownloads : 0;
-                    SetupPublisherInformtion(disclosePublisher, appInfo);
-                    
+                    this.ClickOnceFileRepository.ClearUpFiles(appName);
                     this.ClickOnceFileRepository.SaveAppInfo(appName, appInfo);
 
                     foreach (var item in zip.Entries.Where(_ => _.Name != ""))
@@ -208,14 +206,14 @@ namespace ClickOnceGet.Controllers
 #endif
                         }
                     }
+
+                    return RedirectToAction("Edit", new { id = appName });
                 }
             }
             catch (System.IO.InvalidDataException)
             {
                 return Error("The file you uploaded did not looks like valid Zip format.");
             }
-
-            return RedirectToAction("MyApps", "Home");
         }
 
         [HttpGet]

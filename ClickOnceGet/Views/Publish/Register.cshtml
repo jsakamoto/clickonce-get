@@ -1,5 +1,4 @@
-﻿@model ClickOnceGet.Models.ClickOnceAppInfo
-@{
+﻿@{
     ViewBag.Title = "Register";
 }
 
@@ -20,7 +19,6 @@
         <p>
             <input type="file" name="zipedPackage" onchange="angular.element(this).scope().file_changed(this)" />
         </p>
-        @Html.Partial("_AppInfoForm", Model)
         <p>
             <input type="submit" value="Begin Upload" id="btn-begin-upload" class="btn btn-success" ng-disabled="zipedPackage.src == ''" />
         </p>
