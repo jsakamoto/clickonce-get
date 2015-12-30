@@ -294,18 +294,18 @@ namespace ClickOnceGet.Controllers
             xnm.AddNamespace("asmv1", "urn:schemas-microsoft-com:asm.v1");
             xnm.AddNamespace("asmv2", "urn:schemas-microsoft-com:asm.v2");
             var codeBaseAttr = (appManifest.XPathEvaluate("/asmv1:assembly/asmv2:deployment/asmv2:deploymentProvider/@codebase", xnm) as IEnumerable).Cast<XAttribute>().FirstOrDefault();
-            if (codeBaseAttr == null)
-                return Error("The .application file that contained in .zip file you uploaded is may not be valid format. " +
-                    "(assembly/deployment/deploymentProvider@codebase node colud not found.)");
-            var codebase = codeBaseAttr.Value.ToLower();
-            if (Regex.IsMatch(codebase, "^http(s)?://") == false)
-                return Error("The .application file that contained in .zip file you uploaded has invalid format codebase url as HTTP(s) protocol.");
+            if (codeBaseAttr != null)
+            {
+                var codebase = codeBaseAttr.Value.ToLower();
+                if (Regex.IsMatch(codebase, "^http(s)?://") == false)
+                    return Error("The .application file that contained in .zip file you uploaded has invalid format codebase url as HTTP(s) protocol.");
 
-            var appUrl = this.Request.Url.AppUrl();
-            var actionUrl = this.Url.RouteUrl("Publish", new { appId = appName });
-            var baseUrl = appUrl + actionUrl;
-            if (codebase != (baseUrl + "/" + appName + ".application").ToLower())
-                return Error("The install URL is invalid. You should re-publish the application with fix the install URL as \"{0}\".", baseUrl);
+                var appUrl = this.Request.Url.AppUrl();
+                var actionUrl = this.Url.RouteUrl("Publish", new { appId = appName });
+                var baseUrl = appUrl + actionUrl;
+                if (codebase != (baseUrl + "/" + appName + ".application").ToLower())
+                    return Error("The install URL is invalid. You should re-publish the application with fix the install URL as \"{0}\".", baseUrl);
+            }
 
             return null; // Valid/Success.
         }
