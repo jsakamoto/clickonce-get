@@ -183,8 +183,11 @@ namespace ClickOnceGet.Controllers
                     var appInfo = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(a => a.Name == appName);
                     if (appInfo == null)
                     {
-                        appInfo.Name = appName;
-                        appInfo.OwnerId = userId;
+                        appInfo = new ClickOnceAppInfo
+                        {
+                            Name = appName,
+                            OwnerId = userId
+                        };
                     }
                     appInfo.RegisteredAt = DateTime.UtcNow;
                     this.ClickOnceFileRepository.ClearUpFiles(appName);
