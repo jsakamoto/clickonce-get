@@ -12,6 +12,9 @@
     {
         disclosePublisher = !string.IsNullOrEmpty(Model.PublisherName);
     }
+
+    var from = Request.QueryString["from"];
+    var goBackUrl = from == "detail" ? Url.RouteUrl("Detail", new { appId }) : Url.Action("MyApps", "Home");
 }
 
 @section head {
@@ -30,7 +33,7 @@
 <label for="app-id">Application ID</label>
 <h3 id="app-id">@appId</h3>
 
-<form method="post" action="@Url.Action("Edit")" ng-app="Publish" ng-controller="EditController as ctrl">
+<form method="post" action="@(Url.Action("Edit"))?from=@from" ng-app="Publish" ng-controller="EditController as ctrl">
     @Html.AntiForgeryToken()
 
     <div>
@@ -63,7 +66,7 @@
 
     <p>
         <input type="submit" value="Save" id="btn-save" class="btn btn-success" ng-disabled="(Title|charcounter:140)<0 || (Description|charcounter:140)<0" />
-        <a href="@Url.Action("MyApps", "Home")" class="btn btn-default">Back</a>
+        <a href="@goBackUrl" class="btn btn-default">Back</a>
     </p>
 </form>
 

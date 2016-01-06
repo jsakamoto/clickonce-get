@@ -31,5 +31,11 @@ namespace ClickOnceGet
         {
             return requestUrl.GetLeftPart(UriPartial.Scheme | UriPartial.Authority);
         }
+
+        public static string AppUrl(this UrlHelper urlHelper)
+        {
+            var request = urlHelper.RequestContext.HttpContext.Request;
+            return request.Url.GetLeftPart(UriPartial.Scheme | UriPartial.Authority);
+        }
     }
 }

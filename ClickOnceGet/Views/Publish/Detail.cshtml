@@ -1,0 +1,68 @@
+﻿@model ClickOnceGet.Models.ClickOnceAppInfo
+@{
+    ViewBag.Title = "Detail";
+    ViewBag.OgTitle = Model.GetTitleOrName();
+    ViewBag.OgUrl = Url.AppUrl() + Url.RouteUrl("Detail", new { appId = Model.Name });
+    ViewBag.OgImageUrl = Url.AppUrl() + Url.RouteUrl("Icon", new { appId = Model.Name, pxSize = 128 });
+    ViewBag.HeadKeyword = Model.GetTitleOrName();
+    ViewBag.HeadDescription = Model.Description;
+
+    var userId = User.GetHashedUserId();
+    var isOwnerOfThisApp = Model.OwnerId == userId;
+}
+<style>
+    .detail-commands {
+        margin-bottom: 1rem;
+    }
+    .detail-description {
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="detail a-app" ng-app="Publish" ng-controller="DetailController as ctrl">
+    <h2>
+        <img alt="@Model.GetTitleOrName()" src="@Url.RouteUrl("Icon", new { appId = Model.Name })" class="app-icon" />
+        @Model.GetTitleOrName()
+    </h2>
+
+    <div class="detail-commands">
+        <a href="@Url.RouteUrl("Publish", new { appId = Model.Name })" class="btn btn-primary" title="Click here to start download, install, and launch the app.">
+            <span class="glyphicon glyphicon-play"></span> ClickOnce
+        </a>
+                
+        @if (isOwnerOfThisApp)
+        {
+            <a href="@Url.Action("Edit", "Publish")/@Model.Name?from=detail" class="btn btn-default">Edit</a>
+            <a href="#" ng-click="ctrl.remove({Name:'@Model.Name',Title:'@Model.Title'})" class="btn btn-default">Delete</a>
+        }
+    </div>
+
+    <div class="detail-description">
+        @Model.Description
+    </div>
+    @if (@Model.ProjectURL != null)
+    {
+        <div class="project-url">
+            <a target="_blank" href="@Model.ProjectURL">@Model.ProjectURL
+            </a>
+        </div>
+    }
+    <span class="timestamp">
+        Downloads: @Model.NumberOfDownloads.ToString("#,0") |
+        Update: @Model.RegisteredAt.ToString("d") |
+        Published by
+        <a target="_blank" href="@Model.PublisherURL">
+            <img src="@(Model.PublisherAvatorImageURL ?? Url.Content("~/Content/images/no-image.png"))" alt="@(Model.PublisherName ?? "(anonymous)") " class=" avator" />
+            @(Model.PublisherName ?? "(anonymous)")
+        </a>
+    </span>
+
+    <a href="https://twitter.com/share" class="twitter-share-button" data-text="Check out @(Model.GetTitleOrName()) on #ClickOnceGet!" data-size="large">Tweet</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+</div>
+
+@section scripts {
+    <script src="~/Views/Publish/Detail.js"></script>
+}
+

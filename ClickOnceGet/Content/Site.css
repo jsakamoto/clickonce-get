@@ -77,7 +77,7 @@ textarea {
 .a-app {
     min-height: 4em;
     display: block;
-    margin-bottom: 1em;
+    margin-bottom: 2rem;
 }
 
 .app-icon {
@@ -91,6 +91,8 @@ textarea {
     line-height: 48px;
     height: 48px;
     display: inline-block;
+    margin-left: 1rem;
+    vertical-align: bottom;
 }
 
 .app-name {
@@ -100,6 +102,8 @@ textarea {
 .a-app .description {
     color: #888;
     display: block;
+    margin-top: 0.7rem;
+    margin-bottom: 0.7rem;
 }
 
 .a-app .timestamp {

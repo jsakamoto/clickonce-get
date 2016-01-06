@@ -24,6 +24,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <TypeScriptToolsVersion>1.4</TypeScriptToolsVersion>
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -531,14 +532,37 @@
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="site-icon-128.png" />
+    <Content Include="site-icon-64.png" />
     <Content Include="Views\Home\fig-zip-good.PNG" />
     <Content Include="Views\Home\fig-zip-nogood.PNG" />
     <Content Include="Views\Home\fig01.PNG" />
     <Content Include="Views\Home\fig02.PNG" />
-    <Content Include="Views\Home\MyApps.js" />
+    <Content Include="Views\Home\MyApps.js">
+      <DependentUpon>MyApps.ts</DependentUpon>
+    </Content>
+    <Content Include="Views\Home\MyApps.js.map">
+      <DependentUpon>MyApps.ts</DependentUpon>
+    </Content>
     <Content Include="Views\Publish\appinfo-form.css" />
-    <Content Include="Views\Publish\Edit.js" />
-    <Content Include="Views\Publish\Register.js" />
+    <Content Include="Views\Publish\Detail.js">
+      <DependentUpon>Detail.ts</DependentUpon>
+    </Content>
+    <Content Include="Views\Publish\Detail.js.map">
+      <DependentUpon>Detail.ts</DependentUpon>
+    </Content>
+    <Content Include="Views\Publish\Edit.js">
+      <DependentUpon>Edit.ts</DependentUpon>
+    </Content>
+    <Content Include="Views\Publish\Edit.js.map">
+      <DependentUpon>Edit.ts</DependentUpon>
+    </Content>
+    <Content Include="Views\Publish\Register.js">
+      <DependentUpon>Register.ts</DependentUpon>
+    </Content>
+    <Content Include="Views\Publish\Register.js.map">
+      <DependentUpon>Register.ts</DependentUpon>
+    </Content>
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -561,6 +585,7 @@
     <Content Include="Views\Home\HowToPackage.cshtml" />
     <Content Include="Views\Home\HowToPackage_Partial.cshtml" />
     <Content Include="Views\Publish\Edit.cshtml" />
+    <Content Include="Views\Publish\Detail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -588,6 +613,7 @@
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Views\Home\MyApps.ts" />
+    <TypeScriptCompile Include="Views\Publish\Detail.ts" />
     <TypeScriptCompile Include="Views\Publish\Edit.ts" />
     <TypeScriptCompile Include="Views\Publish\Register.ts" />
   </ItemGroup>

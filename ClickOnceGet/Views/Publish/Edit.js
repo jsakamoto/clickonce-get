@@ -4,7 +4,9 @@ $('*[ng-model]').toArray().map(function (elem) {
 var Publish;
 (function (Publish) {
     var app = angular.module('Publish', []);
-    app.filter('charcounter', function () { return function (text, max) { return (max - (text || '').length).toString(); }; });
+    app.filter('charcounter', function () { return function (text, max) {
+        return (max - (text || '').length).toString();
+    }; });
     var EditController = (function () {
         function EditController($scope) {
             $scope.greeting = { text: 'Hello' };

@@ -3,7 +3,22 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="@Localize.Description" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    @{
+        var description = ViewBag.HeadDescription ?? Localize.Description;
+        var keyword = ViewBag.HeadKeyword ?? "ClickOnce";
+        var ogTitle = ViewBag.OgTitle ?? Localize.SiteTitle;
+        var ogUrl = ViewBag.OgUrl ?? Url.AppUrl();
+        var ogImageUrl = ViewBag.OgImageUrl ?? Url.AppUrl() + "/site-icon-128.png";
+    }
+    <meta name="twitter:card" content="summary">
+    <meta property="og:title" content="@ogTitle" />
+    <meta property="og:description" content="@description" />
+    <meta property="og:url" content="@ogUrl" />
+    <meta property="og:image" content="@ogImageUrl" /><!-- The size of ogpimage.png is 120px x 120px. -->
+    <meta name="keywords" content="@keyword" />
+    <meta name="description" content="@description" />
+
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <link href="~/favicon.png" rel="icon" type="image/png" />
 

@@ -10,11 +10,9 @@ var ClickOnceGet;
             if (confirm('Delete "' + (appToDelete.Title || appToDelete.Name) + '" - Are you sure?') == false)
                 return;
             var index = $scope.apps.indexOf(appToDelete);
-            api.remove({ id: appToDelete.Name }).$promise.then(function () {
-                $scope.apps.splice(index, 1);
-            }).catch(function () {
-                alert('Oops... something wrong.');
-            });
+            api.remove({ id: appToDelete.Name }).$promise
+                .then(function () { $scope.apps.splice(index, 1); })
+                .catch(function () { alert('Oops... something wrong.'); });
         };
     });
 })(ClickOnceGet || (ClickOnceGet = {}));

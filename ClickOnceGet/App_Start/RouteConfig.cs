@@ -15,8 +15,14 @@ namespace ClickOnceGet
 
             routes.MapRoute(
                 name: "Icon",
-                url: "app/{appId}/icon",
-                defaults: new { controller = "Publish", action = "GetIcon" }
+                url: "app/{appId}/icon/{pxSize}",
+                defaults: new { controller = "Publish", action = "GetIcon", pxSize = 48 }
+            );
+
+            routes.MapRoute(
+                name: "Detail",
+                url: "app/{appId}/detail",
+                defaults: new { controller = "Publish", action = "Detail" }
             );
 
             routes.MapRoute(

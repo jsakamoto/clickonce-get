@@ -59,24 +59,24 @@ namespace ClickOnceGet.Controllers
             return File(fileBytes, contentType);
         }
 
-        // GET: /app/{appId}/icon
+        // GET: /app/{appId}/icon/[{pxSize}]
         [AllowAnonymous]
-        public ActionResult GetIcon(string appId)
+        public ActionResult GetIcon(string appId, int pxSize)
         {
             var appInfo = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(app => app.Name.ToLower() == appId.ToLower());
             if (appInfo == null) return HttpNotFound();
 
-            var etag = appInfo.RegisteredAt.Ticks.ToString();
+            var etag = appInfo.RegisteredAt.Ticks.ToString() + "." + pxSize;
             return new CacheableContentResult(
                     cacheability: HttpCacheability.ServerAndPrivate,
                     lastModified: appInfo.RegisteredAt,
                     etag: etag,
                     contentType: "image/png",
-                    getContent: () => InternalGetIcon(appId)
+                    getContent: () => InternalGetIcon(appId, pxSize)
                 );
         }
 
-        private byte[] InternalGetIcon(string appId)
+        private byte[] InternalGetIcon(string appId, int pxSize = 48)
         {
             var commandPath = GetEntryPointCommandPath(appId);
             if (commandPath == null) return NoImagePng();
@@ -97,7 +97,7 @@ namespace ClickOnceGet.Controllers
                     if (msIco.Length == 0) return NoImagePng();
 
                     msIco.Seek(0, SeekOrigin.Begin);
-                    var icon = new FromMono.System.Drawing.Icon(msIco, 48, 48);
+                    var icon = new FromMono.System.Drawing.Icon(msIco, pxSize, pxSize);
 
                     icon.ToBitmap().Save(msPng, ImageFormat.Png);
                     return msPng.ToArray();
@@ -245,7 +245,8 @@ namespace ClickOnceGet.Controllers
 
             this.ClickOnceFileRepository.SaveAppInfo(id, appInfo);
 
-            return RedirectToAction("MyApps", "Home");
+            var from = Request.QueryString["from"];
+            return from == "detail" ? RedirectToRoute("Detail", new { appId = appInfo.Name }) : RedirectToAction("MyApps", "Home");
         }
 
         private void SetupPublisherInformtion(bool disclosePublisher, ClickOnceAppInfo appInfo)
@@ -254,7 +255,7 @@ namespace ClickOnceGet.Controllers
             {
                 var gitHubUserName = User.Identity.GetUserName();
                 appInfo.PublisherName = gitHubUserName;
-                appInfo.PublisherURL = "https://github.com/jsakamoto" + gitHubUserName;
+                appInfo.PublisherURL = "https://github.com/" + gitHubUserName;
                 appInfo.PublisherAvatorImageURL = "https://avatars.githubusercontent.com/" + gitHubUserName;
             }
             else
@@ -314,6 +315,15 @@ namespace ClickOnceGet.Controllers
         {
             this.ModelState.AddModelError("Error", string.Format(message, args));
             return View();
+        }
+
+        [HttpGet, AllowAnonymous]
+        public ActionResult Detail(string appId)
+        {
+            var appInfo = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(app => app.Name == appId);
+            if (appInfo == null) return HttpNotFound();
+
+            return View(appInfo);
         }
     }
 }
