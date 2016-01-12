@@ -11,9 +11,14 @@
     }
     <div class="nav navbar-text navbar-right">Hello @User.Identity.GetUserName() !</div>
 }
-else
+else if (ViewBag.HideSignInLink != true)
 {
-    <ul class="nav navbar-nav navbar-right">
-        <li>@Html.ActionLink("Sign in", "SignIn", "Account", routeValues: null, htmlAttributes: new { id = "signInLink" })</li>
-    </ul>
+    using (Html.BeginForm("ExternalSignIn", "Account", FormMethod.Post, new { id = "signInForm", @class = "navbar-right", ReturnUrl = ViewBag.ReturnUrl }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="provider" value="GitHub" />
+        <a class="nav navbar-text navbar-right" href="javascript:document.getElementById('signInForm').submit()" title="Sign in using your GitHub account">
+            Sign in with GitHub
+        </a>
+    }
 }

@@ -1,6 +1,7 @@
 ﻿@using Microsoft.Owin.Security
 @{
     ViewBag.Title = "Sign in";
+    ViewBag.HideSignInLink = true;
     var signInProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
 }
 
