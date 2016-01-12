@@ -2,6 +2,7 @@ App_Data/
 bin/
 obj/
 packages/
+.vs/
 *.user
 *.suo
 custom.appSettings.config
