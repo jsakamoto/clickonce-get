@@ -183,7 +183,10 @@ namespace ClickOnceGet.Controllers
 
             try
             {
-                using (var zip = new ZipArchive(zipedPackage.InputStream))
+                var tmpPath = Server.MapPath($"~/App_Data/{userId}-{Guid.NewGuid():N}.zip");
+                zipedPackage.SaveAs(tmpPath);
+                using (var fs = new FileStream(tmpPath, FileMode.Open, FileAccess.Read))
+                using (var zip = new ZipArchive(fs))
                 {
                     // Validate files structure that are included in a .zip file.
                     var appFile = zip.Entries
@@ -227,6 +230,10 @@ namespace ClickOnceGet.Controllers
 #endif
                         }
                     }
+
+                    // Sweep temporary file if success.
+                    try { System.IO.File.Delete(tmpPath); }
+                    catch (Exception) { }
 
                     return RedirectToAction("Edit", new { id = appName });
                 }
