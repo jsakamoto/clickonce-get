@@ -9,13 +9,13 @@
         var keyword = ViewBag.HeadKeyword ?? "ClickOnce";
         var ogTitle = ViewBag.OgTitle ?? Localize.SiteTitle;
         var ogUrl = ViewBag.OgUrl ?? Url.AppUrl();
-        var ogImageUrl = ViewBag.OgImageUrl ?? Url.AppUrl() + "/site-icon-128.png";
+        var ogImageUrl = ViewBag.OgImageUrl ?? Url.AppUrl() + "/site-icon-200.png";
     }
     <meta name="twitter:card" content="summary">
     <meta property="og:title" content="@ogTitle" />
     <meta property="og:description" content="@description" />
     <meta property="og:url" content="@ogUrl" />
-    <meta property="og:image" content="@ogImageUrl" /><!-- The size of ogpimage.png is 120px x 120px. -->
+    <meta property="og:image" content="@ogImageUrl" /><!-- The size of ogpimage.png is 200px x 200px. -->
     <meta name="keywords" content="@keyword" />
     <meta name="description" content="@description" />
 

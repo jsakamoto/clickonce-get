@@ -533,6 +533,7 @@
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="site-icon-128.png" />
+    <Content Include="site-icon-200.png" />
     <Content Include="site-icon-64.png" />
     <Content Include="Views\Home\fig-zip-good.PNG" />
     <Content Include="Views\Home\fig-zip-nogood.PNG" />

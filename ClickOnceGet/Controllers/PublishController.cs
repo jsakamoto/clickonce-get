@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
@@ -99,7 +100,24 @@ namespace ClickOnceGet.Controllers
                     msIco.Seek(0, SeekOrigin.Begin);
                     var icon = new FromMono.System.Drawing.Icon(msIco, pxSize, pxSize);
 
-                    icon.ToBitmap().Save(msPng, ImageFormat.Png);
+                    var iconBmp = icon.ToBitmap();
+                    var iconSize = iconBmp.Size.Width;
+                    if (iconSize < pxSize)
+                    {
+                        //var margin = (pxSize - iconSize) / 2;
+                        var newBmp = new Bitmap(width: pxSize, height: pxSize);
+                        using (var g = Graphics.FromImage(newBmp))
+                        {
+                            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            g.DrawImage(iconBmp, 0, 0, pxSize, pxSize);
+                        }
+                        iconBmp.Dispose();
+                        iconBmp = newBmp;
+                    }
+                    iconBmp.Save(msPng, ImageFormat.Png);
+                    iconBmp.Dispose();
+                    icon.Dispose();
+
                     return msPng.ToArray();
                 }
             }

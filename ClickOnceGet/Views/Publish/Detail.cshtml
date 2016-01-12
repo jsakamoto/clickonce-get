@@ -3,7 +3,7 @@
     ViewBag.Title = "Detail";
     ViewBag.OgTitle = Model.GetTitleOrName();
     ViewBag.OgUrl = Url.AppUrl() + Url.RouteUrl("Detail", new { appId = Model.Name });
-    ViewBag.OgImageUrl = Url.AppUrl() + Url.RouteUrl("Icon", new { appId = Model.Name, pxSize = 128 });
+    ViewBag.OgImageUrl = Url.AppUrl() + Url.RouteUrl("Icon", new { appId = Model.Name, pxSize = 200 });
     ViewBag.HeadKeyword = Model.GetTitleOrName();
     ViewBag.HeadDescription = Model.Description;
 
