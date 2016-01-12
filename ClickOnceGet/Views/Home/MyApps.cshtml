@@ -11,7 +11,7 @@
             <li ng-repeat="app in apps | orderBy:'-RegisteredAt'" class="a-app">
 
                 <div class="commands">
-                    <a href="@Url.Action(" Edit", "Publish" )/{{app.Name}}" class="btn btn-default edit-appinfo">Edit</a>
+                    <a href="@Url.Action("Edit", "Publish" )/{{app.Name}}" class="btn btn-default edit-appinfo">Edit</a>
                     <a href="#" ng-click="remove(app)" class="btn btn-default delete-app">Delete</a>
                 </div>
 
