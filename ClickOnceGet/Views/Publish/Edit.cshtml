@@ -30,12 +30,17 @@
 
 <h2>Edit application information</h2>
 
-<label for="app-id">Application ID</label>
-<h3 id="app-id">@appId</h3>
+<p class="label label-info" style="font-size:100%; display:inline-block; margin-bottom:1.5rem; padding:1rem; font-weight:normal;white-space:normal;line-height:2rem;text-align:left;">
+    <b>NOTICE:</b>
+    If you want to update the application package, you should do it by uploading new package zip from
+    <a href="@Url.Action("Register","Publish")" style="color:white; font-weight:bold;">here.</a>
+</p>
 
 <form method="post" action="@(Url.Action("Edit"))?from=@from" ng-app="Publish" ng-controller="EditController as ctrl">
     @Html.AntiForgeryToken()
 
+    <label for="app-id">Application ID</label>
+    <h3 id="app-id">@appId</h3>
     <div>
         <label for="Title">Title (optional, max 140 characters)</label>
     </div>

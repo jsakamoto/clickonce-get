@@ -5,7 +5,7 @@
     <div class="col-md-12">
         <h2>My Applications</h2>
 
-        <a href="@Url.Action("Register", "Publish")" class="btn btn-primary btn-lg goto-register">Register Your ClickOnce Application &raquo;</a>
+        <a href="@Url.Action("Register", "Publish")" class="btn btn-primary btn-lg goto-register">Register/Update Your ClickOnce Application &raquo;</a>
 
         <ul class="apps-list">
             <li ng-repeat="app in apps | orderBy:'-RegisteredAt'" class="a-app">

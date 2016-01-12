@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Register";
+    ViewBag.Title = "Register/Update";
 }
 
 @if (ViewData.ModelState.IsValid == false)
@@ -13,6 +13,11 @@
 }
 
 <h2>Upload Your ClickOnce Application that packaged as a Zip file.</h2>
+
+<p class="label label-info" style="font-size:100%; display:inline-block; margin-bottom:1.5rem; padding:1rem; font-weight:normal;white-space:normal;line-height:2rem;text-align:left;">
+    <b>Information:</b>
+    If you upload the new version of an application which was already registered, it will replace/update the package of that application.
+</p>
 
 <div class="register-app" ng-app="Publish" ng-controller="Register">
     <form id="register-form" method="post" action="@Url.Action("Register")" enctype="multipart/form-data">
