@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
@@ -64,7 +65,7 @@ namespace ClickOnceGet.Controllers
         [AllowAnonymous]
         public ActionResult GetIcon(string appId, int pxSize)
         {
-            var appInfo = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(app => app.Name.ToLower() == appId.ToLower());
+            var appInfo = this.ClickOnceFileRepository.GetAppInfoById(appId);
             if (appInfo == null) return HttpNotFound();
 
             var etag = appInfo.RegisteredAt.Ticks.ToString() + "." + pxSize;
@@ -296,7 +297,7 @@ namespace ClickOnceGet.Controllers
             var userId = User.GetHashedUserId();
             if (userId == null) throw new Exception("hashed user id is null.");
 
-            var theApp = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(app => app.Name == id);
+            var theApp = this.ClickOnceFileRepository.GetAppInfoById(id);
             if (theApp == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             if (theApp.OwnerId != userId) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", id);
 
@@ -345,7 +346,7 @@ namespace ClickOnceGet.Controllers
         [HttpGet, AllowAnonymous]
         public ActionResult Detail(string appId)
         {
-            var appInfo = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(app => app.Name == appId);
+            var appInfo = this.ClickOnceFileRepository.GetAppInfoById(appId);
             if (appInfo == null) return HttpNotFound();
 
             return View(appInfo);

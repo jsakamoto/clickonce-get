@@ -29,7 +29,7 @@ namespace ClickOnceGet.Controllers
         [HttpGet, Route("apps/{appName}")]
         public ClickOnceAppInfo GetApp(string appName)
         {
-            var appInfo = this.GetApps().FirstOrDefault(inf => inf.Name == appName);
+            var appInfo = this.GetApps().GetAppInfoById(appName);
             if (appInfo == null) throw new HttpResponseException(HttpStatusCode.NotFound);
             return appInfo;
         }
