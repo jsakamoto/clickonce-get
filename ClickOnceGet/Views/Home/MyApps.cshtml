@@ -38,6 +38,9 @@
                         <a target="_blank" href="{{app.PublisherURL}}">
                             <img ng-src="{{app.PublisherAvatorImageURL || '/Content/images/no-image.png'}}" alt="{{app.PublisherName || '(anonymous)'}}" class="avator" />
                             {{app.PublisherName || '(anonymous)'}}
+                        </a> |
+                        <a target="_blank" ng-href="/app/{{app.Name}}/cert/{{app.Name}}.cer" class="code-signing">
+                            Code Signing
                         </a>
                     </span>
                 </div>

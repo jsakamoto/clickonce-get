@@ -78,18 +78,26 @@ namespace ClickOnceGet.Controllers
                 );
         }
 
-        private byte[] InternalGetIcon(string appId, int pxSize = 48)
+        private string ExtractEntryPointCommandFile(string appId)
         {
             var commandPath = GetEntryPointCommandPath(appId);
-            if (commandPath == null) return NoImagePng();
+            if (commandPath == null) return null;
 
             var commandBytes = this.ClickOnceFileRepository.GetFileContent(appId, commandPath);
-            if (commandBytes == null) return NoImagePng();
+            if (commandBytes == null) return null;
 
+            var tmpPath = Server.MapPath($"~/App_Data/{Guid.NewGuid():N}.exe");
+            System.IO.File.WriteAllBytes(tmpPath, commandBytes);
+            return tmpPath;
+        }
+
+        private byte[] InternalGetIcon(string appId, int pxSize = 48)
+        {
             // extract icon from .exe
             // note: `IconExtractor` use LoadLibrary Win32API, so I need save the command binary into file.
-            var tmpPath = Server.MapPath("~/App_Data/" + Guid.NewGuid().ToString("N") + ".exe");
-            System.IO.File.WriteAllBytes(tmpPath, commandBytes);
+            var tmpPath = ExtractEntryPointCommandFile(appId);
+            if (tmpPath == null) return NoImagePng();
+
             try
             {
                 using (var msIco = new MemoryStream())
@@ -126,6 +134,36 @@ namespace ClickOnceGet.Controllers
             {
                 System.IO.File.Delete(tmpPath);
             }
+        }
+
+        // GET: /app/{appId}/cert/{*pathInfo}
+        [AllowAnonymous]
+        public ActionResult GetCertificate(string appId)
+        {
+            var appInfo = this.ClickOnceFileRepository.GetAppInfoById(appId);
+            if (appInfo == null) return HttpNotFound();
+            var etag = appInfo.RegisteredAt.Ticks.ToString() + ".cer";
+
+            return new CacheableContentResult(
+                    cacheability: HttpCacheability.ServerAndPrivate,
+                    lastModified: appInfo.RegisteredAt,
+                    etag: etag,
+                    contentType: "application/x-x509-ca-cert",
+                    getContent: () =>
+                    {
+                        var tmpPath = ExtractEntryPointCommandFile(appId);
+                        try
+                        {
+                            var cert = X509Certificate.CreateFromSignedFile(tmpPath);
+                            return cert?.GetRawCertData();
+                        }
+                        catch (CryptographicException)
+                        {
+                            return null;
+                        }
+                        finally { System.IO.File.Delete(tmpPath); }
+                    }
+                );
         }
 
         private string GetEntryPointCommandPath(string appId)

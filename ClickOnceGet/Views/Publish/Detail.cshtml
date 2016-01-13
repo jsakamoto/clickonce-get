@@ -54,6 +54,9 @@
         <a target="_blank" href="@Model.PublisherURL">
             <img src="@(Model.PublisherAvatorImageURL ?? Url.Content("~/Content/images/no-image.png"))" alt="@(Model.PublisherName ?? "(anonymous)") " class=" avator" />
             @(Model.PublisherName ?? "(anonymous)")
+        </a> |
+        <a target="_blank" href="@Url.RouteUrl("Cert", new { appId = Model.Name })/@(Model.Name).cer" class="code-signing">
+            Code Signing
         </a>
     </span>
 

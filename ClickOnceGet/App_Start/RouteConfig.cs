@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using ClickOnceGet.Controllers;
 
 namespace ClickOnceGet
 {
@@ -17,6 +18,12 @@ namespace ClickOnceGet
                 name: "Icon",
                 url: "app/{appId}/icon/{pxSize}",
                 defaults: new { controller = "Publish", action = "GetIcon", pxSize = 48 }
+            );
+
+            routes.MapRoute(
+                name: "Cert",
+                url: "app/{appId}/cert/{*pathInfo}",
+                defaults: new { controller = "Publish", action = nameof(PublishController.GetCertificate) }
             );
 
             routes.MapRoute(
