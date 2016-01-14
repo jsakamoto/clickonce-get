@@ -200,6 +200,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Code\CertificateValidater.cs" />
     <Compile Include="Code\CustomClaimTypes.cs" />
     <Compile Include="Code\Extensions.cs" />
     <Compile Include="Controllers\AccountController.cs" />
