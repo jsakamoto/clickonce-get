@@ -119,8 +119,24 @@ textarea {
         background-image: url(images/cert-icon-16x16.png);
         background-repeat: no-repeat;
         background-position: left center;
-        padding-left: 20px;
+        padding: 0 0 0 20px;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        border-radius: 4px;
     }
+
+        .a-app .timestamp .code-signing.valid {
+            color: #fff;
+            background-color: #14c100;
+            background-position: 6px center;
+            padding: 4px 8px 4px 26px;
+        }
+
+        .a-app .timestamp .code-signing.invalid {
+            color: #ccc;
+            pointer-events: none;
+            background-image: url(images/cert-mono-icon-16x16.png);
+        }
 
 .a-app img.avator {
     width: 1.5em;

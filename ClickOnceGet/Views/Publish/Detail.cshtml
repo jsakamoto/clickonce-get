@@ -55,9 +55,7 @@
             <img src="@(Model.PublisherAvatorImageURL ?? Url.Content("~/Content/images/no-image.png"))" alt="@(Model.PublisherName ?? "(anonymous)") " class=" avator" />
             @(Model.PublisherName ?? "(anonymous)")
         </a> |
-        <a target="_blank" href="@Url.RouteUrl("Cert", new { appId = Model.Name })/@(Model.Name).cer" class="code-signing">
-            Code Signing
-        </a>
+        @Html.Partial("_CodeSigning", Model)
     </span>
 
     <a href="https://twitter.com/share" class="twitter-share-button" data-text="Check out @(Model.GetTitleOrName()) on #ClickOnceGet!" data-size="large">Tweet</a>

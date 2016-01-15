@@ -9,6 +9,13 @@ namespace ClickOnceGet.Models
 {
     public class AppDataDirRepository : IClickOnceFileRepository
     {
+        private static string GetRepositoryDir()
+        {
+            var repositoryDir = HttpContext.Current.Server.MapPath("~/App_Data/Repository");
+            if (Directory.Exists(repositoryDir) == false) Directory.CreateDirectory(repositoryDir);
+            return repositoryDir;
+        }
+
         private static string GetApplicationDir(string appName)
         {
             var repositoryDir = GetRepositoryDir();
@@ -19,11 +26,17 @@ namespace ClickOnceGet.Models
             return applicationDir;
         }
 
-        private static string GetRepositoryDir()
+        private static string GetAppInfoPath(string appName)
         {
-            var repositoryDir = HttpContext.Current.Server.MapPath("~/App_Data/Repository");
-            if (Directory.Exists(repositoryDir) == false) Directory.CreateDirectory(repositoryDir);
-            return repositoryDir;
+            var appDir = GetApplicationDir(appName);
+            if (appDir == null) return null;
+            var appInfoPath = Path.Combine(GetApplicationDir(appName), ".appinfo");
+            return appInfoPath;
+        }
+
+        public ClickOnceAppInfo GetAppInfo(string appName)
+        {
+            return EnumAllApps().FirstOrDefault(app => app.Name.ToLower() == appName.ToLower());
         }
 
         public byte[] GetFileContent(string appName, string subPath)
@@ -72,7 +85,7 @@ namespace ClickOnceGet.Models
         public void SaveFileContent(string appName, string subPath, byte[] contents)
         {
             var appDir = GetApplicationDir(appName);
-            
+
             subPath = subPath.Replace('/', '\\');
             if (subPath.Split('\\').Contains("..")) return;  // reject relative up path.
             if (Path.IsPathRooted(subPath)) return;         // reject absolute up path.
@@ -86,8 +99,7 @@ namespace ClickOnceGet.Models
 
         public void SaveAppInfo(string appName, ClickOnceAppInfo appInfo)
         {
-            var appDir = GetApplicationDir(appName);
-            var appInfoPath = Path.Combine(GetApplicationDir(appName), ".appinfo");
+            var appInfoPath = GetAppInfoPath(appName);
             File.WriteAllText(appInfoPath, JsonConvert.SerializeObject(appInfo));
         }
 

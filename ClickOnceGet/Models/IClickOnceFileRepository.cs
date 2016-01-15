@@ -8,6 +8,8 @@ namespace ClickOnceGet.Models
 {
     public interface IClickOnceFileRepository
     {
+        ClickOnceAppInfo GetAppInfo(string appName);
+
         byte[] GetFileContent(string appName, string subPath);
 
         bool GetOwnerRight(string userId, string appName);
