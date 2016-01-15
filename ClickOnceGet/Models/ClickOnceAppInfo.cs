@@ -40,6 +40,12 @@ namespace ClickOnceGet.Models
         [DataMember]
         public int NumberOfDownloads { get; set; }
 
+        [DataMember]
+        public bool? HasCodeSigning { get; set; }
+
+        [DataMember]
+        public bool SignedByPublisher { get; set; }
+
         public string GetTitleOrName()
         {
             return string.IsNullOrEmpty(this.Title) ? this.Name : this.Title;

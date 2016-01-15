@@ -7,14 +7,22 @@ using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
-namespace ClickOnceGet.Code
+namespace ClickOnceGet
 {
     public static class CertificateValidater
     {
-        public static Task<string> GetSSHPubKeyStrFromGitHubAccountAsync(string gitHubAccountName)
+        public static string GetSSHPubKeyStrFromGitHubAccount(string gitHubAccountName)
         {
             var httpClient = new HttpClient();
-            return httpClient.GetStringAsync($"https://github.com/{gitHubAccountName}.keys");
+            try
+            {
+                var webClient = new WebClient();
+                return webClient.DownloadString($"https://github.com/{gitHubAccountName}.keys");
+            }
+            catch (WebException)
+            {
+                return null;
+            }
         }
 
         public static bool EqualsPublicKey(string sshPubKeyString, string pathOfCertFile)
@@ -24,11 +32,20 @@ namespace ClickOnceGet.Code
             return modules2.Any(module2 => Enumerable.SequenceEqual(module1, module2));
         }
 
+        public static bool EqualsPublicKey(string sshPubKeyString, X509Certificate pathOfCert)
+        {
+            var module1 = GetModuleFromX509CertificateFile(pathOfCert);
+            var modules2 = GetModuleFromSSHPublicKeyString(sshPubKeyString);
+            return modules2.Any(module2 => Enumerable.SequenceEqual(module1, module2));
+        }
+
         // MEMO:
         // The purpose of using"IPAddress.NetworkToHostOrder()" method is changing endian from big endian to little endian.
 
         public static IEnumerable<byte[]> GetModuleFromSSHPublicKeyString(string pubKeySSHFormat)
         {
+            if (string.IsNullOrEmpty(pubKeySSHFormat)) yield break;
+
             // Split each rows
             var pubKeyBodies = pubKeySSHFormat
                 .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
@@ -63,6 +80,11 @@ namespace ClickOnceGet.Code
         public static byte[] GetModuleFromX509CertificateFile(string pathOfCert)
         {
             var cert = X509Certificate.CreateFromCertFile(pathOfCert);
+            return GetModuleFromX509CertificateFile(cert);
+        }
+
+        public static byte[] GetModuleFromX509CertificateFile(X509Certificate cert)
+        {
             var pubKeyBin = cert.GetPublicKey();
             using (var ms = new MemoryStream(pubKeyBin))
             using (var binReader = new BinaryReader(ms))

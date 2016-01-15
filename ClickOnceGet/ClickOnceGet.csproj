@@ -230,6 +230,7 @@
     <Content Include="Content\images\angularjs-g-16.png" />
     <Content Include="Content\images\aspnet-16.png" />
     <Content Include="Content\images\bootstrapcss-g-16.png" />
+    <Content Include="Content\images\cert-mono-icon-16x16.png" />
     <Content Include="Content\images\cert-icon-16x16.png" />
     <Content Include="Content\images\no-image.png" />
     <Content Include="favicon.ico" />
@@ -590,6 +591,7 @@
     <Content Include="Views\Home\HowToPackage_Partial.cshtml" />
     <Content Include="Views\Publish\Edit.cshtml" />
     <Content Include="Views\Publish\Detail.cshtml" />
+    <Content Include="Views\Shared\_CodeSigning.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

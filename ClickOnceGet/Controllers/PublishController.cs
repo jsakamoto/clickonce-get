@@ -9,6 +9,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Xml;
@@ -65,7 +66,7 @@ namespace ClickOnceGet.Controllers
         [AllowAnonymous]
         public ActionResult GetIcon(string appId, int pxSize)
         {
-            var appInfo = this.ClickOnceFileRepository.GetAppInfoById(appId);
+            var appInfo = this.ClickOnceFileRepository.GetAppInfo(appId);
             if (appInfo == null) return HttpNotFound();
 
             var etag = appInfo.RegisteredAt.Ticks.ToString() + "." + pxSize;
@@ -140,7 +141,7 @@ namespace ClickOnceGet.Controllers
         [AllowAnonymous]
         public ActionResult GetCertificate(string appId)
         {
-            var appInfo = this.ClickOnceFileRepository.GetAppInfoById(appId);
+            var appInfo = this.ClickOnceFileRepository.GetAppInfo(appId);
             if (appInfo == null) return HttpNotFound();
             var etag = appInfo.RegisteredAt.Ticks.ToString() + ".cer";
 
@@ -149,21 +150,53 @@ namespace ClickOnceGet.Controllers
                     lastModified: appInfo.RegisteredAt,
                     etag: etag,
                     contentType: "application/x-x509-ca-cert",
-                    getContent: () =>
-                    {
-                        var tmpPath = ExtractEntryPointCommandFile(appId);
-                        try
-                        {
-                            var cert = X509Certificate.CreateFromSignedFile(tmpPath);
-                            return cert?.GetRawCertData();
-                        }
-                        catch (CryptographicException)
-                        {
-                            return null;
-                        }
-                        finally { System.IO.File.Delete(tmpPath); }
-                    }
+                    getContent: () => GetCertificateCore(appInfo)
                 );
+        }
+
+        private byte[] GetCertificateCore(ClickOnceAppInfo appInfo)
+        {
+            if (appInfo == null) return null;
+
+            if (appInfo.HasCodeSigning == null)
+            {
+                var certBin = UpdateCertificateInfo(appInfo);
+                this.ClickOnceFileRepository.SaveAppInfo(appInfo.Name, appInfo);
+                return certBin;
+            }
+
+            return appInfo.HasCodeSigning == true ?
+                this.ClickOnceFileRepository.GetFileContent(appInfo.Name, ".cer") :
+                null;
+        }
+
+        private byte[] UpdateCertificateInfo(ClickOnceAppInfo appInfo)
+        {
+            appInfo.SignedByPublisher = false;
+
+            var certBin = default(byte[]);
+            var tmpPath = default(string);
+            try
+            {
+                tmpPath = ExtractEntryPointCommandFile(appInfo.Name);
+                var cert = X509Certificate.CreateFromSignedFile(tmpPath);
+                if (cert != null)
+                {
+                    certBin = cert.GetRawCertData();
+                    this.ClickOnceFileRepository.SaveFileContent(appInfo.Name, ".cer", certBin);
+
+                    if (appInfo.PublisherName != null)
+                    {
+                        var sshPubKeyStr = CertificateValidater.GetSSHPubKeyStrFromGitHubAccount(appInfo.PublisherName);
+                        appInfo.SignedByPublisher = CertificateValidater.EqualsPublicKey(sshPubKeyStr, cert);
+                    }
+                }
+            }
+            catch (CryptographicException) { }
+            finally { if (tmpPath != null) System.IO.File.Delete(tmpPath); }
+
+            appInfo.HasCodeSigning = certBin != null;
+            return certBin;
         }
 
         private string GetEntryPointCommandPath(string appId)
@@ -240,7 +273,7 @@ namespace ClickOnceGet.Controllers
                     var success = this.ClickOnceFileRepository.GetOwnerRight(userId, appName);
                     if (success == false) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", appName);
 
-                    var appInfo = this.ClickOnceFileRepository.EnumAllApps().FirstOrDefault(a => a.Name == appName);
+                    var appInfo = this.ClickOnceFileRepository.GetAppInfo(appName);
                     if (appInfo == null)
                     {
                         appInfo = new ClickOnceAppInfo
@@ -251,7 +284,6 @@ namespace ClickOnceGet.Controllers
                     }
                     appInfo.RegisteredAt = DateTime.UtcNow;
                     this.ClickOnceFileRepository.ClearUpFiles(appName);
-                    this.ClickOnceFileRepository.SaveAppInfo(appName, appInfo);
 
                     foreach (var item in zip.Entries.Where(_ => _.Name != ""))
                     {
@@ -274,12 +306,17 @@ namespace ClickOnceGet.Controllers
                     try { System.IO.File.Delete(tmpPath); }
                     catch (Exception) { }
 
+                    // Update certificate information.
+                    this.UpdateCertificateInfo(appInfo);
+
+                    this.ClickOnceFileRepository.SaveAppInfo(appName, appInfo);
+
                     return RedirectToAction("Edit", new { id = appName });
                 }
             }
             catch (System.IO.InvalidDataException)
             {
-                return Error("The file you uploaded did not looks like valid Zip format.");
+                return Error("The file you uploaded looks like invalid Zip format.");
             }
         }
 
@@ -306,6 +343,22 @@ namespace ClickOnceGet.Controllers
             appInfo.Description = model.Description;
             appInfo.ProjectURL = model.ProjectURL;
             SetupPublisherInformtion(disclosePublisher, appInfo);
+
+            appInfo.SignedByPublisher = false;
+            if (appInfo.HasCodeSigning == null)
+                UpdateCertificateInfo(appInfo);
+            else if (appInfo.HasCodeSigning == true && appInfo.PublisherName != null)
+            {
+                var tmpPath = Server.MapPath($"~/App_Data/{Guid.NewGuid():N}.cer");
+                try
+                {
+                    var certBin = this.ClickOnceFileRepository.GetFileContent(id, ".cer");
+                    System.IO.File.WriteAllBytes(tmpPath, certBin);
+                    var sshPubKeyStr = CertificateValidater.GetSSHPubKeyStrFromGitHubAccount(appInfo.PublisherName);
+                    appInfo.SignedByPublisher = CertificateValidater.EqualsPublicKey(sshPubKeyStr, tmpPath);
+                }
+                finally { System.IO.File.Delete(tmpPath); }
+            }
 
             this.ClickOnceFileRepository.SaveAppInfo(id, appInfo);
 
@@ -335,7 +388,7 @@ namespace ClickOnceGet.Controllers
             var userId = User.GetHashedUserId();
             if (userId == null) throw new Exception("hashed user id is null.");
 
-            var theApp = this.ClickOnceFileRepository.GetAppInfoById(id);
+            var theApp = this.ClickOnceFileRepository.GetAppInfo(id);
             if (theApp == null) return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             if (theApp.OwnerId != userId) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", id);
 
@@ -384,7 +437,7 @@ namespace ClickOnceGet.Controllers
         [HttpGet, AllowAnonymous]
         public ActionResult Detail(string appId)
         {
-            var appInfo = this.ClickOnceFileRepository.GetAppInfoById(appId);
+            var appInfo = this.ClickOnceFileRepository.GetAppInfo(appId);
             if (appInfo == null) return HttpNotFound();
 
             return View(appInfo);

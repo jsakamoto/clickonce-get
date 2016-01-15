@@ -1,0 +1,15 @@
+﻿@model ClickOnceGet.Models.ClickOnceAppInfo
+
+<a target="_blank" href="@(Model.HasCodeSigning == false ? null : Url.RouteUrl("Cert", new { appId = Model.Name }) + "/" + Model.Name + ".cer")" class="code-signing @(Model.HasCodeSigning == false ? "invalid" : "") @(Model.SignedByPublisher ? "valid" : "")">
+    @if (Model.SignedByPublisher)
+    {
+        <text>Signed by Publisher</text>
+    }
+    else if (Model.HasCodeSigning == false)
+    {
+        <text>No Valid Code Signing</text>
+    }
+    else {
+        <text>Code Signing</text>
+    }
+</a>

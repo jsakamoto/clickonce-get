@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using ClickOnceGet.Code;
+using ClickOnceGet;
 using Xunit;
 
 namespace ClickOnceGet.Test
@@ -22,6 +22,14 @@ namespace ClickOnceGet.Test
                 .GetModuleFromSSHPublicKeyString(pubKey)
                 .Last()
                 .Is(PublicKeyModule);
+        }
+
+        [Fact]
+        public void GetModuleFromSSHPublicKeyString_From_NullStr_Test()
+        {
+            CertificateValidater
+                .GetModuleFromSSHPublicKeyString(null)
+                .Count().Is(0);
         }
 
         [Fact]
@@ -53,10 +61,19 @@ namespace ClickOnceGet.Test
         }
 
         [Fact]
-        public async Task GetSSHPublicKeyStringFromGitHubAccount_Test()
+        public void EqualsPublicKey_NullSshPubKeyStr_False_Test()
         {
-            var pubKeysString = await CertificateValidater
-                .GetSSHPubKeyStrFromGitHubAccountAsync("Haacked");
+            var sshPubKeyString = default(string);
+            var pathOfCertFile = PathOf("id_rsa.cer");
+
+            CertificateValidater.EqualsPublicKey(sshPubKeyString, pathOfCertFile)
+                .IsFalse();
+        }
+
+        [Fact]
+        public void GetSSHPublicKeyStringFromGitHubAccount_Test()
+        {
+            var pubKeysString = CertificateValidater.GetSSHPubKeyStrFromGitHubAccount("Haacked");
 
             var _1stPubKeyStr = pubKeysString.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).First();
             var pubKeyParts = _1stPubKeyStr.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
@@ -69,6 +86,15 @@ namespace ClickOnceGet.Test
                 .Take(7) // "ssh-rsa"
                 .Select(n => (char)n))
                 .Is("ssh-rsa");
+        }
+
+        [Fact]
+        public void GetSSHPublicKeyStringFromGitHubAccount_HTTPError_Test()
+        {
+            var nousername = Guid.NewGuid().ToString("N");
+            var pubKeysString = CertificateValidater.GetSSHPubKeyStrFromGitHubAccount(nousername);
+
+            pubKeysString.IsNull();
         }
     }
 }

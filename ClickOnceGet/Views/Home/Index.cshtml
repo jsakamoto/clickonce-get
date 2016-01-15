@@ -66,9 +66,7 @@
                                 <img src="@(app.PublisherAvatorImageURL ?? Url.Content("~/Content/images/no-image.png"))" alt="@(app.PublisherName ?? "(anonymous)") " class=" avator" />
                                 @(app.PublisherName ?? "(anonymous)")
                             </a> |
-                            <a target="_blank" href="@Url.RouteUrl("Cert", new { appId = app.Name })/@(app.Name).cer" class="code-signing">
-                                Code Signing
-                            </a>
+                            @Html.Partial("_CodeSigning", app)
                         </span>
                     </div>
                 </li>
