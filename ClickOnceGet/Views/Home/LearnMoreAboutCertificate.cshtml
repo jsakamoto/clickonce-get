@@ -105,7 +105,7 @@
 
     <li>
         And generate .pfx file which contain private key by following command.
-        <pre>&gt; openssl pkcs12 -inkey "%HOME%\.ssh\id_rsa" -in <i>".cer file path (generated before step)"</i> -out <i>"output .pfx file path"</i></pre>
+        <pre>&gt; openssl pkcs12 -export -inkey "%HOME%\.ssh\id_rsa" -in <i>".cer file path (generated before step)"</i> -out <i>"output .pfx file path"</i></pre>
     </li>
     <li>
         After yo get .pfx file, register the .pfx file to your PC's certifiate store as personal certificates.
