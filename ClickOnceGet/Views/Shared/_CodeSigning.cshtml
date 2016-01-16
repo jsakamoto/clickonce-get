@@ -13,3 +13,9 @@
         <text>Code Signing</text>
     }
 </a>
+@if (Model.SignedByPublisher)
+{
+    <a target="_blank" href="@Url.Action("LearnMoreAboutCertificate")" class="lean-more-about-certificate" title="What's mean &quot;Signed by Pubisher&quot;?">
+        <i class="glyphicon glyphicon-hand-right"></i>
+    </a>
+}

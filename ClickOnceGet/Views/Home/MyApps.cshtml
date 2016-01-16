@@ -45,6 +45,10 @@
                            ng-class="{valid:app.SignedByPublisher, invalid:app.HasCodeSigning === false}">
                             {{app.SignedByPublisher ? 'Signed by Publisher' : app.HasCodeSigning === false ? 'No Valid Code Signing' : 'Code Signing'}}
                         </a>
+                        <a target="_blank" ng-show="app.SignedByPublisher" ng-href="/home/LearnMoreAboutCertificate" class="lean-more-about-certificate" title="What's mean &quot;Signed by Pubisher&quot;?">
+                            <i class="glyphicon glyphicon-hand-right"></i>
+                        </a>
+
                     </span>
                 </div>
             </li>

@@ -1,0 +1,94 @@
+﻿@{
+    ViewBag.Title = "Learn more about certificate - " + Localize.SiteTitle;
+}
+<h2>What's mean "Signed by Pubisher"?</h2>
+
+<p>
+    If you look applications with "Singed by Publisher" green badge,
+    it means <b>the application was signed by private key which owned by publisher's GitHub account SSH key.</b>
+</p>
+
+<p>
+    You can verify it manualy by following steps.
+</p>
+
+<h2>How to verify an app was signed by publisher or not?</h2>
+
+<h3>Prerequirements of this article</h3>
+<ul>
+    <li>Windows OS</li>
+    <li>Installed Git for Windows</li>
+    <li>Set the PATH environment variable to "C:\Program Files\Git\usr\bin" for executing "openssl" and "ssh-keygen" commands in command prompt.</li>
+</ul>
+
+<h3>Step 1. Get the SSH publick key of publisher's GitHub account</h3>
+
+<ol>
+    <li>Open link publisher's GitHub profile page.</li>
+    <li>Append ".keys" to URL, and open it.</li>
+    <li>Then, you will look the publisher's SSH public keys.</li>
+</ol>
+
+<h3>Step 2. Get the publick key of the application signed</h3>
+
+<ol>
+    <li>Open certificate link, and download .cer file of the application signed.</li>
+    <li>
+        Open command prompt, and extract publick key from .cer file (DER format) and save to file with PEM format by following command.
+        <pre>&gt; openssl x509 -in <i>".cer file path"</i> -inform DER -pubkey -noout &gt; <i>"PEM public key file path"</i></pre>
+    </li>
+    <li>
+        Convert publick key format from PEM to SSH by following command.
+        <pre>&gt; ssh-keygen.exe -i -m PKCS8 -f <i>"PEM public key file path"</i></pre>
+    </li>
+    <li>Then, you will look the public key with SSH format that used for code signing.</li>
+</ol>
+
+<h3>Step 3. Compare public keys</h3>
+
+<p>Compare public keys with SSH format both from Step 1 and Step 2.</p>
+
+<p>If these public keys are same, it means <b>the application was signed by private key which owned by publisher.</b></p>
+
+<p>
+    If you trust publisher,
+    and validated the application signed by publisher's private key in this way,
+    you may be able to trust the application.
+</p>
+
+<h2 id="HowToSignByGitHubSSHKey">
+        How to sign an application by your GitHub account SSH key?
+</h2>
+
+<h3>Prerequirements of this article</h3>
+<ul>
+    <li>Windows OS</li>
+    <li>Installed Git for Windows</li>
+    <li>Set the PATH environment variable to "C:\Program Files\Git\usr\bin" for executing "openssl" command in command prompt.</li>
+    <li>You already setuped SSH private/public key and registerd publick key to GitHub account.</li>
+</ul>
+
+<h3>Steps</h3>
+<ol>
+
+    <li>Configure "C:\Program Files\OpenSSL\bin\openssl.cfg": Common name, expiration days, etc...</li>
+
+    <li>
+        Open command prompt, and execute following command to generate self signed certificate (.cer file).
+        <pre>&gt; openssl req -new -x509 -key "%HOME%\.ssh\id_rsa" -out <i>"output .cer file path"</i></pre>
+    </li>
+
+    <li>
+        And generate .pfx file which contain private key by following command.
+        <pre>&gt; openssl pkcs12 -inkey "%HOME%\.ssh\id_rsa" -in <i>".cer file path (generated before step)"</i> -out <i>"output .pfx file path"</i></pre>
+    </li>
+    <li>
+        After yo get .pfx file, register the .pfx file to your PC's certifiate store as personal certificates.
+        You can do it by doubel clicking .pfx file on Explorer.
+    </li>
+    <li>
+        Configure your ClickOnce application project on Visual Studio,
+        chose certificate via Project Property &gt;"Signing" category &gt; [Select from Store...].
+    </li>
+</ol>
+

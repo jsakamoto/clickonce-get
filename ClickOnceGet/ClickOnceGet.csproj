@@ -592,6 +592,7 @@
     <Content Include="Views\Publish\Edit.cshtml" />
     <Content Include="Views\Publish\Detail.cshtml" />
     <Content Include="Views\Shared\_CodeSigning.cshtml" />
+    <Content Include="Views\Home\LearnMoreAboutCertificate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

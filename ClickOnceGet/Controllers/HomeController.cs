@@ -33,5 +33,11 @@ namespace ClickOnceGet.Controllers
         {
             return View();
         }
+
+        [AllowAnonymous]
+        public ActionResult LearnMoreAboutCertificate()
+        {
+            return View();
+        }
     }
 }

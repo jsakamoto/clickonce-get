@@ -126,10 +126,13 @@ textarea {
     }
 
         .a-app .timestamp .code-signing.valid {
+            display: inline-block;
             color: #fff;
             background-color: #14c100;
             background-position: 6px center;
             padding: 4px 8px 4px 26px;
+            margin-top: 4px;
+            margin-bottom: 4px;
         }
 
         .a-app .timestamp .code-signing.invalid {
