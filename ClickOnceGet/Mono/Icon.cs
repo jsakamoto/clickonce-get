@@ -78,7 +78,7 @@ namespace FromMono.System.Drawing
 		
 		[StructLayout(LayoutKind.Sequential)]
 		internal struct BitmapInfoHeader {
-            		internal uint	biSize; 
+            internal uint	biSize; 
 			internal int	biWidth; 
 			internal int	biHeight; 
 			internal ushort	biPlanes; 
@@ -535,8 +535,16 @@ namespace FromMono.System.Drawing
 			if (imageData == null)
 				return new Bitmap (32, 32);
 
-			IconImage ii = (IconImage) imageData [id];
-			BitmapInfoHeader bih = ii.iconHeader;
+			ImageData imgDat = imageData [id];
+            if (imgDat is IconDump)
+            {
+                using (var ms = new MemoryStream((imgDat as IconDump).data))
+                    return new Bitmap(ms);
+            }
+
+			IconImage ii = (IconImage)imgDat;
+
+            BitmapInfoHeader bih = ii.iconHeader;
 			int biHeight = bih.biHeight / 2;
 
 			int ncolors = (int)bih.biClrUsed;
@@ -780,37 +788,39 @@ Console.WriteLine ("\tide.imageOffset: {0}", ide.imageOffset);
 					}
 				}
 			}
-			
-			//now read in the icon data
-			for (int j = 0; j<dirEntryCount; j++) 
-			{
-				// process ignored into IconDump
-				if (iconDir.idEntries [j].ignore) {
-					IconDump id = new IconDump ();
-					stream.Seek (iconDir.idEntries [j].imageOffset, SeekOrigin.Begin);
-					id.data = new byte [iconDir.idEntries [j].bytesInRes];
-					stream.Read (id.data, 0, id.data.Length);
-					imageData [j] = id;
-					continue;
-				}
-				// standard image
-				IconImage iidata = new IconImage();
-				BitmapInfoHeader bih = new BitmapInfoHeader();
-				stream.Seek (iconDir.idEntries [j].imageOffset, SeekOrigin.Begin);
-				byte [] buffer = new byte [iconDir.idEntries [j].bytesInRes];
-				stream.Read (buffer, 0, buffer.Length);
-				BinaryReader bihReader = new BinaryReader (new MemoryStream(buffer));
-				bih.biSize = bihReader.ReadUInt32 ();
-				bih.biWidth = bihReader.ReadInt32 ();
-				bih.biHeight = bihReader.ReadInt32 ();
-				bih.biPlanes = bihReader.ReadUInt16 ();
-				bih.biBitCount = bihReader.ReadUInt16 ();
-				bih.biCompression = bihReader.ReadUInt32 ();
-				bih.biSizeImage = bihReader.ReadUInt32 ();
-				bih.biXPelsPerMeter = bihReader.ReadInt32 ();
-				bih.biYPelsPerMeter = bihReader.ReadInt32 ();
-				bih.biClrUsed = bihReader.ReadUInt32 ();
-				bih.biClrImportant = bihReader.ReadUInt32 ();
+
+            //now read in the icon data
+            for (int j = 0; j < dirEntryCount; j++)
+            {
+                // process ignored into IconDump
+                if (iconDir.idEntries[j].ignore)
+                {
+                    IconDump id = new IconDump();
+                    stream.Seek(iconDir.idEntries[j].imageOffset, SeekOrigin.Begin);
+                    id.data = new byte[iconDir.idEntries[j].bytesInRes];
+                    stream.Read(id.data, 0, id.data.Length);
+                    imageData[j] = id;
+                    continue;
+                }
+                // standard image
+                IconImage iidata = new IconImage();
+                BitmapInfoHeader bih = new BitmapInfoHeader();
+                stream.Seek(iconDir.idEntries[j].imageOffset, SeekOrigin.Begin);
+                byte[] buffer = new byte[iconDir.idEntries[j].bytesInRes];
+                stream.Read(buffer, 0, buffer.Length);
+                BinaryReader bihReader = new BinaryReader(new MemoryStream(buffer));
+                bih.biSize = bihReader.ReadUInt32();
+                bih.biWidth = bihReader.ReadInt32();
+                bih.biHeight = bihReader.ReadInt32();
+                bih.biPlanes = bihReader.ReadUInt16();
+                bih.biBitCount = bihReader.ReadUInt16();
+                bih.biCompression = bihReader.ReadUInt32();
+                bih.biSizeImage = bihReader.ReadUInt32();
+                bih.biXPelsPerMeter = bihReader.ReadInt32();
+                bih.biYPelsPerMeter = bihReader.ReadInt32();
+                bih.biClrUsed = bihReader.ReadUInt32();
+                bih.biClrImportant = bihReader.ReadUInt32();
+
 #if false
 Console.WriteLine ("Entry: {0}", j);
 Console.WriteLine ("\tbih.biSize: {0}", bih.biSize);
@@ -825,55 +835,74 @@ Console.WriteLine ("\tbih.biYPelsPerMeter: {0}", bih.biYPelsPerMeter);
 Console.WriteLine ("\tbih.biClrUsed: {0}", bih.biClrUsed);
 Console.WriteLine ("\tbih.biClrImportant: {0}", bih.biClrImportant);
 #endif
-				iidata.iconHeader = bih;
-				//Read the number of colors used and corresponding memory occupied by
-				//color table. Fill this memory chunk into rgbquad[]
-				int numColors;
-				switch (bih.biBitCount){
-					case 1: numColors = 2;
-						break;
-					case 4: numColors = 16;
-						break;
-					case 8: numColors = 256;
-						break;
-					default: numColors = 0;
-						break;
-				}
-				
-				iidata.iconColors = new uint [numColors];
-				for (int i=0; i<numColors; i++)
-					iidata.iconColors [i] = bihReader.ReadUInt32 ();
+                //iconDir.idEntries[j].bytesInRes
+                if (bih.biSize == 0x474e5089u) // ".PNG" header
+                {
+                    var icondump = new IconDump();
+                    icondump.data = new byte[iconDir.idEntries[j].bytesInRes];
+                    stream.Seek(iconDir.idEntries[j].imageOffset, SeekOrigin.Begin);
+                    stream.Read(icondump.data, 0, icondump.data.Length);
+                    imageData[j] = icondump;
+                }
+                else
+                {
+                    iidata.iconHeader = bih;
+                    //Read the number of colors used and corresponding memory occupied by
+                    //color table. Fill this memory chunk into rgbquad[]
+                    int numColors;
+                    switch (bih.biBitCount)
+                    {
+                        case 1:
+                            numColors = 2;
+                            break;
+                        case 4:
+                            numColors = 16;
+                            break;
+                        case 8:
+                            numColors = 256;
+                            break;
+                        default:
+                            numColors = 0;
+                            break;
+                    }
 
-				//XOR mask is immediately after ColorTable and its size is 
-				//icon height* no. of bytes per line
-				
-				//icon height is half of BITMAPINFOHEADER.biHeight, since it contains
-				//both XOR as well as AND mask bytes
-				int iconHeight = bih.biHeight/2;
-				
-				//bytes per line should should be uint aligned
-				int numBytesPerLine = ((((bih.biWidth * bih.biPlanes * bih.biBitCount)+ 31)>>5)<<2);
-				
-				//Determine the XOR array Size
-				int xorSize = numBytesPerLine * iconHeight;
-				iidata.iconXOR = new byte [xorSize];
-				int nread = bihReader.Read (iidata.iconXOR, 0, xorSize);
-				if (nread != xorSize) {
-                    string msg = string.Format("{0} data length expected {1}, read {2}", "XOR", xorSize, nread);
-					throw new ArgumentException (msg, "stream");
-				}
-				
-				//Determine the AND array size
-				numBytesPerLine = (int)((((bih.biWidth) + 31) & ~31) >> 3);
-				int andSize = numBytesPerLine * iconHeight;
-				iidata.iconAND = new byte [andSize];
-				nread = bihReader.Read (iidata.iconAND, 0, andSize);
-				if (nread != andSize) {
-                    string msg = string.Format("{0} data length expected {1}, read {2}", "AND", andSize, nread);
-					throw new ArgumentException (msg, "stream");
-				}
-				
-				imageData [j] = iidata;
+                    iidata.iconColors = new uint[numColors];
+                    for (int i = 0; i < numColors; i++)
+                        iidata.iconColors[i] = bihReader.ReadUInt32();
+
+                    //XOR mask is immediately after ColorTable and its size is 
+                    //icon height* no. of bytes per line
+
+                    //icon height is half of BITMAPINFOHEADER.biHeight, since it contains
+                    //both XOR as well as AND mask bytes
+                    int iconHeight = bih.biHeight / 2;
+
+                    //bytes per line should should be uint aligned
+                    int numBytesPerLine = ((((bih.biWidth * bih.biPlanes * bih.biBitCount) + 31) >> 5) << 2);
+
+                    //Determine the XOR array Size
+                    int xorSize = numBytesPerLine * iconHeight;
+                    iidata.iconXOR = new byte[xorSize];
+                    int nread = bihReader.Read(iidata.iconXOR, 0, xorSize);
+                    if (nread != xorSize)
+                    {
+                        string msg = string.Format("{0} data length expected {1}, read {2}", "XOR", xorSize, nread);
+                        throw new ArgumentException(msg, "stream");
+                    }
+
+                    //Determine the AND array size
+                    numBytesPerLine = (int)((((bih.biWidth) + 31) & ~31) >> 3);
+                    int andSize = numBytesPerLine * iconHeight;
+                    iidata.iconAND = new byte[andSize];
+                    nread = bihReader.Read(iidata.iconAND, 0, andSize);
+                    if (nread != andSize)
+                    {
+                        string msg = string.Format("{0} data length expected {1}, read {2}", "AND", andSize, nread);
+                        throw new ArgumentException(msg, "stream");
+                    }
+
+                    imageData[j] = iidata;
+                }
 				bihReader.Close();
 			}			
 
