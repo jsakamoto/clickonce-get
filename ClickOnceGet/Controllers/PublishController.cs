@@ -131,6 +131,10 @@ namespace ClickOnceGet.Controllers
                     return msPng.ToArray();
                 }
             }
+            catch (OutOfMemoryException)
+            {
+                return NoImagePng();
+            }
             finally
             {
                 System.IO.File.Delete(tmpPath);

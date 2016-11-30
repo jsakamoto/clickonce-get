@@ -15,11 +15,11 @@
 
 <p>
     If you look applications with <img src="~/Views/Home/fig-signed-by-publisher.png" alt="Singed by Publisher" /> green badge,
-    it means <b>the application was signed by private key which owned by publisher's GitHub account SSH key.</b>
+    it means <b>the application was signed by SSH private key which owned by the publisher's GitHub account.</b>
 </p>
 
 <p>
-    You can verify it manualy by following steps.
+    You can verify it manually by following steps.
 </p>
 
 <h2>How to verify an app was signed by publisher or not?</h2>
@@ -31,15 +31,15 @@
     <li>Set the PATH environment variable to "C:\Program Files\Git\usr\bin" for executing "openssl" and "ssh-keygen" commands in command prompt.</li>
 </ul>
 
-<h3>Step 1. Get the SSH publick key of publisher's GitHub account</h3>
+<h3>Step 1. Get the SSH public key of publisher's GitHub account</h3>
 
 <ol>
     <li>
-        Open link publisher's GitHub profile page.
+        Open link the publisher's GitHub profile page.
         <div><img src="~/Views/Home/fig-lmac-01.png" alt="fig.1" /></div>
     </li>
     <li>
-        Append ".keys" to URL, and open it.
+        Append ".keys" to the URL, and open it.
         <div><img src="~/Views/Home/fig-lmac-02.png" alt="fig.2" /></div>
     </li>
     <li>
@@ -48,7 +48,7 @@
     </li>
 </ol>
 
-<h3>Step 2. Get the publick key of the application signed</h3>
+<h3>Step 2. Get the public key of the application signed</h3>
 
 <ol>
     <li>
@@ -56,11 +56,11 @@
         <div><img src="~/Views/Home/fig-lmac-04.png" alt="fig.4" /></div>
     </li>
     <li>
-        Open command prompt, and extract publick key from .cer file (DER format) and save to file with PEM format by following command.
+        Open command prompt, and extract the public key from .cer file (DER format) and save it to file with PEM format by following command.
         <pre>&gt; openssl x509 -in <i>".cer file path"</i> -inform DER -pubkey -noout &gt; <i>"PEM public key file path"</i></pre>
     </li>
     <li>
-        Convert publick key format from PEM to SSH by following command.
+        Convert public key format from PEM to SSH by following command.
         <pre>&gt; ssh-keygen.exe -i -m PKCS8 -f <i>"PEM public key file path"</i></pre>
     </li>
     <li>
@@ -73,10 +73,10 @@
 
 <p>Compare public keys with SSH format both from Step 1 and Step 2.</p>
 
-<p>If these public keys are same, it means <b>the application was signed by private key which owned by publisher.</b></p>
+<p>If these public keys are same, it means <b>the application was signed by private key which owned by the publisher.</b></p>
 
 <p>
-    If you trust publisher,
+    If you trust the publisher,
     and validated the application signed by publisher's private key in this way,
     you may be able to trust the application.
 </p>
@@ -90,7 +90,7 @@
     <li>Windows OS</li>
     <li>Installed Git for Windows</li>
     <li>Set the PATH environment variable to "C:\Program Files\Git\usr\bin" for executing "openssl" command in command prompt.</li>
-    <li>You already setuped SSH private/public key and registerd publick key to GitHub account.</li>
+    <li>You already setuped SSH private/public key and registerd public key to GitHub account.</li>
 </ul>
 
 <h3>Steps</h3>
@@ -99,21 +99,21 @@
     <li>Configure "C:\Program Files\OpenSSL\bin\openssl.cfg": Common name, expiration days, etc...</li>
 
     <li>
-        Open command prompt, and execute following command to generate self signed certificate (.cer file).
+        Open command prompt, and execute following command to generate a self signed certificate (.cer file).
         <pre>&gt; openssl req -new -x509 -key "%HOME%\.ssh\id_rsa" -out <i>"output .cer file path"</i></pre>
     </li>
 
     <li>
-        And generate .pfx file which contain private key by following command.
+        And generate .pfx file which contains the private key by following command.
         <pre>&gt; openssl pkcs12 -export -inkey "%HOME%\.ssh\id_rsa" -in <i>".cer file path (generated before step)"</i> -out <i>"output .pfx file path"</i></pre>
     </li>
     <li>
-        After yo get .pfx file, register the .pfx file to your PC's certifiate store as personal certificates.
-        You can do it by doubel clicking .pfx file on Explorer.
+        After yo get .pfx file, register the .pfx file to your PC's certificate store as personal certificates.
+        You can do it by double clicking .pfx file in Explorer.
         <div><img src="~/Views/Home/fig-lmac-06.gif" alt="fig.6" style="zoom:0.8" /></div>
     </li>
     <li>
-        Configure your ClickOnce application project on Visual Studio,
+        Configure your ClickOnce application project in Visual Studio,
         chose certificate via Project Property &gt;"Signing" category &gt; [Select from Store...].
         <div><img src="~/Views/Home/fig-lmac-07.png" alt="fig.7" /></div>
     </li>
