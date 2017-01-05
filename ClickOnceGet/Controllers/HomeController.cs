@@ -19,6 +19,9 @@ namespace ClickOnceGet.Controllers
         [AllowAnonymous]
         public ActionResult Index()
         {
+            if (Request.Url.Host != "localhost" && Request.Url.Scheme != "https")
+                return Redirect(Url.AppUrl(forceSecure: true));
+
             var allApps = this.AppsAPI.GetApps();
             return View(allApps);
         }
