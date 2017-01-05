@@ -422,10 +422,12 @@ namespace ClickOnceGet.Controllers
                 if (Regex.IsMatch(codebase, "^http(s)?://") == false)
                     return Error("The .application file that contained in .zip file you uploaded has invalid format codebase url as HTTP(s) protocol.");
 
-                var appUrl = this.Request.Url.AppUrl();
+                Func<string, string> stripSchema = url => Regex.Replace(url, "^http(s)?:", "");
+
+                var appUrl = this.Request.Url.AppUrl(forceSecure: true);
                 var actionUrl = this.Url.RouteUrl("Publish", new { appId = appName });
                 var baseUrl = appUrl + actionUrl;
-                if (codebase != (baseUrl + "/" + appName + ".application").ToLower())
+                if (stripSchema(codebase) != (stripSchema(baseUrl) + "/" + appName + ".application").ToLower())
                     return Error("The install URL is invalid. You should re-publish the application with fix the install URL as \"{0}\".", baseUrl);
             }
 
