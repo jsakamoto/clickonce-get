@@ -13,12 +13,11 @@
 }
 else if (ViewBag.HideSignInLink != true)
 {
-    using (Html.BeginForm("ExternalSignIn", "Account", FormMethod.Post, new { id = "signInForm", @class = "navbar-right", ReturnUrl = ViewBag.ReturnUrl }))
-    {
+    <form action="@(Url.AppUrl(forceSecure: true))/Account/ExternalSignIn" class="navbar-right" id="signInForm" method="post">
         @Html.AntiForgeryToken()
         <input type="hidden" name="provider" value="GitHub" />
         <a class="nav navbar-text navbar-right" href="javascript:document.getElementById('signInForm').submit()" title="Sign in using your GitHub account">
             Sign in with GitHub
         </a>
-    }
+    </form>
 }

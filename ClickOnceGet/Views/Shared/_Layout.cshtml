@@ -8,8 +8,8 @@
         var description = ViewBag.HeadDescription ?? Localize.Description;
         var keyword = ViewBag.HeadKeyword ?? "ClickOnce";
         var ogTitle = ViewBag.OgTitle ?? Localize.SiteTitle;
-        var ogUrl = ViewBag.OgUrl ?? Url.AppUrl();
-        var ogImageUrl = ViewBag.OgImageUrl ?? Url.AppUrl() + "/site-icon-200.png";
+        var ogUrl = ViewBag.OgUrl ?? Url.AppUrl(forceSecure: true);
+        var ogImageUrl = ViewBag.OgImageUrl ?? Url.AppUrl(forceSecure: true) + "/site-icon-200.png";
     }
     <meta name="twitter:card" content="summary">
     <meta property="og:title" content="@ogTitle" />
@@ -36,7 +36,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink(Localize.SiteTitle, "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                <a href="@Url.AppUrl(forceSecure: true)" class="navbar-brand">@Localize.SiteTitle</a>
             </div>
             <div class="navbar-collapse collapse">
                 @Html.Partial("_SignInPartial")

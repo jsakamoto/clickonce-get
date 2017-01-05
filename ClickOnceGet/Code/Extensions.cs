@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using ClickOnceGet.Models;
@@ -30,13 +31,25 @@ namespace ClickOnceGet
 
         public static string AppUrl(this Uri requestUrl)
         {
-            return requestUrl.GetLeftPart(UriPartial.Scheme | UriPartial.Authority);
+            return requestUrl.AppUrl(forceSecure: false);
         }
 
         public static string AppUrl(this UrlHelper urlHelper)
         {
+            return urlHelper.AppUrl(forceSecure: false);
+        }
+
+        public static string AppUrl(this Uri requestUrl, bool forceSecure)
+        {
+            var appUrl = requestUrl.GetLeftPart(UriPartial.Scheme | UriPartial.Authority);
+            if (forceSecure) appUrl = Regex.Replace(appUrl, "^http:", "https:");
+            return appUrl;
+        }
+
+        public static string AppUrl(this UrlHelper urlHelper, bool forceSecure)
+        {
             var request = urlHelper.RequestContext.HttpContext.Request;
-            return request.Url.GetLeftPart(UriPartial.Scheme | UriPartial.Authority);
+            return request.Url.AppUrl(forceSecure);
         }
     }
 }
