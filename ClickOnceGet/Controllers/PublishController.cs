@@ -257,9 +257,10 @@ namespace ClickOnceGet.Controllers
 
             if (ModelState.IsValid == false) return View();
 
+            var success = false;
+            var tmpPath = Server.MapPath($"~/App_Data/{userId}-{Guid.NewGuid():N}.zip");
             try
             {
-                var tmpPath = Server.MapPath($"~/App_Data/{userId}-{Guid.NewGuid():N}.zip");
                 zipedPackage.SaveAs(tmpPath);
                 using (var fs = new FileStream(tmpPath, FileMode.Open, FileAccess.Read))
                 using (var zip = new ZipArchive(fs))
@@ -274,8 +275,8 @@ namespace ClickOnceGet.Controllers
 
                     // Validate app name does not conflict.
                     var appName = Path.GetFileNameWithoutExtension(appFile.FullName);
-                    var success = this.ClickOnceFileRepository.GetOwnerRight(userId, appName);
-                    if (success == false) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", appName);
+                    var hasOwnerRight = this.ClickOnceFileRepository.GetOwnerRight(userId, appName);
+                    if (!hasOwnerRight) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", appName);
 
                     var appInfo = this.ClickOnceFileRepository.GetAppInfo(appName);
                     if (appInfo == null)
@@ -306,21 +307,27 @@ namespace ClickOnceGet.Controllers
                         }
                     }
 
-                    // Sweep temporary file if success.
-                    try { System.IO.File.Delete(tmpPath); }
-                    catch (Exception) { }
-
                     // Update certificate information.
                     this.UpdateCertificateInfo(appInfo);
 
                     this.ClickOnceFileRepository.SaveAppInfo(appName, appInfo);
 
+                    success = true;
                     return RedirectToAction("Edit", new { id = appName });
                 }
             }
             catch (System.IO.InvalidDataException)
             {
                 return Error("The file you uploaded looks like invalid Zip format.");
+            }
+            finally
+            {
+                // Sweep temporary file if success.
+                if (success)
+                {
+                    try { System.IO.File.Delete(tmpPath); }
+                    catch (Exception) { }
+                }
             }
         }
 
