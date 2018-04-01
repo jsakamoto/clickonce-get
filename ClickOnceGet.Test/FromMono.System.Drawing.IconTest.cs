@@ -18,7 +18,11 @@ namespace ClickOnceGet.Test.FromMono.System.Drawing
                 var icon = new global::FromMono.System.Drawing.Icon(fs, 128, 128);
 
                 var iconBmp = icon.ToBitmap();
-                iconBmp.Save(@"C:\tmp\xyz.bmp", ImageFormat.Bmp);
+                iconBmp.Save(PathOf("z-from-ico.bmp"), ImageFormat.Bmp);
+
+                var bmpZBytes = File.ReadAllBytes(PathOf("z.bmp"));
+                var bmpZfromIcoBytes = File.ReadAllBytes(PathOf("z-from-ico.bmp"));
+                bmpZfromIcoBytes.Is(bmpZBytes);
             }
         }
     }
