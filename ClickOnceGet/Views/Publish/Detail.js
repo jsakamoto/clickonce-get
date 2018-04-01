@@ -16,7 +16,7 @@ var Publish;
                 .catch(function () { alert('Oops... something wrong.'); });
         };
         return DetailController;
-    })();
+    }());
     Publish.DetailController = DetailController;
     app.controller('DetailController', DetailController);
 })(Publish || (Publish = {}));

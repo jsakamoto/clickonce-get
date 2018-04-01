@@ -12,7 +12,7 @@ var Publish;
             $scope.greeting = { text: 'Hello' };
         }
         return EditController;
-    })();
+    }());
     Publish.EditController = EditController;
     app.controller('EditController', EditController);
 })(Publish || (Publish = {}));
