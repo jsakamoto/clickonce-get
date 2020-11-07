@@ -1,0 +1,98 @@
+﻿@inject IDialogService Dialog
+@inject IJSRuntime JS
+@using static Toolbelt.Web.CssClassInlineBuilder
+
+<span>
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderAvatar>
+                <img class="icon" alt="@AppInfo.Title" src="@BaseUrl/icon" />
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+                <h2>
+                    <a class="title" href="@BaseUrl/detail" title="goto the application page.">
+                        @AppInfo.Title
+                    </a>
+                </h2>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            @if (!string.IsNullOrEmpty(AppInfo.ProjectURL))
+            {
+                <div class="project-url">
+                    <a href="@AppInfo.ProjectURL" target="_blank">
+                        @AppInfo.ProjectURL
+                    </a>
+                </div>
+            }
+
+            <div class="description">
+                @AppInfo.Description
+            </div>
+
+            <div class="status">
+                <span class="download-count">
+                    Downloads: @AppInfo.NumberOfDownloads
+                </span>
+                <span class="time-stamp">
+                    Update: @AppInfo.RegisteredAt.ToShortDateString()
+                </span>
+                <span class="publisher">
+                    Published by
+                    <a href="@AppInfo.PublisherURL" target="_blank">
+                        <MudAvatar Image="@AppInfo.PublisherAvatorImageURL" Size="Size.Small" alt="@AppInfo.PublisherName" />
+                        <span class="publisher-name">@AppInfo.PublisherName</span>
+                    </a>
+                </span>
+                <span class="code-signing">
+                    @{var certUrl = BaseUrl + $"/cert/{Uri.EscapeUriString(AppInfo.Name)}.cer"; }
+                    @if (AppInfo.HasCodeSigning == false)
+                    {
+                        <span class="no-code-signing">No Valid Code Signing</span>
+                    }
+                    else if (AppInfo.SignedByPublisher)
+                    {
+                        <a class="signed-by-publisher" href="@certUrl" target="_top">
+                            Signed by publisher
+                        </a>
+                        <a class="learn-more" href="LearnMoreAboutCertificate" title="What's mean &quot;Signed by Pubisher&quot;?" target="_blank">
+                            👉
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="signed-by-publisher" href="@certUrl" target="_top">
+                            Code Signing
+                        </a>
+                    }
+                </span>
+            </div>
+        </MudCardContent>
+
+        <MudCardActions>
+            <MudButton OnClick="OnClickCliclOnceButton"
+                       title="Click here to start download, install, and launch the app."
+                       Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Medium" EndIcon="@Icons.Material.GetApp">
+                ClickOnce
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+</span>
+
+@code {
+    [Parameter]
+    public ClickOnceAppInfo AppInfo { get; set; }
+
+    private string _BaseUrl = null;
+
+    private string BaseUrl { get { if (_BaseUrl == null) _BaseUrl = "app/" + Uri.EscapeUriString(AppInfo.Name); return _BaseUrl; } }
+
+    private async Task OnClickCliclOnceButton()
+    {
+        var response = await Dialog.Show<WarnBeforeClickOnceDialog>(title: "Warning").Result;
+        if (response.Cancelled) return;
+
+        await JS.InvokeVoidAsync("ClickOnceGet.Client.Helper.startClickOnce", BaseUrl);
+    }
+}

@@ -1,0 +1,30 @@
+﻿<MudDialog>
+    <DialogContent>
+        @*<MudText Typo="Typo.h5">
+                <MudIcon Icon="@Icons.Material.Warning" Color="Color.Warning"></MudIcon>
+                Warning
+            </MudText>*@
+        <MudText>
+            Tincidunt integer eu augue augue nunc elit dolor, luctus placerat scelerisque euismod, iaculis eu lacus nunc mi elit, vehicula ut laoreet ac, aliquam sit amet justo nunc tempor, metus vel.
+        </MudText>
+        <MudCheckBox Label="I UNDERSTAND." Color="Color.Secondary" Class="my-4" @bind-Checked="Understood"></MudCheckBox>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="Submit" Disabled="@(!Understood)" Color="Color.Primary" Variant="Variant.Outlined" EndIcon="@Icons.Material.GetApp">
+            ClickOnce
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    private bool Understood = false;
+
+    void Cancel() => MudDialog.Cancel();
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+}

@@ -1,0 +1,25 @@
+﻿@page "/"
+@inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
+
+<div class="jumbo-tron">
+    <h1>ClickOnce Get</h1>
+
+    <p>"ClickOnce Get" is a web site that is publishing point of your ClickOnce applications.</p>
+</div>
+
+<div>
+    @foreach (var app in _Apps)
+    {
+        <ClickOnceApp AppInfo="app" />
+    }
+</div>
+
+
+@code {
+    private IEnumerable<ClickOnceAppInfo> _Apps = Enumerable.Empty<ClickOnceAppInfo>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _Apps = await ClickOnceAppInfoProvider.GetClickOnceAppsAsync();
+    }
+}

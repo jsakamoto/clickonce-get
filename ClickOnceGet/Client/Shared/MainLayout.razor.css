@@ -1,0 +1,11 @@
+::deep header {
+    overflow: hidden;
+}
+
+::deep a {
+    color: #428bca;
+}
+
+    ::deep a:hover, ::deep a:active, ::deep a:focus {
+        text-decoration: underline;
+    }
