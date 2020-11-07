@@ -16,9 +16,15 @@ namespace ClickOnceGet.Client.Services
             HttpClient = httpClient;
         }
 
-        public async Task<IEnumerable<ClickOnceAppInfo>> GetClickOnceAppsAsync()
+        public async Task<IEnumerable<ClickOnceAppInfo>> GetAllAppsAsync()
         {
             var apps = await HttpClient.GetFromJsonAsync<ClickOnceAppInfo[]>("/api/apps");
+            return apps;
+        }
+
+        public async Task<IEnumerable<ClickOnceAppInfo>> GetOwnedAppsAsync()
+        {
+            var apps = await HttpClient.GetFromJsonAsync<ClickOnceAppInfo[]>("/api/myapps");
             return apps;
         }
     }

@@ -71,11 +71,24 @@
         </MudCardContent>
 
         <MudCardActions>
-            <MudButton OnClick="OnClickCliclOnceButton"
-                       title="Click here to start download, install, and launch the app."
-                       Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Medium" EndIcon="@Icons.Material.GetApp">
-                ClickOnce
-            </MudButton>
+            @if (Manage)
+            {
+                <MudButton OnClick="@(()=> OnClickDelete.InvokeAsync(AppInfo))"
+                           Variant="Variant.Text" Color="Color.Secondary" Size="Size.Medium" StartIcon="@Icons.Material.Delete">
+                    Delete
+                </MudButton>
+                <MudButton OnClick="@(()=> OnClickDelete.InvokeAsync(AppInfo))"
+                           Variant="Variant.Text" Color="Color.Default" Size="Size.Medium" StartIcon="@Icons.Material.Edit">
+                    Edit
+                </MudButton>
+            }
+            else
+            {
+                <MudButton OnClick="OnClickCliclOnceButton" title="Click here to start download, install, and launch the app."
+                           Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Medium" EndIcon="@Icons.Material.GetApp">
+                    ClickOnce
+                </MudButton>
+            }
         </MudCardActions>
     </MudCard>
 </span>
@@ -83,6 +96,15 @@
 @code {
     [Parameter]
     public ClickOnceAppInfo AppInfo { get; set; }
+
+    [Parameter]
+    public bool Manage { get; set; }
+
+    [Parameter]
+    public EventCallback<ClickOnceAppInfo> OnClickEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<ClickOnceAppInfo> OnClickDelete { get; set; }
 
     private string _BaseUrl = null;
 

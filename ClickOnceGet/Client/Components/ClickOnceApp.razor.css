@@ -40,6 +40,10 @@
     padding-bottom: 0;
 }
 
+    ::deep .mud-card-content a {
+        color: #428bca;
+    }
+
 .status {
     color: #777;
 }

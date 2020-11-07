@@ -1,10 +1,11 @@
 ﻿@inherits LayoutComponentBase
 @inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
 
 <div>
     <MudAppBar Position="Position.Static" Class="">
-        <h1>ClickOnce Get</h1>
+        <h1><a href="/">ClickOnce Get</a></h1>
 
         <MudAppBarSpacer />
 
@@ -14,6 +15,7 @@
                     <MudAvatar Image="@($"https://avatars.githubusercontent.com/{context.User.Identity.Name}")" Size="Size.Medium" alt="@context.User.Identity.Name" />
                     @context.User.Identity.Name
                     <MudMenu Icon="@Icons.Material.MoreVert" Color="Color.Inherit">
+                        <MudMenuItem OnClick="OnClickMageApps">Manage applications</MudMenuItem>
                         <MudMenuItem OnClick="OnClickSignOut">Sign out</MudMenuItem>
                     </MudMenu>
                 </span>
@@ -36,5 +38,10 @@
     {
         await this.HttpClient.PostAsync("auth/signout", new StringContent(""));
         await (AuthStateProvider as ClientSideAuthenticationStateProvider)?.RefreshAsync();
+    }
+
+    public void OnClickMageApps()
+    {
+        NavigationManager.NavigateTo("myapps");
     }
 }

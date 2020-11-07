@@ -20,6 +20,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _Apps = await ClickOnceAppInfoProvider.GetClickOnceAppsAsync();
+        _Apps = await ClickOnceAppInfoProvider.GetAllAppsAsync();
     }
 }

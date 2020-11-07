@@ -6,6 +6,8 @@ namespace ClickOnceGet.Shared.Services
 {
     public interface IClickOnceAppInfoProvider
     {
-        Task<IEnumerable<ClickOnceAppInfo>> GetClickOnceAppsAsync();
+        Task<IEnumerable<ClickOnceAppInfo>> GetAllAppsAsync();
+
+        Task<IEnumerable<ClickOnceAppInfo>> GetOwnedAppsAsync();
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ClickOnceGet.Server.Services;
 using ClickOnceGet.Shared.Models;
+using ClickOnceGet.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,18 +13,23 @@ namespace ClickOnceGet.Server.Controllers
     [ApiController]
     public class ApplicationsController : Controller
     {
+        private IClickOnceAppInfoProvider ClickOnceAppInfoProvider { get; }
+
         private IClickOnceFileRepository ClickOnceFileRepository { get; }
 
-        public ApplicationsController(IClickOnceFileRepository clickOnceFileRepository)
+        public ApplicationsController(
+            IClickOnceAppInfoProvider clickOnceAppInfoProvider,
+            IClickOnceFileRepository clickOnceFileRepository)
         {
+            this.ClickOnceAppInfoProvider = clickOnceAppInfoProvider;
             this.ClickOnceFileRepository = clickOnceFileRepository;
         }
 
         // GET api/apps
         [HttpGet("api/apps")]
-        public IEnumerable<ClickOnceAppInfo> GetApps()
+        public Task<IEnumerable<ClickOnceAppInfo>> GetAllAppsAsync()
         {
-            return this.ClickOnceFileRepository.EnumAllApps();
+            return this.ClickOnceAppInfoProvider.GetAllAppsAsync();
         }
 
         // GET api/apps/appname
@@ -36,12 +43,9 @@ namespace ClickOnceGet.Server.Controllers
 
         // GET api/myapps
         [Authorize, HttpGet("api/myapps")]
-        public IEnumerable<ClickOnceAppInfo> GetMyApps()
+        public Task<IEnumerable<ClickOnceAppInfo>> GetOwnedAppsAsync()
         {
-            var userId = User.GetHashedUserId();
-            if (userId == null) throw new Exception("hashed user id is null.");
-
-            return this.GetApps().Where(app => app.OwnerId == userId);
+            return this.ClickOnceAppInfoProvider.GetOwnedAppsAsync();
         }
 
         // DELETE api/apps/appname or api/myapps/appname

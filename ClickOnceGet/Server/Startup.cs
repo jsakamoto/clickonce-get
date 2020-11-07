@@ -1,3 +1,6 @@
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using ClickOnceGet.Server.Services;
 using ClickOnceGet.Shared;
 using ClickOnceGet.Shared.Services;
@@ -28,12 +31,13 @@ namespace ClickOnceGet.Server
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddHttpClient();
+            services.AddHttpContextAccessor();
 
             services.AddSharedServices();
 
             services.AddSingleton<CertificateValidater>();
             services.AddSingleton<IClickOnceFileRepository, AppDataDirRepository>();
-            services.AddSingleton<IClickOnceAppInfoProvider, ServerSideClickOnceAppInfoProvider>();
+            services.AddScoped<IClickOnceAppInfoProvider, ServerSideClickOnceAppInfoProvider>();
 
             services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -42,7 +46,17 @@ namespace ClickOnceGet.Server
                     options.ClientId = Configuration.GetValue<string>("Authentication:GitHub:ClientId");
                     options.ClientSecret = Configuration.GetValue<string>("Authentication:GitHub:ClientSecret");
                 })
-                .AddCookie();
+                .AddCookie(options =>
+                {
+                    options.Events.OnSigningIn = (context) =>
+                    {
+                        var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
+                        var providerKey = claimsIdentity.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                        claimsIdentity.AddClaim(new Claim(CustomClaimTypes.IdentityProvider, "GitHub"));
+                        claimsIdentity.AddClaim(new Claim(CustomClaimTypes.HasedUserId, $"GitHub|{providerKey}|{Configuration["Authentication:Salt"]}".ToMD5()));
+                        return Task.CompletedTask;
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
