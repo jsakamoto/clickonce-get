@@ -9,3 +9,19 @@
     ::deep a:hover, ::deep a:active, ::deep a:focus {
         text-decoration: underline;
     }
+
+.user-view ::deep .mud-avatar {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.user-view ::deep .mud-menu {
+    vertical-align: middle;
+}
+
+.user-view ::deep .mud-popover {
+    position: fixed;
+    right: 0;
+    top: 60px;
+}

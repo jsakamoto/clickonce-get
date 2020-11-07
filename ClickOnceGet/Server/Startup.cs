@@ -1,7 +1,10 @@
 using ClickOnceGet.Server.Services;
 using ClickOnceGet.Shared;
 using ClickOnceGet.Shared.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +34,15 @@ namespace ClickOnceGet.Server
             services.AddSingleton<CertificateValidater>();
             services.AddSingleton<IClickOnceFileRepository, AppDataDirRepository>();
             services.AddSingleton<IClickOnceAppInfoProvider, ServerSideClickOnceAppInfoProvider>();
+
+            services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddGitHub(options =>
+                {
+                    options.ClientId = Configuration.GetValue<string>("Authentication:GitHub:ClientId");
+                    options.ClientSecret = Configuration.GetValue<string>("Authentication:GitHub:ClientSecret");
+                })
+                .AddCookie();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,6 +65,7 @@ namespace ClickOnceGet.Server
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ClickOnceGet.Client.Services;
 using ClickOnceGet.Shared;
 using ClickOnceGet.Shared.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +20,8 @@ namespace ClickOnceGet.Client
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             builder.Services.AddSharedServices();
+            builder.Services.AddAuthorizationCore();
+            builder.Services.AddScoped<AuthenticationStateProvider, ClientSideAuthenticationStateProvider>();
             builder.Services.AddScoped<IClickOnceAppInfoProvider, ClientSideClickOnceAppInfoProvider>();
 
             await builder.Build().RunAsync();
