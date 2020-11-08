@@ -8,7 +8,7 @@
 </div>
 
 <div>
-    @foreach (var app in _Apps)
+    @foreach (var app in Apps)
     {
         <ClickOnceApp AppInfo="app" />
     }
@@ -16,10 +16,10 @@
 
 
 @code {
-    private IEnumerable<ClickOnceAppInfo> _Apps = Enumerable.Empty<ClickOnceAppInfo>();
+    private IEnumerable<ClickOnceAppInfo> Apps = Enumerable.Empty<ClickOnceAppInfo>();
 
     protected override async Task OnInitializedAsync()
     {
-        _Apps = await ClickOnceAppInfoProvider.GetAllAppsAsync();
+        this.Apps = await this.ClickOnceAppInfoProvider.GetAllAppsAsync();
     }
 }

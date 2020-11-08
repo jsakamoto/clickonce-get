@@ -1,8 +1,9 @@
 ﻿@page "/myapps/{appName}"
 @attribute [Authorize]
-@inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
-@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
 @inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
 
 <h2>Edit My App</h2>
 
@@ -55,6 +56,9 @@
         var response = await this.HttpClient.PutAsJsonAsync(url, AppInfo);
         if (response.IsSuccessStatusCode)
         {
+            this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
+            this.Snackbar.Default($"The \"{AppInfo.Title}\" was updated.");
+
             this.NavigationManager.NavigateTo("myapps");
         }
         else

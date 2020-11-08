@@ -1,6 +1,8 @@
 ﻿@page "/myapps/upload"
 @attribute [Authorize]
-@inject HttpClient Http
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
 @using System.Net.Http.Headers
 
 <MudContainer>
@@ -49,38 +51,43 @@
 
     private void OnClickChoseFile()
     {
-        ErrorMessage = "";
-        Uploadable = false;
+        this.ErrorMessage = "";
+        this.Uploadable = false;
     }
 
     private void OnInputFileChange(InputFileChangeEventArgs args)
     {
-        LastSelectedFile = args.File;
+        this.LastSelectedFile = args.File;
         if (args.File.Size > MaxAllowedSize)
         {
-            ErrorMessage = $"The size of chosed file ({args.File.Size / 1024.0 / 1024.0:#,0.0}MB) is over {MaxAllowedSizeMB}MB.";
+            this.ErrorMessage = $"The size of chosed file ({args.File.Size / 1024.0 / 1024.0:#,0.0}MB) is over {MaxAllowedSizeMB}MB.";
         }
         else
         {
-            Uploadable = true;
+            this.Uploadable = true;
         }
     }
-
 
     private async Task OnClickStartUpload()
     {
         try
         {
-            using var stream = LastSelectedFile.OpenReadStream(MaxAllowedSize);
+            using var stream = this.LastSelectedFile.OpenReadStream(MaxAllowedSize);
             var content = new MultipartFormDataContent();
             content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
             content.Add(new StreamContent(stream, Convert.ToInt32(LastSelectedFile.Size)), "zipedPackage", LastSelectedFile.Name);
 
-            var postResult = await Http.PostAsync("api/myapps/zipedpackage", content);
-            var postContent = await postResult.Content.ReadAsStringAsync();
-
-            Console.WriteLine($"IsSuccessStatusCode: {postResult.IsSuccessStatusCode}");
-            Console.WriteLine($"postContent: {postContent}");
+            var response = await this.HttpClient.PostAsync("api/myapps/zipedpackage", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var url = $"myapps/{Uri.EscapeUriString(responseContent)}";
+                this.NavigationManager.NavigateTo(url);
+            }
+            else
+            {
+                Console.WriteLine($"responseContent: {responseContent}");
+            }
         }
         catch (Exception e)
         {

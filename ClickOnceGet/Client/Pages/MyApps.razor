@@ -1,17 +1,17 @@
 ﻿@page "/myapps"
 @attribute [Authorize]
-@inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
-@inject IDialogService Dialog
 @inject ISnackbar Snackbar
-@inject HttpClient Http
+@inject HttpClient HttpClient
+@inject IDialogService Dialog
 @inject NavigationManager NavigationManager
+@inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
 
 <MudContainer>
     <h2>Manage Applications</h2>
 </MudContainer>
 
 <div>
-    @foreach (var app in _Apps)
+    @foreach (var app in Apps)
     {
         <ClickOnceApp @key="app.Name" AppInfo="app" Manage="true" OnClickEdit="OnClickEdit" OnClickDelete="OnClickDelete" />
     }
@@ -24,12 +24,12 @@
 </div>
 
 @code {
-    private List<ClickOnceAppInfo> _Apps = new List<ClickOnceAppInfo>();
+    private List<ClickOnceAppInfo> Apps = new List<ClickOnceAppInfo>();
 
     protected override async Task OnInitializedAsync()
     {
-        var myApps = await ClickOnceAppInfoProvider.GetOwnedAppsAsync();
-        _Apps.AddRange(myApps);
+        var myApps = await this.ClickOnceAppInfoProvider.GetOwnedAppsAsync();
+        this.Apps.AddRange(myApps);
     }
 
     private void OnClickEdit(ClickOnceAppInfo appInfo)
@@ -41,14 +41,14 @@
     {
         var param = new DialogParameters();
         param.Add("Message", $"This operation delete the \"{appInfo.Title}\" application from this site. This operation cannot rollback. Are you sure?");
-        var response = await Dialog.Show<ConfirmDialog>(title: "Delete the application", param).Result;
+        var response = await this.Dialog.Show<ConfirmDialog>(title: "Delete the application", param).Result;
         if (response.Cancelled) return;
 
-        await Http.DeleteAsync($"api/myapps/{Uri.EscapeUriString(appInfo.Name)}");
+        await this.HttpClient.DeleteAsync($"api/myapps/{Uri.EscapeUriString(appInfo.Name)}");
 
-        _Apps.Remove(appInfo);
+        this.Apps.Remove(appInfo);
 
-        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-        Snackbar.Default($"The \"{appInfo.Title}\" application was deleted.");
+        this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
+        this.Snackbar.Default($"The \"{appInfo.Title}\" application was deleted.");
     }
 }
