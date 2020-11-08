@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ClickOnceGet.Server.Controllers
 {
-    [ApiController]
+    [ApiController, AutoValidateAntiforgeryToken]
     public class ApplicationsController : ControllerBase
     {
         private IWebHostEnvironment WebHostEnv { get; }

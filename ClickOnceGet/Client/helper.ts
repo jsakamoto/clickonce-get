@@ -5,4 +5,14 @@
         anchorElement.click();
         anchorElement.remove();
     }
+
+    export function getCookie(key: string): string {
+        const entry = document.cookie
+            .split(';')
+            .map(keyvalue => keyvalue.trim().split('='))
+            .filter(keyvalue => decodeURIComponent(keyvalue[0]) === key)
+            .pop();
+        if (typeof (entry) === 'undefined') return '';
+        return decodeURIComponent(entry[1]);
+    }
 }

@@ -1,8 +1,9 @@
 ﻿@page "/"
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@using Microsoft.AspNetCore.Http
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -32,3 +33,8 @@
 </body>
 
 </html>
+
+@{
+    var tokens = this.Antiforgery.GetAndStoreTokens(this.HttpContext);
+    this.Response.Cookies.Append("X-ANTIFORGERY-TOKEN", tokens.RequestToken, new CookieOptions { HttpOnly = false });
+}

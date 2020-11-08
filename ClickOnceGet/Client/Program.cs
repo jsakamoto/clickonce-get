@@ -7,6 +7,7 @@ using ClickOnceGet.Shared.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 
 namespace ClickOnceGet.Client
 {
@@ -17,7 +18,15 @@ namespace ClickOnceGet.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddScoped(services =>
+            {
+                var httpClient = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
+                var jsRuntime = services.GetService<IJSRuntime>() as IJSInProcessRuntime;
+                httpClient.DefaultRequestHeaders.Add(
+                    "X-ANTIFORGERY-TOKEN",
+                    jsRuntime.Invoke<string>("ClickOnceGet.Client.Helper.getCookie", "X-ANTIFORGERY-TOKEN"));
+                return httpClient;
+            });
 
             builder.Services.AddSharedServices();
             builder.Services.AddAuthorizationCore();

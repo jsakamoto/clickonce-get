@@ -32,6 +32,7 @@ namespace ClickOnceGet.Server
             services.AddRazorPages();
             services.AddHttpClient();
             services.AddHttpContextAccessor();
+            services.AddAntiforgery(options => options.HeaderName = "X-ANTIFORGERY-TOKEN");
 
             services.AddSharedServices();
 
