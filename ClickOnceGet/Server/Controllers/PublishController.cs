@@ -25,19 +25,15 @@ namespace ClickOnceGet.Server.Controllers
 
         public IClickOnceFileRepository ClickOnceFileRepository { get; }
 
-        private CertificateValidater CertificateValidater { get; }
-
         private ClickOnceAppContentManager AppContentManager { get; }
 
         public PublishController(
             IWebHostEnvironment webHostEnv,
             IClickOnceFileRepository clickOnceFileRepository,
-            CertificateValidater certificateValidater,
             ClickOnceAppContentManager appContentManager)
         {
             this.WebHostEnv = webHostEnv;
             this.ClickOnceFileRepository = clickOnceFileRepository;
-            this.CertificateValidater = certificateValidater;
             this.AppContentManager = appContentManager;
         }
 
@@ -127,93 +123,13 @@ namespace ClickOnceGet.Server.Controllers
             return System.IO.File.ReadAllBytes(Path.Combine(WebHostEnv.WebRootPath, "images", "no-image.png"));
         }
 
-        [HttpGet("publish/register")]
-        public ActionResult Register()
-        {
-            return View();
-        }
-
-        [HttpGet("publish/edit")]
-        public ActionResult Edit(string id)
-        {
-            var result = GetMyAppInfo(id);
-            if (result.Value == null) return result.Result;
-
-            var theApp = result.Value;
-            return View(theApp);
-        }
-
-        [HttpPost("publish/edit"), ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(string id, ClickOnceAppInfo model, bool disclosePublisher, [FromQuery] string from = "")
-        {
-            var result = GetMyAppInfo(id);
-            if (result.Value == null) return result.Result;
-
-            if (ModelState.IsValid == false) return View(model);
-
-            var appInfo = result.Value;
-            appInfo.Title = model.Title;
-            appInfo.Description = model.Description;
-            appInfo.ProjectURL = model.ProjectURL;
-            SetupPublisherInformtion(disclosePublisher, appInfo);
-
-            appInfo.SignedByPublisher = false;
-            if (appInfo.HasCodeSigning == null)
-                await this.AppContentManager.UpdateCertificateInfoAsync(appInfo);
-            else if (appInfo.HasCodeSigning == true && appInfo.PublisherName != null)
-            {
-                var tmpPath = Path.Combine(WebHostEnv.ContentRootPath, "App_Data", $"{Guid.NewGuid():N}.cer");
-                try
-                {
-                    var certBin = this.ClickOnceFileRepository.GetFileContent(id, ".cer");
-                    System.IO.File.WriteAllBytes(tmpPath, certBin);
-                    var sshPubKeyStr = await CertificateValidater.GetSSHPubKeyStrOfGitHubAccountAsync(appInfo.PublisherName);
-                    appInfo.SignedByPublisher = CertificateValidater.EqualsPublicKey(sshPubKeyStr, tmpPath);
-                }
-                finally { System.IO.File.Delete(tmpPath); }
-            }
-
-            this.ClickOnceFileRepository.SaveAppInfo(id, appInfo);
-
-            return from == "detail" ? RedirectToRoute("Detail", new { appId = appInfo.Name }) : RedirectToAction("MyApps", "Home");
-        }
-
-        private void SetupPublisherInformtion(bool disclosePublisher, ClickOnceAppInfo appInfo)
-        {
-            if (disclosePublisher)
-            {
-                var gitHubUserName = User.Identity.Name;
-                appInfo.PublisherName = gitHubUserName;
-                appInfo.PublisherURL = "https://github.com/" + gitHubUserName;
-                appInfo.PublisherAvatorImageURL = "https://avatars.githubusercontent.com/" + gitHubUserName;
-            }
-            else
-            {
-                appInfo.PublisherName = null;
-                appInfo.PublisherURL = null;
-                appInfo.PublisherAvatorImageURL = null;
-            }
-        }
-
-        private ActionResult<ClickOnceAppInfo> GetMyAppInfo(string id)
-        {
-            var userId = User.GetHashedUserId();
-            if (userId == null) throw new Exception("hashed user id is null.");
-
-            var theApp = this.ClickOnceFileRepository.GetAppInfo(id);
-            if (theApp == null) return NotFound();
-            if (theApp.OwnerId != userId) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", id);
-
-            return theApp;
-        }
-
         private ActionResult CheckCodeBaseUrl(string appName, byte[] buff)
         {
             var appManifest = default(XDocument);
             try
             {
-                using (var ms = new MemoryStream(buff))
-                    appManifest = XDocument.Load(ms);
+                using var ms = new MemoryStream(buff);
+                appManifest = XDocument.Load(ms);
             }
             catch (XmlException)
             {
@@ -246,15 +162,6 @@ namespace ClickOnceGet.Server.Controllers
         {
             this.ModelState.AddModelError("Error", string.Format(message, args));
             return View();
-        }
-
-        [HttpGet("publish/detail"), AllowAnonymous]
-        public ActionResult Detail(string appId)
-        {
-            var appInfo = this.ClickOnceFileRepository.GetAppInfo(appId);
-            if (appInfo == null) return NotFound();
-
-            return View(appInfo);
         }
     }
 }

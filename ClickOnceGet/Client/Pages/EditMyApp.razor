@@ -1,0 +1,65 @@
+﻿@page "/myapps/{appName}"
+@attribute [Authorize]
+@inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<h2>Edit My App</h2>
+
+<MudContainer>
+    @if (AppInfo != null)
+    {
+        <MudText>@AppInfo.Name</MudText>
+
+        <div class="my-4">
+            <MudTextField T="string" Label="Title" HelperText="optional, max 140 characters" InputType="InputType.Text"
+                          @bind-Value="AppInfo.Title" />
+        </div>
+        <div class="my-4">
+            <MudTextField T="string" Label="Description" HelperText="optional, max 140 characters" InputType="InputType.Text" Lines="5"
+                          @bind-Value="AppInfo.Description" />
+        </div>
+        <MudTextField T="string" Label="Project URL" HelperText="optional" InputType="InputType.Text"
+                      @bind-Value="AppInfo.ProjectURL" />
+        <MudCheckBox Label="Disclose publisher account name"
+                     @bind-Checked="DisclosePublisher" />
+    }
+    <div class="my-6">
+        <MudButton OnClick="OnClickBack">Back to my apps</MudButton>
+        <MudButton OnClick="OnClickSave" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
+    </div>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string AppName { get; set; }
+
+    private ClickOnceAppInfo AppInfo;
+
+    private bool DisclosePublisher;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.AppInfo = await ClickOnceAppInfoProvider.GetAppAsync(AppName);
+        this.DisclosePublisher = !string.IsNullOrEmpty(AppInfo.PublisherName);
+    }
+
+    private void OnClickBack()
+    {
+        this.NavigationManager.NavigateTo("myapps");
+    }
+
+    private async Task OnClickSave()
+    {
+        var url = $"api/myapps/{Uri.EscapeUriString(AppInfo.Name)}?disclosePublisher={DisclosePublisher}";
+        var response = await this.HttpClient.PutAsJsonAsync(url, AppInfo);
+        if (response.IsSuccessStatusCode)
+        {
+            this.NavigationManager.NavigateTo("myapps");
+        }
+        else
+        {
+            var responseContent = await response.Content.ReadAsStringAsync();
+        }
+    }
+}

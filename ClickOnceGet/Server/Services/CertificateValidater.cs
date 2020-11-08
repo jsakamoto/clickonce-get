@@ -38,9 +38,9 @@ namespace ClickOnceGet.Server.Services
             return modules2.Any(module2 => Enumerable.SequenceEqual(module1, module2));
         }
 
-        public bool EqualsPublicKey(string sshPubKeyString, X509Certificate pathOfCert)
+        public bool EqualsPublicKey(string sshPubKeyString, X509Certificate cert)
         {
-            var module1 = GetModuleFromX509CertificateFile(pathOfCert);
+            var module1 = GetModuleFromX509CertificateFile(cert);
             var modules2 = GetModuleFromSSHPublicKeyString(sshPubKeyString);
             return modules2.Any(module2 => Enumerable.SequenceEqual(module1, module2));
         }

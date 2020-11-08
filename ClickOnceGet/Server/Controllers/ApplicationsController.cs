@@ -61,7 +61,7 @@ namespace ClickOnceGet.Server.Controllers
         }
 
         // DELETE api/apps/appname or api/myapps/appname
-        [Authorize, HttpDelete, Route("api/apps/{appName}"), Route("api/myapps/{appName}")]
+        [Authorize, HttpDelete("api/myapps/{appName}")]
         public ActionResult DeleteApp(string appName)
         {
             //this.Request.RequestUri.
@@ -78,7 +78,7 @@ namespace ClickOnceGet.Server.Controllers
 
         // POST api/myapps/zipedpackage
         [Authorize, HttpPost("api/myapps/zipedpackage")]
-        public async Task<ActionResult> Register(IFormFile zipedPackage)
+        public async Task<ActionResult> UploadAppAsync(IFormFile zipedPackage)
         {
             var userId = User.GetHashedUserId();
             if (userId == null) throw new Exception("hashed user id is null.");
@@ -154,6 +154,46 @@ namespace ClickOnceGet.Server.Controllers
                     try { System.IO.File.Delete(tmpPath); }
                     catch (Exception) { }
                 }
+            }
+        }
+
+        // PUT api/myapps/{appName}
+        [Authorize, HttpPut("api/myapps/{appName}")]
+        public async Task<ActionResult> PutAppAsync(
+            string appName,
+            [FromQuery] bool disclosePublisher,
+            [FromBody] ClickOnceAppInfo appInfo)
+        {
+            var targerAppInfo = await this.ClickOnceAppInfoProvider.GetAppAsync(appName);
+            if (targerAppInfo == null) return NotFound($"The application \"{appName}\"not found.");
+            if (targerAppInfo.OwnerId != User.GetHashedUserId()) return Forbid($"You don't have owner rights of the \"{appName}\" application.");
+
+            targerAppInfo.Title = appInfo.Title;
+            targerAppInfo.Description = appInfo.Description;
+            targerAppInfo.ProjectURL = appInfo.ProjectURL;
+            this.SetupPublisherInformtion(disclosePublisher, targerAppInfo);
+
+            await this.AppContentManager.UpdateSignedByPublisherAsync(targerAppInfo);
+
+            this.ClickOnceFileRepository.SaveAppInfo(appName, targerAppInfo);
+
+            return NoContent();
+        }
+
+        private void SetupPublisherInformtion(bool disclosePublisher, ClickOnceAppInfo appInfo)
+        {
+            if (disclosePublisher)
+            {
+                var gitHubUserName = User.Identity.Name;
+                appInfo.PublisherName = gitHubUserName;
+                appInfo.PublisherURL = "https://github.com/" + gitHubUserName;
+                appInfo.PublisherAvatorImageURL = "https://avatars.githubusercontent.com/" + gitHubUserName;
+            }
+            else
+            {
+                appInfo.PublisherName = null;
+                appInfo.PublisherURL = null;
+                appInfo.PublisherAvatorImageURL = null;
             }
         }
     }

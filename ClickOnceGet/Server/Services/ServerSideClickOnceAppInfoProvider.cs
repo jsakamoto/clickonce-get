@@ -17,8 +17,7 @@ namespace ClickOnceGet.Server.Services
 
         public ServerSideClickOnceAppInfoProvider(
             IClickOnceFileRepository clickOnceFileRepository,
-            IHttpContextAccessor httpContextAccessor
-            )
+            IHttpContextAccessor httpContextAccessor)
         {
             ClickOnceFileRepository = clickOnceFileRepository;
             HttpContextAccessor = httpContextAccessor;
@@ -27,6 +26,12 @@ namespace ClickOnceGet.Server.Services
         public Task<IEnumerable<ClickOnceAppInfo>> GetAllAppsAsync()
         {
             return Task.FromResult(this.ClickOnceFileRepository.EnumAllApps());
+        }
+
+        public async Task<ClickOnceAppInfo?> GetAppAsync(string appName)
+        {
+            var appInfo = this.ClickOnceFileRepository.GetAppInfo(appName);
+            return await Task.FromResult(appInfo);
         }
 
         public async Task<IEnumerable<ClickOnceAppInfo>> GetOwnedAppsAsync()

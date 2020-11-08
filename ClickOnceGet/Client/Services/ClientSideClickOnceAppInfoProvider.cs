@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -20,6 +21,11 @@ namespace ClickOnceGet.Client.Services
         {
             var apps = await HttpClient.GetFromJsonAsync<ClickOnceAppInfo[]>("/api/apps");
             return apps;
+        }
+
+        public Task<ClickOnceAppInfo> GetAppAsync(string appName)
+        {
+            return HttpClient.GetFromJsonAsync<ClickOnceAppInfo>($"/api/apps/{Uri.EscapeUriString(appName)}");
         }
 
         public async Task<IEnumerable<ClickOnceAppInfo>> GetOwnedAppsAsync()

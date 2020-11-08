@@ -4,6 +4,7 @@
 @inject IDialogService Dialog
 @inject ISnackbar Snackbar
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
 
 <MudContainer>
     <h2>Manage Applications</h2>
@@ -33,6 +34,7 @@
 
     private void OnClickEdit(ClickOnceAppInfo appInfo)
     {
+        NavigationManager.NavigateTo($"myapps/{Uri.EscapeUriString(appInfo.Name)}");
     }
 
     private async Task OnClickDelete(ClickOnceAppInfo appInfo)

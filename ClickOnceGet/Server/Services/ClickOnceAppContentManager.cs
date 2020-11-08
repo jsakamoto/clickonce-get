@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -31,7 +32,7 @@ namespace ClickOnceGet.Server.Services
             WebHostEnv = webHostEnv;
         }
 
-        public async Task<byte[]> UpdateCertificateInfoAsync(ClickOnceAppInfo appInfo)
+        public async Task<byte[]?> UpdateCertificateInfoAsync(ClickOnceAppInfo appInfo)
         {
             appInfo.SignedByPublisher = false;
 
@@ -40,16 +41,14 @@ namespace ClickOnceGet.Server.Services
             try
             {
                 tmpPath = ExtractEntryPointCommandFile(appInfo.Name);
-                var cert = X509Certificate.CreateFromSignedFile(tmpPath);
-                if (cert != null)
+                if (tmpPath != null)
                 {
-                    certBin = cert.GetRawCertData();
-                    this.ClickOnceFileRepository.SaveFileContent(appInfo.Name, ".cer", certBin);
-
-                    if (appInfo.PublisherName != null)
+                    var cert = X509Certificate.CreateFromSignedFile(tmpPath);
+                    if (cert != null)
                     {
-                        var sshPubKeyStr = await CertificateValidater.GetSSHPubKeyStrOfGitHubAccountAsync(appInfo.PublisherName);
-                        appInfo.SignedByPublisher = CertificateValidater.EqualsPublicKey(sshPubKeyStr, cert);
+                        certBin = cert.GetRawCertData();
+                        this.ClickOnceFileRepository.SaveFileContent(appInfo.Name, ".cer", certBin);
+                        await this.UpdateSignedByPublisherAsync(appInfo, () => cert);
                     }
                 }
             }
@@ -60,7 +59,40 @@ namespace ClickOnceGet.Server.Services
             return certBin;
         }
 
-        private string ExtractEntryPointCommandFile(string appId)
+        public async Task UpdateSignedByPublisherAsync(ClickOnceAppInfo appInfo)
+        {
+            if (appInfo.HasCodeSigning.HasValue == false)
+            {
+                await UpdateCertificateInfoAsync(appInfo);
+            }
+            else
+            {
+                await UpdateSignedByPublisherAsync(appInfo, () =>
+                {
+                    var tmpPath = Path.Combine(WebHostEnv.ContentRootPath, "App_Data", $"{Guid.NewGuid():N}.cer");
+                    try
+                    {
+                        var certBin = this.ClickOnceFileRepository.GetFileContent(appInfo.Name, ".cer");
+                        File.WriteAllBytes(tmpPath, certBin);
+                        var cert = X509Certificate.CreateFromCertFile(tmpPath);
+                        return cert;
+                    }
+                    finally { try { if (File.Exists(tmpPath)) File.Delete(tmpPath); } catch { } }
+                });
+            }
+        }
+
+        private async Task UpdateSignedByPublisherAsync(ClickOnceAppInfo appInfo, Func<X509Certificate> getCert)
+        {
+            appInfo.SignedByPublisher = false;
+            if (string.IsNullOrEmpty(appInfo.PublisherName)) return;
+
+            var sshPubKeyStr = await this.CertificateValidater.GetSSHPubKeyStrOfGitHubAccountAsync(appInfo.PublisherName);
+            var cert = getCert();
+            appInfo.SignedByPublisher = CertificateValidater.EqualsPublicKey(sshPubKeyStr, cert);
+        }
+
+        private string? ExtractEntryPointCommandFile(string appId)
         {
             var commandPath = GetEntryPointCommandPath(appId);
             if (commandPath == null) return null;
@@ -73,7 +105,7 @@ namespace ClickOnceGet.Server.Services
             return tmpPath;
         }
 
-        public string GetEntryPointCommandPath(string appId)
+        public string? GetEntryPointCommandPath(string appId)
         {
             var dotAppBytes = this.ClickOnceFileRepository.GetFileContent(appId, appId + ".application");
             if (dotAppBytes == null) return null;
@@ -86,7 +118,7 @@ namespace ClickOnceGet.Server.Services
                  let dependencyType = node.Attribute("dependencyType")
                  where dependencyType != null
                  where dependencyType.Value == "install"
-                 select node.Attribute("codebase").Value).FirstOrDefault();
+                 select node.Attribute("codebase")?.Value).FirstOrDefault();
             if (codebasePath == null) return null;
 
             // parse .manifest to detect .exe file path
@@ -108,7 +140,7 @@ namespace ClickOnceGet.Server.Services
             return commandPath;
         }
 
-        public byte[] GetIcon(string appId, int pxSize = 48)
+        public byte[]? GetIcon(string appId, int pxSize = 48)
         {
             // extract icon from .exe
             // note: `IconExtractor` use LoadLibrary Win32API, so I need save the command binary into file.

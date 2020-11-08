@@ -6,12 +6,12 @@
     <MudCard>
         <MudCardHeader>
             <CardHeaderAvatar>
-                <img class="icon" alt="@AppInfo.Title" src="@BaseUrl/icon" />
+                <img class="icon" alt="@AppInfo.GetTitleOrName()" src="@BaseUrl/icon" />
             </CardHeaderAvatar>
             <CardHeaderContent>
                 <h2>
                     <a class="title" href="@BaseUrl/detail" title="goto the application page.">
-                        @AppInfo.Title
+                        @AppInfo.GetTitleOrName()
                     </a>
                 </h2>
             </CardHeaderContent>
@@ -77,7 +77,7 @@
                            Variant="Variant.Text" Color="Color.Secondary" Size="Size.Medium" StartIcon="@Icons.Material.Delete">
                     Delete
                 </MudButton>
-                <MudButton OnClick="@(()=> OnClickDelete.InvokeAsync(AppInfo))"
+                <MudButton OnClick="@(()=> OnClickEdit.InvokeAsync(AppInfo))"
                            Variant="Variant.Text" Color="Color.Default" Size="Size.Medium" StartIcon="@Icons.Material.Edit">
                     Edit
                 </MudButton>
