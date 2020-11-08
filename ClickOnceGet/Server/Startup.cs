@@ -38,6 +38,7 @@ namespace ClickOnceGet.Server
             services.AddSingleton<CertificateValidater>();
             services.AddSingleton<IClickOnceFileRepository, AppDataDirRepository>();
             services.AddScoped<IClickOnceAppInfoProvider, ServerSideClickOnceAppInfoProvider>();
+            services.AddScoped<ClickOnceAppContentManager>();
 
             services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

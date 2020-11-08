@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
@@ -17,11 +11,9 @@ using ClickOnceGet.Server.Services;
 using ClickOnceGet.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using Toolbelt.Drawing;
 using Toolbelt.Web;
 
 namespace ClickOnceGet.Server.Controllers
@@ -35,14 +27,18 @@ namespace ClickOnceGet.Server.Controllers
 
         private CertificateValidater CertificateValidater { get; }
 
+        private ClickOnceAppContentManager AppContentManager { get; }
+
         public PublishController(
             IWebHostEnvironment webHostEnv,
             IClickOnceFileRepository clickOnceFileRepository,
-            CertificateValidater certificateValidater)
+            CertificateValidater certificateValidater,
+            ClickOnceAppContentManager appContentManager)
         {
             this.WebHostEnv = webHostEnv;
             this.ClickOnceFileRepository = clickOnceFileRepository;
-            CertificateValidater = certificateValidater;
+            this.CertificateValidater = certificateValidater;
+            this.AppContentManager = appContentManager;
         }
 
         // GET: /app/{appId}/{*pathInfo}
@@ -64,7 +60,7 @@ namespace ClickOnceGet.Server.Controllers
             // Increment downloads counter.
             if (ext == ".deploy")
             {
-                var commandPath = GetEntryPointCommandPath(appId);
+                var commandPath = this.AppContentManager.GetEntryPointCommandPath(appId);
                 if (pathInfo == commandPath)
                 {
                     var appInfo = this.ClickOnceFileRepository.EnumAllApps().First(a => a.Name == appId);
@@ -89,68 +85,8 @@ namespace ClickOnceGet.Server.Controllers
                     lastModified: appInfo.RegisteredAt,
                     etag: etag,
                     contentType: "image/png",
-                    getContent: () => InternalGetIcon(appId, pxSize)
+                    getContent: () => this.AppContentManager.GetIcon(appId, pxSize) ?? NoImagePng()
                 );
-        }
-
-        private string ExtractEntryPointCommandFile(string appId)
-        {
-            var commandPath = GetEntryPointCommandPath(appId);
-            if (commandPath == null) return null;
-
-            var commandBytes = this.ClickOnceFileRepository.GetFileContent(appId, commandPath);
-            if (commandBytes == null) return null;
-
-            var tmpPath = Path.Combine(WebHostEnv.ContentRootPath, "App_Data", $"{Guid.NewGuid():N}.exe");
-            System.IO.File.WriteAllBytes(tmpPath, commandBytes);
-            return tmpPath;
-        }
-
-        private byte[] InternalGetIcon(string appId, int pxSize = 48)
-        {
-            // extract icon from .exe
-            // note: `IconExtractor` use LoadLibrary Win32API, so I need save the command binary into file.
-            var tmpPath = ExtractEntryPointCommandFile(appId);
-            if (tmpPath == null) return NoImagePng();
-
-            try
-            {
-                using var msIco = new MemoryStream();
-                using var msPng = new MemoryStream();
-
-                IconExtractor.Extract1stIconTo(tmpPath, msIco);
-                if (msIco.Length == 0) return NoImagePng();
-
-                msIco.Seek(0, SeekOrigin.Begin);
-                using var icon = new Icon(msIco, pxSize, pxSize);
-
-                var iconBmp = icon.ToBitmap();
-                var iconSize = iconBmp.Size.Width;
-                if (iconSize < pxSize)
-                {
-                    //var margin = (pxSize - iconSize) / 2;
-                    var newBmp = new Bitmap(width: pxSize, height: pxSize);
-                    using (var g = Graphics.FromImage(newBmp))
-                    {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(iconBmp, 0, 0, pxSize, pxSize);
-                    }
-                    iconBmp.Dispose();
-                    iconBmp = newBmp;
-                }
-                iconBmp.Save(msPng, ImageFormat.Png);
-                iconBmp.Dispose();
-
-                return msPng.ToArray();
-            }
-            catch (OutOfMemoryException)
-            {
-                return NoImagePng();
-            }
-            finally
-            {
-                System.IO.File.Delete(tmpPath);
-            }
         }
 
         // GET: /app/{appId}/cert/{*pathInfo}
@@ -176,7 +112,7 @@ namespace ClickOnceGet.Server.Controllers
 
             if (appInfo.HasCodeSigning == null)
             {
-                var certBin = await UpdateCertificateInfoAsync(appInfo);
+                var certBin = await this.AppContentManager.UpdateCertificateInfoAsync(appInfo);
                 this.ClickOnceFileRepository.SaveAppInfo(appInfo.Name, appInfo);
                 return certBin;
             }
@@ -184,70 +120,6 @@ namespace ClickOnceGet.Server.Controllers
             return appInfo.HasCodeSigning == true ?
                 this.ClickOnceFileRepository.GetFileContent(appInfo.Name, ".cer") :
                 null;
-        }
-
-        private async Task<byte[]> UpdateCertificateInfoAsync(ClickOnceAppInfo appInfo)
-        {
-            appInfo.SignedByPublisher = false;
-
-            var certBin = default(byte[]);
-            var tmpPath = default(string);
-            try
-            {
-                tmpPath = ExtractEntryPointCommandFile(appInfo.Name);
-                var cert = X509Certificate.CreateFromSignedFile(tmpPath);
-                if (cert != null)
-                {
-                    certBin = cert.GetRawCertData();
-                    this.ClickOnceFileRepository.SaveFileContent(appInfo.Name, ".cer", certBin);
-
-                    if (appInfo.PublisherName != null)
-                    {
-                        var sshPubKeyStr = await CertificateValidater.GetSSHPubKeyStrOfGitHubAccountAsync(appInfo.PublisherName);
-                        appInfo.SignedByPublisher = CertificateValidater.EqualsPublicKey(sshPubKeyStr, cert);
-                    }
-                }
-            }
-            catch (CryptographicException) { }
-            finally { if (tmpPath != null) System.IO.File.Delete(tmpPath); }
-
-            appInfo.HasCodeSigning = certBin != null;
-            return certBin;
-        }
-
-        private string GetEntryPointCommandPath(string appId)
-        {
-            var dotAppBytes = this.ClickOnceFileRepository.GetFileContent(appId, appId + ".application");
-            if (dotAppBytes == null) return null;
-
-            // parse .application
-            var ns_asmv2 = "urn:schemas-microsoft-com:asm.v2";
-            var dotApp = XDocument.Load(new MemoryStream(dotAppBytes));
-            var codebasePath =
-                (from node in dotApp.Descendants(XName.Get("dependentAssembly", ns_asmv2))
-                 let dependencyType = node.Attribute("dependencyType")
-                 where dependencyType != null
-                 where dependencyType.Value == "install"
-                 select node.Attribute("codebase").Value).FirstOrDefault();
-            if (codebasePath == null) return null;
-
-            // parse .manifest to detect .exe file path
-            var mnifestBytes = this.ClickOnceFileRepository.GetFileContent(appId, codebasePath);
-            if (mnifestBytes == null) return null;
-            var manifest = XDocument.Load(new MemoryStream(mnifestBytes));
-            var commandName =
-                (from entryPoint in manifest.Descendants(XName.Get("entryPoint", ns_asmv2))
-                 from commandLine in entryPoint.Descendants(XName.Get("commandLine", ns_asmv2))
-                 let file = commandLine.Attribute("file")
-                 where file != null
-                 select file.Value).FirstOrDefault();
-            if (commandName == null) return null;
-
-            // load command(.exe) content binary.
-            var pathParts = codebasePath.Split('\\');
-            var commandPath = string.Join("\\", pathParts.Take(pathParts.Length - 1).Concat(new[] { commandName + ".deploy" }));
-
-            return commandPath;
         }
 
         private byte[] NoImagePng()
@@ -259,87 +131,6 @@ namespace ClickOnceGet.Server.Controllers
         public ActionResult Register()
         {
             return View();
-        }
-
-        [HttpPost("publish/register")]
-        public async Task<ActionResult> Register(IFormFile zipedPackage)
-        {
-            var userId = User.GetHashedUserId();
-            if (userId == null) throw new Exception("hashed user id is null.");
-
-            if (ModelState.IsValid == false) return View();
-
-            var success = false;
-            var tmpPath = Path.Combine(WebHostEnv.ContentRootPath, "App_Data", $"{userId}-{Guid.NewGuid():N}.zip");
-            try
-            {
-                using var fs = new FileStream(tmpPath, FileMode.CreateNew, FileAccess.ReadWrite);
-                await zipedPackage.CopyToAsync(fs);
-
-                fs.Seek(0, SeekOrigin.Begin);
-                using var zip = new ZipArchive(fs);
-
-                // Validate files structure that are included in a .zip file.
-                var appFile = zip.Entries
-                    .Where(e => Path.GetExtension(e.FullName).ToLower() == ".application")
-                    .OrderBy(e => e.FullName.Length)
-                    .FirstOrDefault();
-                if (appFile == null) return Error("The .zip file you uploaded did not contain .application file.");
-                if (Path.GetDirectoryName(appFile.FullName) != "") return Error("The .zip file you uploaded contain .application file, but it was not in root of the .zip file.");
-
-                // Validate app name does not conflict.
-                var appName = Path.GetFileNameWithoutExtension(appFile.FullName);
-                var hasOwnerRight = this.ClickOnceFileRepository.GetOwnerRight(userId, appName);
-                if (!hasOwnerRight) return Error("Sorry, the application name \"{0}\" was already registered by somebody else.", appName);
-
-                var appInfo = this.ClickOnceFileRepository.GetAppInfo(appName);
-                if (appInfo == null)
-                {
-                    appInfo = new ClickOnceAppInfo
-                    {
-                        Name = appName,
-                        OwnerId = userId
-                    };
-                }
-                appInfo.RegisteredAt = DateTime.UtcNow;
-                this.ClickOnceFileRepository.ClearUpFiles(appName);
-
-                foreach (var item in zip.Entries.Where(_ => _.Name != ""))
-                {
-                    var buff = new byte[item.Length];
-                    using var reader = item.Open();
-                    reader.Read(buff, 0, buff.Length);
-                    this.ClickOnceFileRepository.SaveFileContent(appName, item.FullName, buff);
-#if !DEBUG
-                    if (Path.GetExtension(item.FullName).ToLower() == ".application")
-                    {
-                        var error = CheckCodeBaseUrl(appName, buff);
-                        if (error != null) return error;
-                    }
-#endif
-                }
-
-                // Update certificate information.
-                await this.UpdateCertificateInfoAsync(appInfo);
-
-                this.ClickOnceFileRepository.SaveAppInfo(appName, appInfo);
-
-                success = true;
-                return RedirectToAction("Edit", new { id = appName });
-            }
-            catch (System.IO.InvalidDataException)
-            {
-                return Error("The file you uploaded looks like invalid Zip format.");
-            }
-            finally
-            {
-                // Sweep temporary file if success.
-                if (success)
-                {
-                    try { System.IO.File.Delete(tmpPath); }
-                    catch (Exception) { }
-                }
-            }
         }
 
         [HttpGet("publish/edit")]
@@ -368,7 +159,7 @@ namespace ClickOnceGet.Server.Controllers
 
             appInfo.SignedByPublisher = false;
             if (appInfo.HasCodeSigning == null)
-                await UpdateCertificateInfoAsync(appInfo);
+                await this.AppContentManager.UpdateCertificateInfoAsync(appInfo);
             else if (appInfo.HasCodeSigning == true && appInfo.PublisherName != null)
             {
                 var tmpPath = Path.Combine(WebHostEnv.ContentRootPath, "App_Data", $"{Guid.NewGuid():N}.cer");

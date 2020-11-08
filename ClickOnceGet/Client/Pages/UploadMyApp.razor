@@ -1,0 +1,90 @@
+﻿@page "/myapps/upload"
+@attribute [Authorize]
+@inject HttpClient Http
+@using System.Net.Http.Headers
+
+<MudContainer>
+    <h2>Upload My Application</h2>
+</MudContainer>
+
+<MudContainer>
+    <MudForm>
+        <p>
+            <div>
+                <span>@SelectedFileName</span>
+                <label @onclick="OnClickChoseFile" for="f" class="mud-button-root mud-button mud-button-filled mud-button-filled-size-medium mud-ripple">
+                    Chose file
+                </label>
+                <InputFile id="f" OnChange="@OnInputFileChange" style="display:none;" accept=".zip" />
+            </div>
+            <div>
+                @if (ErrorMessage == "")
+                {
+                    <MudChip Disabled="true">Max allowed file size is @(MaxAllowedSizeMB)MB.</MudChip>
+                }
+                else
+                {
+                    <MudChip Color="Color.Danger">@ErrorMessage</MudChip>
+                }
+            </div>
+        </p>
+        <MudButton OnClick="OnClickStartUpload" Disabled="@(!Uploadable)"
+                   Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
+            Start upload
+        </MudButton>
+    </MudForm>
+</MudContainer>
+
+@code {
+    private const int MaxAllowedSizeMB = 10;
+    private const int MaxAllowedSize = MaxAllowedSizeMB * 1024 * 1024;
+
+    private IBrowserFile LastSelectedFile = null;
+
+    private string SelectedFileName => LastSelectedFile?.Name ?? "(No file selected)";
+
+    private bool Uploadable = false;
+
+    private string ErrorMessage = "";
+
+    private void OnClickChoseFile()
+    {
+        ErrorMessage = "";
+        Uploadable = false;
+    }
+
+    private void OnInputFileChange(InputFileChangeEventArgs args)
+    {
+        LastSelectedFile = args.File;
+        if (args.File.Size > MaxAllowedSize)
+        {
+            ErrorMessage = $"The size of chosed file ({args.File.Size / 1024.0 / 1024.0:#,0.0}MB) is over {MaxAllowedSizeMB}MB.";
+        }
+        else
+        {
+            Uploadable = true;
+        }
+    }
+
+
+    private async Task OnClickStartUpload()
+    {
+        try
+        {
+            using var stream = LastSelectedFile.OpenReadStream(MaxAllowedSize);
+            var content = new MultipartFormDataContent();
+            content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+            content.Add(new StreamContent(stream, Convert.ToInt32(LastSelectedFile.Size)), "zipedPackage", LastSelectedFile.Name);
+
+            var postResult = await Http.PostAsync("api/myapps/zipedpackage", content);
+            var postContent = await postResult.Content.ReadAsStringAsync();
+
+            Console.WriteLine($"IsSuccessStatusCode: {postResult.IsSuccessStatusCode}");
+            Console.WriteLine($"postContent: {postContent}");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.ToString());
+        }
+    }
+}

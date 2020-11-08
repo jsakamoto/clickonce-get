@@ -1,0 +1,9 @@
+﻿.padding {
+    height: 64px;
+}
+
+::deep .upload-my-app {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+}
