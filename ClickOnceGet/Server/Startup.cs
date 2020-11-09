@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Toolbelt.Extensions.DependencyInjection;
 
 namespace ClickOnceGet.Server
 {
@@ -68,6 +69,7 @@ namespace ClickOnceGet.Server
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
+                app.UseCssLiveReload();
             }
             else
             {
