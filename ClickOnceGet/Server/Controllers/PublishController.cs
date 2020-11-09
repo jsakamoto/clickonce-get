@@ -82,7 +82,7 @@ namespace ClickOnceGet.Server.Controllers
         }
 
         // GET: /app/{appId}/cert/{*pathInfo}
-        [AllowAnonymous, HttpGet("/app/{appId}/cert")]
+        [AllowAnonymous, HttpGet("/app/{appId}/cert/{*pathInfo}")]
         public ActionResult GetCertificate(string appId)
         {
             var appInfo = this.ClickOnceFileRepository.GetAppInfo(appId);
