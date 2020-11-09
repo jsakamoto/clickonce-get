@@ -1,21 +1,19 @@
-﻿<MudDialog>
-    <DialogContent>
-        @*<MudText Typo="Typo.h5">
-                <MudIcon Icon="@Icons.Material.Warning" Color="Color.Warning"></MudIcon>
-                Warning
-            </MudText>*@
-        <MudText>
-            Tincidunt integer eu augue augue nunc elit dolor, luctus placerat scelerisque euismod, iaculis eu lacus nunc mi elit, vehicula ut laoreet ac, aliquam sit amet justo nunc tempor, metus vel.
-        </MudText>
-        <MudCheckBox Label="I UNDERSTAND." Color="Color.Secondary" Class="my-4" @bind-Checked="Understood"></MudCheckBox>
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton OnClick="Submit" Disabled="@(!Understood)" Color="Color.Primary" Variant="Variant.Outlined" EndIcon="@Icons.Material.GetApp">
-            ClickOnce
-        </MudButton>
-    </DialogActions>
-</MudDialog>
+﻿<div>
+    <MudDialog>
+        <DialogContent>
+            <MudText>"ClickOnce Get" <b>does not guarantee the safety of the programs</b> posted on this site.</MudText>
+            <MudText>"ClickOnce Get" <b>cannot provide any compensation</b> even If you suffer damage such as <b>malware infection</b> by downloading and executing this program.</MudText>
+            <MudText>Only check the checkboxes below to continue downloading and executiong <b>if you are confident that the program you are trying to run is safe</b>.</MudText>
+            <MudCheckBox Label="I UNDERSTAND." Class="understand-check-box" Color="Color.Secondary" @bind-Checked="Understood"></MudCheckBox>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton OnClick="Submit" Disabled="@(!Understood)" Color="Color.Primary" Variant="Variant.Outlined" EndIcon="@Icons.Material.GetApp">
+                ClickOnce
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</div>
 
 @code {
 

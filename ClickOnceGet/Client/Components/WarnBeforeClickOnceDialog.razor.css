@@ -1,0 +1,13 @@
+﻿::deep .understand-check-box {
+    color: var(--mud-theme-secondary);
+}
+
+::deep label.understand-check-box {
+    margin-top: 16px;
+    margin-left: -16px;
+}
+
+::deep .mud-dialog-title {
+    background-color: black;
+    color: yellow;
+}
