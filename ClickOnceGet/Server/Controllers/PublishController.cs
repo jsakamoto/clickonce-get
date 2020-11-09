@@ -21,18 +21,14 @@ namespace ClickOnceGet.Server.Controllers
     [Authorize, ApiController]
     public class PublishController : Controller
     {
-        private IWebHostEnvironment WebHostEnv { get; }
-
         public IClickOnceFileRepository ClickOnceFileRepository { get; }
 
         private ClickOnceAppContentManager AppContentManager { get; }
 
         public PublishController(
-            IWebHostEnvironment webHostEnv,
             IClickOnceFileRepository clickOnceFileRepository,
             ClickOnceAppContentManager appContentManager)
         {
-            this.WebHostEnv = webHostEnv;
             this.ClickOnceFileRepository = clickOnceFileRepository;
             this.AppContentManager = appContentManager;
         }
@@ -118,9 +114,25 @@ namespace ClickOnceGet.Server.Controllers
                 null;
         }
 
+        [HttpGet("images/no-image")]
+        public ActionResult GetNoImage()
+        {
+            var timeStamp = System.IO.File.GetLastWriteTimeUtc(new Uri(this.GetType().Assembly.GetName().CodeBase).LocalPath);
+            return new CacheableContentResult(
+                cacheability: ResponseCacheLocation.Any,
+                lastModified: timeStamp,
+                etag: timeStamp.Ticks.ToString(),
+                contentType: "image/png",
+                getContent: () => NoImagePng()
+            );
+        }
+
         private byte[] NoImagePng()
         {
-            return System.IO.File.ReadAllBytes(Path.Combine(WebHostEnv.WebRootPath, "images", "no-image.png"));
+            using var stream = this.GetType().Assembly.GetManifestResourceStream("ClickOnceGet.Server.Resources.no-image.png");
+            var buff = new byte[stream.Length];
+            stream.Read(buff, 0, buff.Length);
+            return buff;
         }
 
         private ActionResult CheckCodeBaseUrl(string appName, byte[] buff)

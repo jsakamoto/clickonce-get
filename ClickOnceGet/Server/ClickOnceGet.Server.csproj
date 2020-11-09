@@ -6,11 +6,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\no-image.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\no-image.png">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.0-rc.2.20475.17" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="CacheableContentResult" Version="1.1.3" />
     <PackageReference Include="IconExtractor" Version="1.0.1" />
     <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="3.1.6" />
+    <PackageReference Include="Toolbelt.AspNetCore.CssLiveReloader" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
