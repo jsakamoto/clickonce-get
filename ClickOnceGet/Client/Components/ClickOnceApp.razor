@@ -30,29 +30,37 @@
                 @AppInfo.Description
             </div>
 
-            <div class="status">
-                <span class="download-count">
-                    Downloads: @AppInfo.NumberOfDownloads
+            <div class="status-container">
+                <span class="download-count status">
+                    <span class="caption">Downloads: </span><span class="text">@AppInfo.NumberOfDownloads</span>
                 </span>
-                <span class="time-stamp">
-                    Update: @AppInfo.RegisteredAt.ToShortDateString()
+                <span class="time-stamp status">
+                    <span class="caption">Update: </span><span class="text">@AppInfo.RegisteredAt.ToShortDateString()</span>
                 </span>
-                <span class="publisher">
-                    Published by
-                    <a href="@AppInfo.PublisherURL" target="_blank">
-                        <MudAvatar Image="@AppInfo.PublisherAvatorImageURL" Size="Size.Small" alt="@AppInfo.PublisherName" />
-                        <span class="publisher-name">@AppInfo.PublisherName</span>
-                    </a>
+                <span class="publisher status">
+                    <span class="caption">Published by</span>
+                    @if (string.IsNullOrEmpty(AppInfo.PublisherURL) == false)
+                    {
+                        <a href="@AppInfo.PublisherURL" target="_blank">
+                            <MudAvatar Image="@AppInfo.PublisherAvatorImageURL" Size="Size.Small" alt="@AppInfo.PublisherName" />
+                            <span class="publisher-name">@AppInfo.PublisherName</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <MudAvatar Image="images/no-image" Size="Size.Small" alt="@AppInfo.PublisherName" />
+                        <span class="publisher-name">(anonymous)</span>
+                    }
                 </span>
-                <span class="code-signing">
+                <span class="code-signing status">
                     @{var certUrl = BaseUrl + $"/cert/{Uri.EscapeUriString(AppInfo.Name)}.cer"; }
                     @if (AppInfo.HasCodeSigning == false)
                     {
-                        <span class="no-code-signing">No Valid Code Signing</span>
+                        <span class="cert-icon invalid">No Valid Code Signing</span>
                     }
                     else if (AppInfo.SignedByPublisher)
                     {
-                        <a class="signed-by-publisher" href="@certUrl" target="_top">
+                        <a class="cert-icon signed-by-publisher" href="@certUrl" target="_top">
                             Signed by publisher
                         </a>
                         <a class="learn-more" href="LearnMoreAboutCertificate" title="What's mean &quot;Signed by Pubisher&quot;?" target="_blank">
@@ -61,9 +69,7 @@
                     }
                     else
                     {
-                        <a class="signed-by-publisher" href="@certUrl" target="_top">
-                            Code Signing
-                        </a>
+                        <a href="@certUrl" class="cert-icon valid" target="_top">Code Signing</a>
                     }
                 </span>
             </div>

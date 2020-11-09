@@ -2,12 +2,10 @@
 @inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
 
 <div class="jumbo-tron">
-    <h1>ClickOnce Get</h1>
-
-    <p>"ClickOnce Get" is a web site that is publishing point of your ClickOnce applications.</p>
+    <p>"ClickOnce Get" is a web site for publishing your ClickOnce applications.</p>
 </div>
 
-<div>
+<div class="apps-list">
     @foreach (var app in Apps)
     {
         <ClickOnceApp AppInfo="app" />
