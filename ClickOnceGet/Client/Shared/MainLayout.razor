@@ -2,6 +2,7 @@
 @inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
+@using static Toolbelt.Web.CssClassInlineBuilder
 
 <div>
     <MudAppBar Position="Position.Static" Class="">
@@ -9,13 +10,16 @@
 
         <MudAppBarSpacer />
 
+        <MudButton Color="Color.Surface" Link="myapps/upload" Class="@CssClass(new{Active= IsActiveNav("myapps/upload")})">upload my app</MudButton>
+        <MudButton Color="Color.Inherit" Link="myapps" Class="@CssClass(new{Active= IsActiveNav("myapps")})">Manage my apps</MudButton>
+        <MudButton Color="Color.Inherit">Documents</MudButton>
+
         <AuthorizeView>
             <Authorized>
                 <span class="user-view">
-                    <MudAvatar Image="@($"https://avatars.githubusercontent.com/{context.User.Identity.Name}")" Size="Size.Medium" alt="@context.User.Identity.Name" />
+                    <MudAvatar Image="@($"https://avatars.githubusercontent.com/{context.User.Identity.Name}")" Size="Size.Small" alt="@context.User.Identity.Name" />
                     @context.User.Identity.Name
                     <MudMenu Icon="@Icons.Material.MoreVert" Color="Color.Inherit">
-                        <MudMenuItem OnClick="OnClickMageApps">Manage applications</MudMenuItem>
                         <MudMenuItem OnClick="OnClickSignOut">Sign out</MudMenuItem>
                     </MudMenu>
                 </span>
@@ -34,14 +38,15 @@
 </div>
 
 @code {
+    private bool IsActiveNav(string url)
+    {
+        var absUrl = NavigationManager.BaseUri.TrimEnd('/') + "/" + url.TrimStart('/');
+        return string.Compare(absUrl, NavigationManager.Uri, ignoreCase: true) == 0;
+    }
+
     private async Task OnClickSignOut()
     {
         await this.HttpClient.PostAsync("auth/signout", new StringContent(""));
         await (AuthStateProvider as ClientSideAuthenticationStateProvider)?.RefreshAsync();
-    }
-
-    public void OnClickMageApps()
-    {
-        NavigationManager.NavigateTo("myapps");
     }
 }
