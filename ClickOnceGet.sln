@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30626.31
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickOnceGet.Server", "ClickOnceGet\Server\ClickOnceGet.Server.csproj", "{B1C48691-F16A-4A8F-B666-4DDC22DE0AF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClickOnceGet.Server", "ClickOnceGet\Server\ClickOnceGet.Server.csproj", "{B1C48691-F16A-4A8F-B666-4DDC22DE0AF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickOnceGet.Client", "ClickOnceGet\Client\ClickOnceGet.Client.csproj", "{D4AFD85F-930B-4691-9EEF-2DC45046D601}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClickOnceGet.Client", "ClickOnceGet\Client\ClickOnceGet.Client.csproj", "{D4AFD85F-930B-4691-9EEF-2DC45046D601}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickOnceGet.Shared", "ClickOnceGet\Shared\ClickOnceGet.Shared.csproj", "{B1414306-A637-4920-B6DE-3856DC3ED795}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClickOnceGet.Shared", "ClickOnceGet\Shared\ClickOnceGet.Shared.csproj", "{B1414306-A637-4920-B6DE-3856DC3ED795}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickOnceGet.Test", "ClickOnceGet.Test\ClickOnceGet.Test.csproj", "{29E531C2-BE97-4683-83D0-7208D569DB56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClickOnceGet.Test", "ClickOnceGet.Test\ClickOnceGet.Test.csproj", "{29E531C2-BE97-4683-83D0-7208D569DB56}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
