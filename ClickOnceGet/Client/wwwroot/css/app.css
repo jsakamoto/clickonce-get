@@ -1,2 +1,14 @@
 ﻿body {
 }
+
+h2 {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+}

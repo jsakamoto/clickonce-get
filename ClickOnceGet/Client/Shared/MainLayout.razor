@@ -5,13 +5,17 @@
 @using static Toolbelt.Web.CssClassInlineBuilder
 
 <div>
-    <MudAppBar Position="Position.Static" Class="">
+    <MudAppBar Fixed="false" Elevation="0">
         <h1><a href="/">ClickOnce Get</a></h1>
 
         <MudAppBarSpacer />
 
-        <MudButton Color="Color.Surface" Link="myapps/upload" Class="@CssClass(new{Active= IsActiveNav("myapps/upload")})">upload my app</MudButton>
-        <MudButton Color="Color.Inherit" Link="myapps" Class="@CssClass(new{Active= IsActiveNav("myapps")})">Manage my apps</MudButton>
+        <div class="@CssClass(new {Active = IsActiveNav<UploadMyApp>()})">
+            <MudButton Color="Color.Inherit" Link="myapps/upload">upload my app</MudButton>
+        </div>
+        <div Class="@CssClass(new {Active = IsActiveNav<MyApps>() || IsActiveNav<EditMyApp>()})">
+            <MudButton Color="Color.Inherit" Link="myapps">Manage my apps</MudButton>
+        </div>
         <MudButton Color="Color.Inherit">Documents</MudButton>
 
         <AuthorizeView>
@@ -38,10 +42,16 @@
 </div>
 
 @code {
-    private bool IsActiveNav(string url)
+    [CascadingParameter]
+    RouteData RouteData { get; set; }
+
+    private bool IsActiveNav<TPage>() => this.RouteData?.PageType == typeof(TPage);
+
+    private bool IsActiveNav(params string[] urls)
     {
-        var absUrl = NavigationManager.BaseUri.TrimEnd('/') + "/" + url.TrimStart('/');
-        return string.Compare(absUrl, NavigationManager.Uri, ignoreCase: true) == 0;
+        //this.RouteData.
+        var baseUrl = NavigationManager.BaseUri.TrimEnd('/') + "/";
+        return urls.Any(url => string.Compare(baseUrl + url.TrimStart('/'), NavigationManager.Uri, ignoreCase: true) == 0);
     }
 
     private async Task OnClickSignOut()

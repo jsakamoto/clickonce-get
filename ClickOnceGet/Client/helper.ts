@@ -15,4 +15,14 @@
         if (typeof (entry) === 'undefined') return '';
         return decodeURIComponent(entry[1]);
     }
+
+    export function autofocus(): void {
+        setTimeout(() => {
+            const element = document.querySelector('input[autofocus]') as HTMLInputElement | null;
+            if (element !== null) {
+                element.focus();
+                element.select();
+            }
+        }, 100);
+    }
 }

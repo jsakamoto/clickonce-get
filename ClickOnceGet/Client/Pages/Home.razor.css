@@ -2,8 +2,8 @@
     font-size: 120%;
     font-weight: bold;
     padding: 0px 20px 10px 25px;
-    background-color: var(--mud-theme-appbar);
-    color: var(--mud-theme-on-appbar);
+    background-color: var(--mud-palette-appbar-background);
+    color: var(--mud-palette-appbar-text);
 }
 
 .apps-list {

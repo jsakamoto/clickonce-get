@@ -17,9 +17,10 @@
     text-decoration: underline;
 }
 
-::deep .mud-button.active {
-    color: #ccc;
+.active {
     pointer-events: none;
+    border-bottom: solid 3px var(--mud-palette-grey-light);
+    margin-top: 3px;
 }
 
 .user-view ::deep .mud-avatar {

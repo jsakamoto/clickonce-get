@@ -5,37 +5,37 @@
 
 @using System.Net.Http.Headers
 
-<MudContainer>
-    <h2>Upload My Application</h2>
-</MudContainer>
+<div class="form-container">
 
-<MudContainer>
-    <MudForm>
-        <p>
-            <div>
-                <span>@SelectedFileName</span>
-                <label @onclick="OnClickChoseFile" for="f" class="mud-button-root mud-button mud-button-filled mud-button-filled-size-medium mud-ripple">
-                    Chose file
-                </label>
-                <InputFile id="f" OnChange="@OnInputFileChange" style="display:none;" accept=".zip" />
-            </div>
-            <div>
-                @if (ErrorMessage == "")
-                {
-                    <MudChip Disabled="true">Max allowed file size is @(MaxAllowedSizeMB)MB.</MudChip>
-                }
-                else
-                {
-                    <MudChip Color="Color.Warning">@ErrorMessage</MudChip>
-                }
-            </div>
-        </p>
+    <h2>Upload My Application</h2>
+
+    <div>
+        <MudText Typo="Typo.caption">Zip packaged application file</MudText>
+    </div>
+    <div class="file-selector">
+        <label @onclick="OnClickChoseFile" for="f" class="selected-file-name">@SelectedFileName</label>
+        <label @onclick="OnClickChoseFile" for="f" class="select-file-button mud-button-root mud-button mud-button-outlined mud-ripple">
+            Chose file
+        </label>
+        <InputFile id="f" OnChange="@OnInputFileChange" style="display:none;" accept=".zip" />
+    </div>
+    <div class="mud-input-helper-text">
+        Max allowed file size is @(MaxAllowedSizeMB)MB.
+    </div>
+
+    <div>
+        @if (ErrorMessage != "")
+        {
+            <MudChip Color="Color.Warning">@ErrorMessage</MudChip>
+        }
+    </div>
+    <div class="my-6">
         <MudButton OnClick="OnClickStartUpload" Disabled="@(!Uploadable)"
                    Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
             Start upload
         </MudButton>
-    </MudForm>
-</MudContainer>
+    </div>
+</div>
 
 @code {
     private const int MaxAllowedSizeMB = 10;
@@ -51,6 +51,7 @@
 
     private void OnClickChoseFile()
     {
+        this.LastSelectedFile = null;
         this.ErrorMessage = "";
         this.Uploadable = false;
     }

@@ -1,35 +1,45 @@
 ﻿@page "/myapps/{appName}"
 @attribute [Authorize]
+@inject IJSRuntime JS
 @inject ISnackbar Snackbar
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
 @inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
+@inject IDialogService Dialog
 
-<h2>Edit My App</h2>
+<div class="form-container">
 
-<MudContainer>
     @if (AppInfo != null)
     {
-        <MudText>@AppInfo.Name</MudText>
+        <h2>Edit My App</h2>
 
-        <div class="my-4">
-            <MudTextField T="string" Label="Title" HelperText="optional, max 140 characters" InputType="InputType.Text"
-                          @bind-Value="AppInfo.Title" />
-        </div>
-        <div class="my-4">
-            <MudTextField T="string" Label="Description" HelperText="optional, max 140 characters" InputType="InputType.Text" Lines="5"
-                          @bind-Value="AppInfo.Description" />
-        </div>
-        <MudTextField T="string" Label="Project URL" HelperText="optional" InputType="InputType.Text"
-                      @bind-Value="AppInfo.ProjectURL" />
-        <MudCheckBox Label="Disclose publisher account name"
-                     @bind-Checked="DisclosePublisher" />
+        <EditForm Model="AppInfo" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+
+            <MudText Typo="Typo.caption">Application ID</MudText>
+            <MudText Typo="Typo.body1">@AppInfo.Name</MudText>
+
+            <div class="my-4">
+                <MudTextField T="string" Label="Title" HelperText="optional, max 140 characters" InputType="InputType.Text" autofocus Immediate="true"
+                              @bind-Value="AppInfo.Title" For="@(() => AppInfo.Title)" />
+            </div>
+            <div class="my-4">
+                <MudTextField T="string" Label="Description" HelperText="optional, max 140 characters" InputType="InputType.Text" Lines="3" Immediate="true"
+                              @bind-Value="AppInfo.Description" For="@(() => AppInfo.Description)" />
+            </div>
+            <MudTextField T="string" Label="Project URL" HelperText="optional" InputType="InputType.Text" Immediate="true"
+                          @bind-Value="AppInfo.ProjectURL" For="@(() => AppInfo.ProjectURL)" />
+            <MudCheckBox Label="Disclose publisher account name"
+                         @bind-Checked="DisclosePublisher" />
+
+            <div class="my-6">
+                <MudButton OnClick="OnClickBack" Variant="Variant.Outlined">Back to my apps</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled" Disabled="@(!IsDirty)">Save</MudButton>
+            </div>
+
+        </EditForm>
     }
-    <div class="my-6">
-        <MudButton OnClick="OnClickBack">Back to my apps</MudButton>
-        <MudButton OnClick="OnClickSave" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
-    </div>
-</MudContainer>
+</div>
 
 @code {
     [Parameter]
@@ -39,18 +49,55 @@
 
     private bool DisclosePublisher;
 
-    protected override async Task OnInitializedAsync()
+    private ClickOnceAppInfo OriginalAppInfo;
+
+    private bool IsDirty
     {
-        this.AppInfo = await ClickOnceAppInfoProvider.GetAppAsync(AppName);
-        this.DisclosePublisher = !string.IsNullOrEmpty(AppInfo.PublisherName);
+        get
+        {
+            return
+                this.AppInfo.Title != this.OriginalAppInfo.Title ||
+                this.AppInfo.Description != this.OriginalAppInfo.Description ||
+                this.AppInfo.ProjectURL != this.OriginalAppInfo.ProjectURL ||
+                DisclosePublisher != (!string.IsNullOrEmpty(this.OriginalAppInfo.PublisherName));
+        }
     }
 
-    private void OnClickBack()
+    protected override async Task OnInitializedAsync()
     {
+        this.AppInfo = await ClickOnceAppInfoProvider.GetAppAsync(this.AppName);
+        this.DisclosePublisher = !string.IsNullOrEmpty(this.AppInfo.PublisherName);
+
+        this.OriginalAppInfo = new ClickOnceAppInfo
+        {
+            Title = this.AppInfo.Title,
+            Description = this.AppInfo.Description,
+            ProjectURL = this.AppInfo.ProjectURL,
+            PublisherName = this.AppInfo.PublisherName
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await this.JS.InvokeVoidAsync("ClickOnceGet.Client.Helper.autofocus");
+        }
+    }
+
+    private async Task OnClickBack()
+    {
+        if (this.IsDirty)
+        {
+            var parameter = new DialogParameters();
+            parameter.Add("Message", "All changes will be discarded. Do you want to continue?");
+            var response = await Dialog.Show<ConfirmDialog>("BACK TO MY APPS", parameter).Result;
+            if (response.Cancelled) return;
+        }
         this.NavigationManager.NavigateTo("myapps");
     }
 
-    private async Task OnClickSave()
+    private async Task OnValidSubmit()
     {
         var url = $"api/myapps/{Uri.EscapeUriString(AppInfo.Name)}?disclosePublisher={DisclosePublisher}";
         var response = await this.HttpClient.PutAsJsonAsync(url, AppInfo);

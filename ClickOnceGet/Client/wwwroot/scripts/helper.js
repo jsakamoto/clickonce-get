@@ -23,6 +23,16 @@ var ClickOnceGet;
                 return decodeURIComponent(entry[1]);
             }
             Helper.getCookie = getCookie;
+            function autofocus() {
+                setTimeout(function () {
+                    var element = document.querySelector('input[autofocus]');
+                    if (element !== null) {
+                        element.focus();
+                        element.select();
+                    }
+                }, 100);
+            }
+            Helper.autofocus = autofocus;
         })(Helper = Client.Helper || (Client.Helper = {}));
     })(Client = ClickOnceGet.Client || (ClickOnceGet.Client = {}));
 })(ClickOnceGet || (ClickOnceGet = {}));

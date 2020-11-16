@@ -1,0 +1,23 @@
+﻿.file-selector {
+    white-space: nowrap;
+    width: 100%;
+    /* overflow: hidden; */
+    display: flex;
+    justify-content: flex-end;
+    /* border: solid; */
+    align-items: baseline;
+}
+
+.selected-file-name {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* padding-right: 10px; */
+    margin-right: 10px;
+    border-bottom: solid 2px var(--mud-palette-lines-inputs);
+    padding: 6px 0 6px 0;
+}
+
+.select-file-button {
+    min-width: 112px;
+}
