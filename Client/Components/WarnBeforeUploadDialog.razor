@@ -1,0 +1,31 @@
+﻿<div>
+    <MudDialog>
+        <DialogContent>
+            <MudText>This site is a personal hobby site, so there is <b>no guarantee of any kind</b>.</MudText>
+            <MudText>For example:</MudText>
+            <MudText>- "ClickOnce Get" site may be closed without notice.</MudText>
+            <MudText>- Any files you upload may be lost through negligence.</MudText>
+            <MudText>- Any files you upload may be deleted by the site owner without notice.</MudText>
+            <MudText>Only check the checkbox below to continue <b>if you understand this warning.</b>.</MudText>
+            <MudCheckBox Label="I UNDERSTAND." Class="understand-check-box" Color="Color.Secondary" @bind-Checked="Understood"></MudCheckBox>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton OnClick="Submit" Disabled="@(!Understood)" Color="Color.Primary" Variant="Variant.Outlined">
+                START UPLOAD
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</div>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    private bool Understood = false;
+
+    void Cancel() => MudDialog.Cancel();
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+}

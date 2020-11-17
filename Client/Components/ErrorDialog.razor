@@ -1,0 +1,21 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudText>
+            @Message
+        </MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Submit">OK</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public string Message { get; set; }
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+}

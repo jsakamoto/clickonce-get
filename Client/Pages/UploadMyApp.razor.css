@@ -1,10 +1,8 @@
 ﻿.file-selector {
     white-space: nowrap;
     width: 100%;
-    /* overflow: hidden; */
     display: flex;
     justify-content: flex-end;
-    /* border: solid; */
     align-items: baseline;
 }
 
@@ -12,12 +10,53 @@
     flex-grow: 1;
     overflow: hidden;
     text-overflow: ellipsis;
-    /* padding-right: 10px; */
     margin-right: 10px;
-    border-bottom: solid 2px var(--mud-palette-lines-inputs);
+    border-bottom: solid 1px var(--mud-palette-lines-inputs);
     padding: 6px 0 6px 0;
+}
+
+.has-error.caption {
+    color: var(--mud-palette-error);
+}
+
+.has-error .selected-file-name {
+    border-bottom-color: var(--mud-palette-error);
 }
 
 .select-file-button {
     min-width: 112px;
+}
+
+.information {
+    position: relative;
+    padding-left: 30px;
+}
+
+    .information ::deep .mud-svg-icon-root {
+        position: absolute;
+        left: 0;
+    }
+
+.uploading-mask {
+    background-color: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1200;
+    opacity: 0.5;
+}
+
+.uploading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1201;
+    cursor: wait;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

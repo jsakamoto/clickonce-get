@@ -2,33 +2,48 @@
 @attribute [Authorize]
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
-
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
 @using System.Net.Http.Headers
+@using static Toolbelt.Web.CssClassInlineBuilder
+
+@if (Uploading)
+{
+    <div class="uploading-mask"></div>
+    <div class="uploading-progress">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </div>
+}
 
 <div class="form-container">
 
     <h2>Upload My Application</h2>
 
-    <div>
+    <div class="caption @CssClass(new { HasError })">
         <MudText Typo="Typo.caption">Zip packaged application file</MudText>
     </div>
-    <div class="file-selector">
+    <div class="file-selector @CssClass(new { HasError })">
         <label @onclick="OnClickChoseFile" for="f" class="selected-file-name">@SelectedFileName</label>
         <label @onclick="OnClickChoseFile" for="f" class="select-file-button mud-button-root mud-button mud-button-outlined mud-ripple">
             Chose file
         </label>
         <InputFile id="f" OnChange="@OnInputFileChange" style="display:none;" accept=".zip" />
     </div>
-    <div class="mud-input-helper-text">
-        Max allowed file size is @(MaxAllowedSizeMB)MB.
+
+    @if (!HasError)
+    {
+        <div class="mud-input-helper-text">Max allowed file size is @(MaxAllowedSizeMB)MB.</div>
+    }
+    else
+    {
+        <div class="mud-input-helper-text mud-input-error">@ErrorMessage</div>
+    }
+
+    <div class="information my-6">
+        <MudIcon Icon="@Icons.Material.Info" />
+        If you upload the package of a new version of an application that was already registered, it will replace/update the package of that application.
     </div>
 
-    <div>
-        @if (ErrorMessage != "")
-        {
-            <MudChip Color="Color.Warning">@ErrorMessage</MudChip>
-        }
-    </div>
     <div class="my-6">
         <MudButton OnClick="OnClickStartUpload" Disabled="@(!Uploadable)"
                    Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
@@ -48,6 +63,10 @@
     private bool Uploadable = false;
 
     private string ErrorMessage = "";
+
+    private bool HasError => ErrorMessage != "";
+
+    private bool Uploading = false;
 
     private void OnClickChoseFile()
     {
@@ -71,8 +90,16 @@
 
     private async Task OnClickStartUpload()
     {
+        var dialogResult = await Dialog.Show<WarnBeforeUploadDialog>(title: "Warning").Result;
+        if (dialogResult.Cancelled) return;
+
         try
         {
+            this.Uploading = true;
+            this.StateHasChanged();
+
+            await Task.Delay(3000);
+
             using var stream = this.LastSelectedFile.OpenReadStream(MaxAllowedSize);
             var content = new MultipartFormDataContent();
             content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
@@ -80,19 +107,23 @@
 
             var response = await this.HttpClient.PostAsync("api/myapps/zipedpackage", content);
             var responseContent = await response.Content.ReadAsStringAsync();
+
+            this.Uploading = false;
+
             if (response.IsSuccessStatusCode)
             {
+                this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
+                this.Snackbar.Default($"The zip packaged application file was uploaded.");
                 var url = $"myapps/{Uri.EscapeUriString(responseContent)}";
                 this.NavigationManager.NavigateTo(url);
             }
             else
             {
-                Console.WriteLine($"responseContent: {responseContent}");
+                var parameter = new DialogParameters();
+                parameter.Add("Message", responseContent);
+                await Dialog.Show<ErrorDialog>(title: "Error", parameter).Result;
             }
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.ToString());
-        }
+        finally { this.Uploading = false; }
     }
 }
