@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClickOnceGet\Server\ClickOnceGet.Server.csproj" />
+    <ProjectReference Include="..\Server\ClickOnceGet.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>
