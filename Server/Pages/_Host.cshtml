@@ -36,5 +36,6 @@
 
 @{
     var tokens = this.Antiforgery.GetAndStoreTokens(this.HttpContext);
-    this.Response.Cookies.Append("X-ANTIFORGERY-TOKEN", tokens.RequestToken, new CookieOptions { HttpOnly = false });
+    var options = new CookieOptions { SameSite = SameSiteMode.Strict, HttpOnly = false };
+    this.Response.Cookies.Append("X-ANTIFORGERY-TOKEN", tokens.RequestToken, options);
 }
