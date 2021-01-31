@@ -104,7 +104,7 @@
         if (response.IsSuccessStatusCode)
         {
             this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            this.Snackbar.Default($"The \"{AppInfo.Title}\" was updated.");
+            this.Snackbar.Add($"The \"{AppInfo.Title}\" was updated.");
 
             this.NavigationManager.NavigateTo("myapps");
         }

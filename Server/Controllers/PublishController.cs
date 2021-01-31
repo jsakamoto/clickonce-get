@@ -158,7 +158,7 @@ namespace ClickOnceGet.Server.Controllers
                 if (Regex.IsMatch(codebase, "^http(s)?://") == false)
                     return Error("The .application file that contained in .zip file you uploaded has invalid format codebase url as HTTP(s) protocol.");
 
-                Func<string, string> stripSchema = url => Regex.Replace(url, "^http(s)?:", "");
+                static string stripSchema(string url) => Regex.Replace(url, "^http(s)?:", "");
 
                 var appUrl = new Uri(this.Request.GetDisplayUrl()).AppUrl(forceSecure: true);
                 var actionUrl = this.Url.RouteUrl("Publish", new { appId = appName });

@@ -113,7 +113,7 @@
             if (response.IsSuccessStatusCode)
             {
                 this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-                this.Snackbar.Default($"The zip packaged application file was uploaded.");
+                this.Snackbar.Add($"The zip packaged application file was uploaded.");
                 var url = $"myapps/{Uri.EscapeUriString(responseContent)}";
                 this.NavigationManager.NavigateTo(url);
             }

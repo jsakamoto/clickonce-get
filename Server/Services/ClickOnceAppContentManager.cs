@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using ClickOnceGet.Shared.Models;
 using Microsoft.AspNetCore.Hosting;
+using Polly;
 using Toolbelt.Drawing;
 
 namespace ClickOnceGet.Server.Services
@@ -183,7 +184,9 @@ namespace ClickOnceGet.Server.Services
             }
             finally
             {
-                File.Delete(tmpPath);
+                Polly.Policy.Handle<Exception>()
+                    .WaitAndRetry(retryCount: 3, _ => TimeSpan.FromMilliseconds(400))
+                    .ExecuteAndCapture(() => File.Delete(tmpPath));
             }
         }
     }

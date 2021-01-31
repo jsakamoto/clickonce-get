@@ -46,14 +46,14 @@
             this.Apps.Remove(appInfo);
 
             this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            this.Snackbar.Default($"The \"{appInfo.Title}\" application was deleted.");
+            this.Snackbar.Add($"The \"{appInfo.Title}\" application was deleted.");
         }
         else
         {
             var errorMessage = await response.Content.ReadAsStringAsync();
             if (string.IsNullOrEmpty(errorMessage)) errorMessage = $"{response.StatusCode} ({((int)response.StatusCode)})";
             this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            this.Snackbar.Error($"Error: {errorMessage}");
+            this.Snackbar.Add($"Error: {errorMessage}", Severity.Error);
         }
     }
 }
