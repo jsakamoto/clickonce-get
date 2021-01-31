@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using ClickOnceGet.Client.Services;
 using ClickOnceGet.Shared;
 using ClickOnceGet.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
 namespace ClickOnceGet.Client
@@ -32,6 +34,13 @@ namespace ClickOnceGet.Client
             builder.Services.AddAuthorizationCore();
             builder.Services.AddScoped<AuthenticationStateProvider, ClientSideAuthenticationStateProvider>();
             builder.Services.AddScoped<IClickOnceAppInfoProvider, ClientSideClickOnceAppInfoProvider>();
+
+            builder.Logging.AddFilter((category, level) =>
+            {
+                if (category.StartsWith("Microsoft.AspNetCore.Authorization") && level <= LogLevel.Information)
+                    return false;
+                return true;
+            });
 
             await builder.Build().RunAsync();
         }

@@ -2,61 +2,82 @@
 @inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
-@using static Toolbelt.Web.CssClassInlineBuilder
 
 <div>
     <MudAppBar Fixed="false" Elevation="0">
         <h1><a href="/">ClickOnce Get</a></h1>
-
         <MudAppBarSpacer />
-
-        <div class="@CssClass(new {Active = IsActiveNav<UploadMyApp>()})">
-            <MudButton Color="Color.Inherit" Link="myapps/upload">upload my app</MudButton>
-        </div>
-        <div Class="@CssClass(new {Active = IsActiveNav<MyApps>() || IsActiveNav<EditMyApp>()})">
-            <MudButton Color="Color.Inherit" Link="myapps">Manage my apps</MudButton>
-        </div>
-        <MudButton Color="Color.Inherit">Documents</MudButton>
-
         <AuthorizeView>
             <Authorized>
                 <span class="user-view">
                     <MudAvatar Image="@($"https://avatars.githubusercontent.com/{context.User.Identity.Name}")" Size="Size.Small" alt="@context.User.Identity.Name" />
                     @context.User.Identity.Name
-                    <MudMenu Icon="@Icons.Material.MoreVert" Color="Color.Inherit">
-                        <MudMenuItem OnClick="OnClickSignOut">Sign out</MudMenuItem>
-                    </MudMenu>
                 </span>
             </Authorized>
-            <NotAuthorized>
-                <MudButton Link="auth/signin" Target="_top" Color="Color.Inherit" Variant="Variant.Text">
-                    Sign In
-                </MudButton>
-            </NotAuthorized>
         </AuthorizeView>
-
+        <MudIconButton Icon="@Icons.Material.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
     </MudAppBar>
 </div>
-<div>
+
+<MudDrawer @ref="Drawer" @bind-Open="open" Elevation="1" Anchor="Anchor.Right">
+    <MudNavMenu>
+        <MudNavLink Href="/" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.Home" />Home</MudNavLink>
+        <MudNavLink Href="/myapps/upload" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.Publish" />Upload your app</MudNavLink>
+        <MudNavLink Href="/myapps" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.ViewList" />Manage your apps</MudNavLink>
+        <MudNavLink Href="/documents" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.ImportContacts" />Documents</MudNavLink>
+        <AuthorizeView>
+            <Authorized>
+                <div class="mud-nav-item mud-ripple sign-out">
+                    <a class="mud-nav-link" @onclick="OnClickSignOut">
+                        <div class="mud-nav-link-text"><MudIcon Icon="@Icons.Material.ExitToApp" />Sign out</div>
+                    </a>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="mud-nav-item mud-ripple sign-in">
+                    <a class="mud-nav-link" href="auth/signin" target="_top">
+                        <div class="mud-nav-link-text"><MudIcon Icon="@Icons.Material.Login" />Sign in</div>
+                    </a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </MudNavMenu>
+</MudDrawer>
+
+<div class="main-container">
     @Body
 </div>
 
 @code {
-    [CascadingParameter]
-    RouteData RouteData { get; set; }
+    private MudDrawer Drawer;
 
-    private bool IsActiveNav<TPage>() => this.RouteData?.PageType == typeof(TPage);
+    private bool open = false;
 
-    private bool IsActiveNav(params string[] urls)
+    protected override void OnInitialized()
     {
-        //this.RouteData.
-        var baseUrl = NavigationManager.BaseUri.TrimEnd('/') + "/";
-        return urls.Any(url => string.Compare(baseUrl + url.TrimStart('/'), NavigationManager.Uri, ignoreCase: true) == 0);
+        this.NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    // HACK: Toggling MudDrawer open/close is strange.
+    private async void OnLocationChanged(object sender, EventArgs e)
+    {
+        this.Drawer.OnNavigation();
+        await Task.Delay(400);
+        this.open = false;
+        this.StateHasChanged();
     }
 
     private async Task OnClickSignOut()
     {
+        this.open = false;
         await this.HttpClient.PostAsync("auth/signout", new StringContent(""));
         await (AuthStateProvider as ClientSideAuthenticationStateProvider)?.RefreshAsync();
+        this.NavigationManager.NavigateTo("/");
+        this.Drawer.OnNavigation();
+    }
+
+    private void ToggleDrawer()
+    {
+        this.open = !this.open;
     }
 }

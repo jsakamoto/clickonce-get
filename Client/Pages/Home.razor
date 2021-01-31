@@ -1,17 +1,17 @@
 ﻿@page "/"
 @inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
+<div class="home">
+    <div class="jumbo-tron">
+        <p>"ClickOnce Get" is a web site for publishing your ClickOnce applications.</p>
+    </div>
 
-<div class="jumbo-tron">
-    <p>"ClickOnce Get" is a web site for publishing your ClickOnce applications.</p>
+    <div class="apps-list">
+        @foreach (var app in Apps)
+        {
+            <ClickOnceApp AppInfo="app" />
+        }
+    </div>
 </div>
-
-<div class="apps-list">
-    @foreach (var app in Apps)
-    {
-        <ClickOnceApp AppInfo="app" />
-    }
-</div>
-
 
 @code {
     private IEnumerable<ClickOnceAppInfo> Apps = Enumerable.Empty<ClickOnceAppInfo>();

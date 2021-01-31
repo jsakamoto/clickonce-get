@@ -2,40 +2,37 @@
     overflow: hidden;
 }
 
-    ::deep header a {
+    ::deep header h1 a {
         color: var(--mud-theme-on-primary);
         text-decoration: none;
     }
 
-        ::deep header a:hover,
-        ::deep header a:focus,
-        ::deep header a:active {
-            text-decoration: none;
-        }
-
-::deep a:hover, ::deep a:active, ::deep a:focus {
-    text-decoration: underline;
+.user-view {
+    margin-right: 12px;
 }
 
-.active {
-    pointer-events: none;
-    border-bottom: solid 3px var(--mud-palette-grey-light);
-    margin-top: 3px;
+    .user-view ::deep .mud-avatar {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 4px;
+        margin-left: 8px;
+    }
+
+.sign-in, .sign-out {
+    border-top: solid 1px #ccc;
 }
 
-.user-view ::deep .mud-avatar {
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 4px;
-    margin-left: 8px;
-}
-
-.user-view ::deep .mud-menu {
-    vertical-align: middle;
-}
-
-.user-view ::deep .mud-popover {
-    position: fixed;
+.main-container {
+    position: absolute;
+    left: 0;
     right: 0;
-    top: 60px;
+    bottom: 0;
+    top: 56px;
+    overflow: auto;
+}
+
+@media (min-width: 600px) {
+    .main-container {
+        top: var(--mud-appbar-min-height);
+    }
 }
