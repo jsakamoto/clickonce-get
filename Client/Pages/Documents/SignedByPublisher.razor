@@ -1,0 +1,78 @@
+﻿@page "/documents/signed-by-publisher"
+
+<div class="form-container large document-style">
+
+    <h2><a href="/documents"><MudIcon Icon="@Icons.Material.ImportContacts" /> Documents</a> | What does "signed by publisher" mean?</h2>
+
+    <p>
+        If you look applications with <img src="/images/documents/signed-by-publisher/fig-signed-by-publisher.png" alt="Singed by Publisher" class="singed-by-publisher-badge" /> green badge,
+        it means <b>the application was signed by SSH private key which owned by the publisher's GitHub account.</b>
+    </p>
+
+    <p>
+        You can verify it manually by following steps.
+    </p>
+
+    <h2>How to verify an app was signed by publisher or not?</h2>
+
+    <h3>Prerequirements of this article</h3>
+    <ul>
+        <li>Windows OS</li>
+        <li>Installed Git for Windows</li>
+        <li>Set the PATH environment variable to "C:\Program Files\Git\usr\bin" for executing "openssl" and "ssh-keygen" commands in command prompt.</li>
+    </ul>
+
+    <h3>Step 1. Get the SSH public key of publisher's GitHub account</h3>
+
+    <ol>
+        <li>
+            Open link the publisher's GitHub profile page.
+            <div><img src="/images/documents/signed-by-publisher/fig-lmac-01.png" alt="fig.1" /></div>
+        </li>
+        <li>
+            Append ".keys" to the URL, and open it.
+            <div><img src="/images/documents/signed-by-publisher/fig-lmac-02.png" alt="fig.2" /></div>
+        </li>
+        <li>
+            Then, you will look the publisher's SSH public keys.
+            <div><img src="/images/documents/signed-by-publisher/fig-lmac-03.png" alt="fig.3" /></div>
+        </li>
+    </ol>
+
+    <h3>Step 2. Get the public key of the application signed</h3>
+
+    <ol>
+        <li>
+            Open certificate link, and download .cer file of the application signed.
+            <div><img src="/images/documents/signed-by-publisher/fig-lmac-04.png" alt="fig.4" /></div>
+        </li>
+        <li>
+            Open command prompt, and extract the public key from .cer file (DER format) and save it to file with PEM format by following command.
+            <pre>&gt; openssl x509 -in <i>".cer file path"</i> -inform DER -pubkey -noout &gt; <i>"PEM public key file path"</i></pre>
+        </li>
+        <li>
+            Convert public key format from PEM to SSH by following command.
+            <pre>&gt; ssh-keygen.exe -i -m PKCS8 -f <i>"PEM public key file path"</i></pre>
+        </li>
+        <li>
+            Then, you will look the public key with SSH format that used for code signing.
+            <div><img src="/images/documents/signed-by-publisher/fig-lmac-05.png" alt="fig.5" /></div>
+        </li>
+    </ol>
+
+    <h3>Step 3. Compare public keys</h3>
+
+    <p>Compare public keys with SSH format both from Step 1 and Step 2.</p>
+
+    <p>If these public keys are same, it means <b>the application was signed by private key which owned by the publisher.</b></p>
+
+    <p>
+        If you trust the publisher,
+        and validated the application signed by publisher's private key in this way,
+        you may be able to trust the application.
+    </p>
+</div>
+
+@code
+{
+}

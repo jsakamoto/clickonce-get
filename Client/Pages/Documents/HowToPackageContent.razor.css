@@ -1,0 +1,18 @@
+﻿.assembly-name-part {
+    color: var(--mud-palette-info-darken);
+}
+
+.fig-zip {
+    display: inline-block;
+}
+
+    .fig-zip .caption {
+        display: block;
+        color: var(--mud-palette-info-darken);
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .fig-zip.nogood .caption {
+        color: var(--mud-palette-error);
+    }

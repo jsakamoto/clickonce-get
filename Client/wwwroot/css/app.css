@@ -13,6 +13,11 @@ h2 {
     margin-right: auto;
 }
 
+    .form-container.large {
+        max-width: 800px;
+        padding: 0 24px 48px 24px;
+    }
+
 .mud-drawer .mud-nav-link-text {
     display: flex;
 }
@@ -20,3 +25,47 @@ h2 {
     .mud-drawer .mud-nav-link-text .mud-icon-size-medium {
         margin-right: 8px;
     }
+
+.document-style h2 svg {
+    vertical-align: -4px;
+}
+
+.document-style h3 {
+    margin: 20px 0 10px 0;
+}
+
+.document-style p {
+    margin: 10px 0;
+}
+
+.document-style a:hover {
+    text-decoration: underline;
+}
+
+.document-style pre {
+    margin-top: 4px;
+    font-size: 14px;
+    background-color: #eee;
+    padding: 6px 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.document-style img {
+    margin-top: 8px;
+    max-width: 100%;
+}
+
+.document-style ol {
+    margin: 0 0 0 16px;
+}
+
+    .document-style ol li {
+        padding: 8px 0;
+    }
+
+.document-style ul {
+    margin: 0 0 0 16px;
+    list-style: disc;
+}

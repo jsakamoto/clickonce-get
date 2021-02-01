@@ -1,0 +1,30 @@
+﻿
+<h3>Step 1. Publish the application as a ClickOnce package.</h3>
+
+<p>You should configure publishing property of deployment end point URL belong with follow rule at [Publish] section of Visual Studio project properties, or "Publish Wizard".</p>
+
+<pre>https://clickonceget.azurewebsites.net/app/<span class="assembly-name-part">(assemblyName)</span></pre>
+
+<p><img src="/images/documents/how-to-package/fig01.png" alt="Fig.1 Screen shot of Visual Studio project properties" /></p>
+
+<p><img src="/images/documents/how-to-package/fig02.png" alt="Fig.2 Screen shot of Publish Wizard" /></p>
+
+<h3>Step 2. Zip the ClickOnce package.</h3>
+
+<p>You should create a zip file as contains a .application file positioned at the top of the zip file.</p>
+
+<p class="fig-zip">
+    <span class="caption">
+        Good
+    </span>
+    <img src="/images/documents/how-to-package/fig03-zip-good.png" alt="Fig.3" />
+</p>
+
+<p class="fig-zip nogood">
+    <span class="caption">
+        No Good
+    </span>
+    <img src="/images/documents/how-to-package/fig04-zip-nogood.png" alt="Fig.4" />
+</p>
+
+<h3>Step 3. Register(Upload) it.</h3>
