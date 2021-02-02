@@ -1,0 +1,40 @@
+﻿@page "/documents/how-to-sign-by-github-sshkey"
+
+<div class="form-container large document-style">
+    <h2><a href="/documents"><MudIcon Icon="@Icons.Material.ImportContacts" /> Documents</a> | How to sign your app by SSH key of your GitHub account?</h2>
+
+    <h3>Prerequirements of this article</h3>
+    <ul>
+        <li>Windows OS</li>
+        <li>Installed Git for Windows</li>
+        <li>Set the PATH environment variable to "C:\Program Files\Git\usr\bin" for executing "openssl" command in command prompt.</li>
+        <li>You already setuped SSH private/public key and registerd public key to GitHub account.</li>
+    </ul>
+
+    <h3>Steps</h3>
+    <ol>
+
+        <li>Configure "C:\Program Files\OpenSSL\bin\openssl.cfg": Common name, expiration days, etc...</li>
+
+        <li>
+            Open command prompt, and execute following command to generate a self signed certificate (.cer file).
+            <pre>&gt; openssl req -new -x509 -key "%HOME%\.ssh\id_rsa" -out <i>"output .cer file path"</i></pre>
+        </li>
+
+        <li>
+            And generate .pfx file which contains the private key by following command.
+            <pre>&gt; openssl pkcs12 -export -inkey "%HOME%\.ssh\id_rsa" -in <i>".cer file path (generated before step)"</i> -out <i>"output .pfx file path"</i></pre>
+        </li>
+        <li>
+            After yo get .pfx file, register the .pfx file to your PC's certificate store as personal certificates.
+            You can do it by double clicking .pfx file in Explorer.
+            <div><img src="/images/documents/how-to-sign-github-sshkey/fig-lmac-06.gif" alt="fig.6" style="zoom:0.8" /></div>
+        </li>
+        <li>
+            Configure your ClickOnce application project in Visual Studio,
+            chose certificate via Project Property &gt;"Signing" category &gt; [Select from Store...].
+            <div><img src="/images/documents/how-to-sign-github-sshkey/fig-lmac-07.png" alt="fig.7" /></div>
+        </li>
+    </ol>
+
+</div>
