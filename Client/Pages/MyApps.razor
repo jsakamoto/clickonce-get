@@ -6,20 +6,16 @@
 @inject NavigationManager NavigationManager
 @inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
 
-<MudContainer>
-    <h2>Manage Applications</h2>
-</MudContainer>
+<div class="my-apps">
+    <MudContainer>
+        <h2><MudIcon Icon="@Icons.Material.ViewList" /> Manage Applications</h2>
+    </MudContainer>
 
-<div>
-    @foreach (var app in Apps)
-    {
-        <ClickOnceApp @key="app.Name" AppInfo="app" Manage="true" OnClickEdit="OnClickEdit" OnClickDelete="OnClickDelete" />
-    }
+    <ClickOnceAppList AppList="this.Apps" Manage="true" OnClickEdit="OnClickEdit" OnClickDelete="OnClickDelete" />
 </div>
 
-<div class="padding"></div>
-
-@code {
+@code
+{
     private List<ClickOnceAppInfo> Apps = new List<ClickOnceAppInfo>();
 
     protected override async Task OnInitializedAsync()

@@ -26,9 +26,28 @@ h2 {
         margin-right: 8px;
     }
 
-.document-style h2 svg {
+/* ---- application bar ---- */
+:root {
+    --mud-appbar-slim-height: 56px;
+    --coget-appbar-height: var(--mud-appbar-slim-height);
+}
+
+@media (min-width: 600px) {
+    :root {
+        --coget-appbar-height: var(--mud-appbar-min-height);
+    }
+}
+
+/* ---- application list ---- */
+:root {
+    --coget-app-list-backcolor: #eee;
+}
+
+/* ---- header icon ---- */
+h2 svg {
     vertical-align: -4px;
 }
+/* ---- document styles ---- */
 
 .document-style h3 {
     margin: 20px 0 10px 0;

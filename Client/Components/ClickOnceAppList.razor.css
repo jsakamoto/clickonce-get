@@ -1,0 +1,15 @@
+﻿.apps-list {
+    padding-top: 10px;
+    padding-bottom: 48px;
+    background-color: var(--coget-app-list-backcolor);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+    position: absolute;
+    top: var(--coget-applist-top);
+    bottom: 0;
+    left: 0;
+    right: 0px;
+    overflow: auto;
+}

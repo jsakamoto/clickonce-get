@@ -5,12 +5,8 @@
         <p>"ClickOnce Get" is a web site for publishing your ClickOnce applications.</p>
     </div>
 
-    <div class="apps-list">
-        @foreach (var app in Apps)
-        {
-            <ClickOnceApp AppInfo="app" />
-        }
-    </div>
+    <ClickOnceAppList AppList="this.Apps" />
+
 </div>
 
 @code {

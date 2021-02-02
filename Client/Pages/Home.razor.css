@@ -1,5 +1,6 @@
 ﻿.home {
     --jumbo-tron-height: 40px;
+    --coget-applist-top: var(--jumbo-tron-height);
 }
 
 .jumbo-tron {
@@ -17,18 +18,3 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
-.apps-list {
-    padding-top: 10px;
-    background-color: #eee;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-content: flex-start;
-    position: absolute;
-    top: var(--jumbo-tron-height);
-    bottom: 0;
-    left: 0;
-    right: 0px;
-    overflow: auto;
-}

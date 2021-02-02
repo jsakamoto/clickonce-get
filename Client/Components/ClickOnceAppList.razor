@@ -1,0 +1,31 @@
+﻿<div class="apps-list">
+    @foreach (var app in this.AppList)
+    {
+        <ClickOnceApp @key="app.Name" AppInfo="app" Manage="this.Manage" OnClickEdit="OnClickEditInternal" OnClickDelete="OnClickDeleteInternal" />
+    }
+</div>
+
+@code
+{
+    [Parameter]
+    public IEnumerable<ClickOnceAppInfo> AppList { get; set; }
+
+    [Parameter]
+    public bool Manage { get; set; }
+
+    [Parameter]
+    public EventCallback<ClickOnceAppInfo> OnClickEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<ClickOnceAppInfo> OnClickDelete { get; set; }
+
+    private Task OnClickEditInternal(ClickOnceAppInfo appInfo)
+    {
+        return this.OnClickEdit.InvokeAsync(appInfo);
+    }
+
+    private Task OnClickDeleteInternal(ClickOnceAppInfo appInfo)
+    {
+        return this.OnClickDelete.InvokeAsync(appInfo);
+    }
+}
