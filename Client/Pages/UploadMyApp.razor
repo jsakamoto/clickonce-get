@@ -17,7 +17,7 @@
 
 <div class="form-container">
 
-    <h2><MudIcon Icon="@Icons.Material.Publish" /> Upload My Application</h2>
+    <h2><MudIcon Icon="@Icons.Material.Publish" /> Upload Your Application</h2>
 
     <div class="caption @CssClass(new { HasError })">
         <MudText Typo="Typo.caption">Zip packaged application file</MudText>
@@ -48,6 +48,13 @@
         <MudButton OnClick="OnClickStartUpload" Disabled="@(!Uploadable)"
                    Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
             Start upload
+        </MudButton>
+    </div>
+
+    <div class="my-12">
+        <MudButton Link="/documents/how-to-package" Target="_blank" Variant="Variant.Outlined" Size="Size.Medium">
+            Learn more about how to package your app&nbsp;
+            <MudIcon Icon="@Icons.Material.OpenInNew" Size="Size.Small" />
         </MudButton>
     </div>
 </div>

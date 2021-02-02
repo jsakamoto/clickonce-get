@@ -24,7 +24,7 @@
         <MudNavLink Href="/" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.Home" />Home</MudNavLink>
         <MudNavLink Href="/myapps/upload" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.Publish" />Upload your app</MudNavLink>
         <MudNavLink Href="/myapps" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.ViewList" />Manage your apps</MudNavLink>
-        <MudNavLink Href="/documents" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.ImportContacts" />Documents</MudNavLink>
+        <MudNavLink Href="/documents" Match="NavLinkMatch.Prefix"><MudIcon Icon="@Icons.Material.ImportContacts" />Documents</MudNavLink>
         <AuthorizeView>
             <Authorized>
                 <div class="mud-nav-item mud-ripple sign-out">
@@ -36,7 +36,7 @@
             <NotAuthorized>
                 <div class="mud-nav-item mud-ripple sign-in">
                     <a class="mud-nav-link" href="auth/signin" target="_top">
-                        <div class="mud-nav-link-text"><MudIcon Icon="@Icons.Material.Login" />Sign in</div>
+                        <div class="mud-nav-link-text"><MudIcon Icon="@Icons.Material.Login" />Sign in with GitHub</div>
                     </a>
                 </div>
             </NotAuthorized>

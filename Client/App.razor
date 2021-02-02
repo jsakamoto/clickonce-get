@@ -6,7 +6,14 @@
     <Router AppAssembly="@typeof(Program).Assembly">
         <Found Context="routeData">
             <CascadingValue Value="@routeData">
-                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                    <NotAuthorized>
+                        <NotAuthorizedMessage />
+                        @*<h1>Sorry</h1>
+                            <p>You're not authorized to reach this page.</p>
+                            <p>You may need to log in as a different user.</p>*@
+                    </NotAuthorized>
+                </AuthorizeRouteView>
             </CascadingValue>
         </Found>
         <NotFound>
