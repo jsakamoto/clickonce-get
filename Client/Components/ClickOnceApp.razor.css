@@ -34,6 +34,7 @@
 ::deep .mud-avatar {
     display: inline-block;
     vertical-align: middle;
+    margin-left: 4px;
 }
 
 ::deep .mud-card-content {
