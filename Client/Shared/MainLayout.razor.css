@@ -26,7 +26,31 @@
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
     top: var(--coget-appbar-height);
+    bottom: var(--coget-footer-height);
     overflow: auto;
 }
+
+footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--coget-footer-height);
+    overflow: hidden;
+    border-top: solid 1px #ddd;
+    background-color: #eee;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    color: var(--mud-palette-text-secondary);
+    font-size: 95%;
+}
+
+    footer a {
+        color: var(--mud-palette-primary);
+    }
+
+        footer a:hover {
+            color: var(--mud-palette-primary-lighten);
+        }
