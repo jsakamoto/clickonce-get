@@ -23,9 +23,18 @@ namespace ClickOnceGet.Client.Services
             return apps;
         }
 
-        public Task<ClickOnceAppInfo> GetAppAsync(string appName)
+        public async Task<ClickOnceAppInfo> GetAppAsync(string appName)
         {
-            return HttpClient.GetFromJsonAsync<ClickOnceAppInfo>($"/api/apps/{Uri.EscapeUriString(appName)}");
+            var response = await this.HttpClient.GetAsync($"/api/apps/{Uri.EscapeUriString(appName)}");
+            await response.EnsureSuccessStatusCodeAsync();
+            return await response.Content.ReadFromJsonAsync<ClickOnceAppInfo>();
+        }
+
+        public async Task<ClickOnceAppInfo> GetOwnedAppAsync(string appName)
+        {
+            var response = await this.HttpClient.GetAsync($"/api/myapps/{Uri.EscapeUriString(appName)}");
+            await response.EnsureSuccessStatusCodeAsync();
+            return await response.Content.ReadFromJsonAsync<ClickOnceAppInfo>();
         }
 
         public async Task<IEnumerable<ClickOnceAppInfo>> GetOwnedAppsAsync()

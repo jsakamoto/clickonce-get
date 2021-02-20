@@ -11,6 +11,8 @@ namespace ClickOnceGet.Shared.Services
 
         Task<ClickOnceAppInfo?> GetAppAsync(string appName);
 
+        Task<ClickOnceAppInfo?> GetOwnedAppAsync(string appName);
+
         Task<IEnumerable<ClickOnceAppInfo>> GetOwnedAppsAsync();
     }
 }

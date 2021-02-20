@@ -28,10 +28,25 @@ namespace ClickOnceGet.Server.Services
             return Task.FromResult(this.ClickOnceFileRepository.EnumAllApps());
         }
 
-        public async Task<ClickOnceAppInfo?> GetAppAsync(string appName)
+        public Task<ClickOnceAppInfo?> GetAppAsync(string appName)
         {
             var appInfo = this.ClickOnceFileRepository.GetAppInfo(appName);
-            return await Task.FromResult(appInfo);
+            return Task.FromResult<ClickOnceAppInfo?>(appInfo);
+        }
+
+        public Task<ClickOnceAppInfo?> GetOwnedAppAsync(string appName)
+        {
+            var user = HttpContextAccessor.HttpContext?.User;
+            if (user?.Identity?.IsAuthenticated != true) return Task.FromResult<ClickOnceAppInfo?>(null);
+
+            var hashedUserId = user.GetHashedUserId();
+            if (hashedUserId == null) throw new Exception("hashed user id is null.");
+
+            var appInfo = this.ClickOnceFileRepository.GetAppInfo(appName);
+            if (appInfo == null) return Task.FromResult<ClickOnceAppInfo?>(null);
+            if (appInfo.OwnerId != hashedUserId) return Task.FromResult<ClickOnceAppInfo?>(null);
+
+            return Task.FromResult<ClickOnceAppInfo?>(appInfo);
         }
 
         public async Task<IEnumerable<ClickOnceAppInfo>> GetOwnedAppsAsync()

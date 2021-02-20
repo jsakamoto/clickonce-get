@@ -65,16 +65,24 @@
 
     protected override async Task OnInitializedAsync()
     {
-        this.AppInfo = await ClickOnceAppInfoProvider.GetAppAsync(this.AppName);
-        this.DisclosePublisher = !string.IsNullOrEmpty(this.AppInfo.PublisherName);
-
-        this.OriginalAppInfo = new ClickOnceAppInfo
+        try
         {
-            Title = this.AppInfo.Title,
-            Description = this.AppInfo.Description,
-            ProjectURL = this.AppInfo.ProjectURL,
-            PublisherName = this.AppInfo.PublisherName
-        };
+            this.AppInfo = await ClickOnceAppInfoProvider.GetOwnedAppAsync(this.AppName);
+            this.DisclosePublisher = !string.IsNullOrEmpty(this.AppInfo.PublisherName);
+
+            this.OriginalAppInfo = new ClickOnceAppInfo
+            {
+                Title = this.AppInfo.Title,
+                Description = this.AppInfo.Description,
+                ProjectURL = this.AppInfo.ProjectURL,
+                PublisherName = this.AppInfo.PublisherName
+            };
+        }
+        catch (Exception e)
+        {
+            await Dialog.ShowErrorMessageAsync(e.Message);
+            this.NavigationManager.NavigateTo("myapps");
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -99,18 +107,17 @@
 
     private async Task OnValidSubmit()
     {
-        var url = $"api/myapps/{Uri.EscapeUriString(AppInfo.Name)}?disclosePublisher={DisclosePublisher}";
-        var response = await this.HttpClient.PutAsJsonAsync(url, AppInfo);
-        if (response.IsSuccessStatusCode)
+        try
         {
+            var url = $"api/myapps/{Uri.EscapeUriString(AppInfo.Name)}?disclosePublisher={DisclosePublisher}";
+            var response = await this.HttpClient.PutAsJsonAsync(url, AppInfo);
+            await response.EnsureSuccessStatusCodeAsync();
+
             this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
             this.Snackbar.Add($"The \"{AppInfo.Title}\" was updated.");
 
             this.NavigationManager.NavigateTo("myapps");
         }
-        else
-        {
-            var responseContent = await response.Content.ReadAsStringAsync();
-        }
+        catch (Exception e) { await Dialog.ShowErrorMessageAsync(e.Message); }
     }
 }

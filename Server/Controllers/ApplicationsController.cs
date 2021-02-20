@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ClickOnceGet.Server.Services;
 using ClickOnceGet.Shared.Models;
@@ -49,7 +50,7 @@ namespace ClickOnceGet.Server.Controllers
         public ActionResult<ClickOnceAppInfo> GetApp(string appName)
         {
             var appInfo = this.ClickOnceFileRepository.GetAppInfo(appName);
-            if (appInfo == null) return NotFound();
+            if (appInfo == null) return NotFound($"The application \"{appName}\"not found.");
             return appInfo;
         }
 
@@ -60,17 +61,25 @@ namespace ClickOnceGet.Server.Controllers
             return this.ClickOnceAppInfoProvider.GetOwnedAppsAsync();
         }
 
+        // GET api/myapps/{appName}
+        [Authorize, HttpGet("api/myapps/{appName}")]
+        public async Task<ActionResult<ClickOnceAppInfo>> GetOwnedAppAsync(string appName)
+        {
+            var appInfo = await this.ClickOnceAppInfoProvider.GetOwnedAppAsync(appName);
+            if (appInfo == null) return NotFound($"The application \"{appName}\"not found.");
+            return appInfo;
+        }
+
         // DELETE api/apps/appname or api/myapps/appname
         [Authorize, HttpDelete("api/myapps/{appName}")]
         public ActionResult DeleteApp(string appName)
         {
-            //this.Request.RequestUri.
             var userId = User.GetHashedUserId();
             if (userId == null) throw new Exception("hashed user id is null.");
 
             var appInfo = this.ClickOnceFileRepository.GetAppInfo(appName);
-            if (appInfo == null) return NotFound();
-            if (appInfo.OwnerId != userId) return Forbid();
+            if (appInfo == null) return NotFound($"The application \"{appName}\"not found.");
+            if (appInfo.OwnerId != userId) return this.StatusCode(HttpStatusCode.Forbidden, $"You don't have ownership rights of the \"{appName}\" application.");
 
             this.ClickOnceFileRepository.DeleteApp(appName);
             return NoContent();
@@ -166,7 +175,7 @@ namespace ClickOnceGet.Server.Controllers
         {
             var targerAppInfo = await this.ClickOnceAppInfoProvider.GetAppAsync(appName);
             if (targerAppInfo == null) return NotFound($"The application \"{appName}\"not found.");
-            if (targerAppInfo.OwnerId != User.GetHashedUserId()) return Forbid($"You don't have owner rights of the \"{appName}\" application.");
+            if (targerAppInfo.OwnerId != User.GetHashedUserId()) return this.StatusCode(HttpStatusCode.Forbidden, $"You don't have ownership rights of the \"{appName}\" application.");
 
             targerAppInfo.Title = appInfo.Title;
             targerAppInfo.Description = appInfo.Description;

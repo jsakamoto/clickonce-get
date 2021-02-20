@@ -1,11 +1,13 @@
 ﻿#nullable enable
 using System;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ClickOnceGet
 {
@@ -36,6 +38,16 @@ namespace ClickOnceGet
             var appUrl = requestUrl.GetLeftPart(UriPartial.Scheme | UriPartial.Authority);
             if (forceSecure) appUrl = Regex.Replace(appUrl, "^http:", "https:");
             return appUrl;
+        }
+
+        public static StatusCodeResult StatusCode(this ControllerBase controller, HttpStatusCode statusCode)
+        {
+            return controller.StatusCode((int)statusCode);
+        }
+
+        public static ObjectResult StatusCode(this ControllerBase controller, HttpStatusCode statusCode, object value)
+        {
+            return controller.StatusCode((int)statusCode, value);
         }
     }
 }
