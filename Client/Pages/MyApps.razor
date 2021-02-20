@@ -36,20 +36,18 @@
         var confirm = await this.Dialog.Show<ConfirmDialog>(title: "Delete the application", param).Result;
         if (confirm.Cancelled) return;
 
-        var response = await this.HttpClient.DeleteAsync($"api/myapps/{Uri.EscapeUriString(appInfo.Name)}");
-        if (response.IsSuccessStatusCode)
+        try
         {
+            var response = await this.HttpClient.DeleteAsync($"api/myapps/{Uri.EscapeUriString(appInfo.Name)}");
+            await response.EnsureSuccessStatusCodeAsync();
             this.Apps.Remove(appInfo);
 
             this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
             this.Snackbar.Add($"The \"{appInfo.Title}\" application was deleted.");
         }
-        else
+        catch (Exception e)
         {
-            var errorMessage = await response.Content.ReadAsStringAsync();
-            if (string.IsNullOrEmpty(errorMessage)) errorMessage = $"{response.StatusCode} ({((int)response.StatusCode)})";
-            this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            this.Snackbar.Add($"Error: {errorMessage}", Severity.Error);
+            await this.Dialog.ShowErrorMessageAsync(e.Message);
         }
     }
 }
