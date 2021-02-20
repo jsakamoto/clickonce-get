@@ -78,3 +78,7 @@
 ::deep .mud-card-actions {
     justify-content: flex-end;
 }
+
+    ::deep .mud-card-actions .mud-button {
+        margin-left: 4px;
+    }

@@ -1,0 +1,18 @@
+﻿.contents {
+    background-color: var(--coget-app-list-backcolor);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0px;
+    display: flex;
+    justify-content: center;
+}
+
+    .contents ::deep .mud-card {
+        width: 80vw;
+    }
+
+        .contents ::deep .mud-card .mud-card-actions {
+            margin-top: 24px;
+        }

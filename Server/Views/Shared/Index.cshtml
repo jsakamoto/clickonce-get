@@ -1,5 +1,4 @@
-﻿@page "/"
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @using Microsoft.AspNetCore.Http
 <!DOCTYPE html>
@@ -35,7 +34,8 @@
 </html>
 
 @{
-    var tokens = this.Antiforgery.GetAndStoreTokens(this.HttpContext);
+    var httpContext = this.ViewContext.HttpContext;
+    var tokens = this.Antiforgery.GetAndStoreTokens(httpContext);
     var options = new CookieOptions { SameSite = SameSiteMode.Strict, HttpOnly = false };
-    this.Response.Cookies.Append("X-ANTIFORGERY-TOKEN", tokens.RequestToken, options);
+    httpContext.Response.Cookies.Append("X-ANTIFORGERY-TOKEN", tokens.RequestToken, options);
 }

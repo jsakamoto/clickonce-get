@@ -10,7 +10,6 @@ using System.Xml.XPath;
 using ClickOnceGet.Server.Services;
 using ClickOnceGet.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
@@ -39,6 +38,8 @@ namespace ClickOnceGet.Server.Controllers
         {
             pathInfo = (pathInfo ?? "").Replace('/', '\\');
             if (pathInfo == "") return Redirect($"/app/{Uri.EscapeUriString(appId)}/{Uri.EscapeUriString(appId)}.application");
+
+            if (pathInfo == "detail") return View("Index");
 
             var fileBytes = this.ClickOnceFileRepository.GetFileContent(appId, pathInfo);
             if (fileBytes == null) return NotFound();

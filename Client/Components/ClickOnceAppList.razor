@@ -1,7 +1,12 @@
 ﻿<div class="apps-list">
     @foreach (var app in this.AppList)
     {
-        <ClickOnceApp @key="app.Name" AppInfo="app" Manage="this.Manage" OnClickEdit="OnClickEditInternal" OnClickDelete="OnClickDeleteInternal" />
+        <ClickOnceApp @key="app.Name"
+                      AppInfo="app"
+                      Manage="this.Manage"
+                      EnableAppDetailLink="this.EnableAppDetailLink"
+                      OnClickEdit="OnClickEditInternal"
+                      OnClickDelete="OnClickDeleteInternal" />
     }
 </div>
 
@@ -12,6 +17,9 @@
 
     [Parameter]
     public bool Manage { get; set; }
+
+    [Parameter]
+    public bool EnableAppDetailLink { get; set; }
 
     [Parameter]
     public EventCallback<ClickOnceAppInfo> OnClickEdit { get; set; }

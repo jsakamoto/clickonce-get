@@ -1,0 +1,23 @@
+﻿@page "/app/{appName}"
+@page "/app/{appName}/detail"
+@inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
+
+<div class="contents">
+    @if (AppInfo != null)
+    {
+        <ClickOnceApp AppInfo="this.AppInfo" EnableHomeLink="true" />
+    }
+</div>
+
+@code
+{
+    [Parameter]
+    public string AppName { get; set; }
+
+    private ClickOnceAppInfo AppInfo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.AppInfo = await ClickOnceAppInfoProvider.GetAppAsync(this.AppName);
+    }
+}

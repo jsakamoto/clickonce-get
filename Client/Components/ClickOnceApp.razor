@@ -9,9 +9,18 @@
             </CardHeaderAvatar>
             <CardHeaderContent>
                 <h2>
-                    <a class="title" href="@BaseUrl/detail" title="goto the application page.">
-                        @AppInfo.GetTitleOrName()
-                    </a>
+                    @if (this.EnableAppDetailLink)
+                    {
+                        <a class="title" href="@BaseUrl/detail" title="goto the application page.">
+                            @AppInfo.GetTitleOrName()
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="title">
+                            @AppInfo.GetTitleOrName()
+                        </span>
+                    }
                 </h2>
             </CardHeaderContent>
         </MudCardHeader>
@@ -76,6 +85,12 @@
         </MudCardContent>
 
         <MudCardActions>
+            @if (this.EnableHomeLink)
+            {
+                <MudButton Link="/" Variant="Variant.Text" Size="Size.Medium" StartIcon="@Icons.Material.Home">
+                    Back to home
+                </MudButton>
+            }
             @if (Manage)
             {
                 <MudButton OnClick="@(()=> OnClickDelete.InvokeAsync(AppInfo))"
@@ -104,6 +119,12 @@
 
     [Parameter]
     public bool Manage { get; set; }
+
+    [Parameter]
+    public bool EnableAppDetailLink { get; set; }
+
+    [Parameter]
+    public bool EnableHomeLink { get; set; }
 
     [Parameter]
     public EventCallback<ClickOnceAppInfo> OnClickEdit { get; set; }

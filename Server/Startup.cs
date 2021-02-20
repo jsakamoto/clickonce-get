@@ -90,7 +90,7 @@ namespace ClickOnceGet.Server
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapFallbackToController(action: "Index", controller: "FallbackViews");
             });
         }
     }
