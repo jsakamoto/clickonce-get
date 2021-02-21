@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using ClickOnceGet.Server.Options;
 using ClickOnceGet.Server.Services;
 using ClickOnceGet.Shared;
 using ClickOnceGet.Shared.Services;
@@ -23,12 +24,14 @@ namespace ClickOnceGet.Server
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<ClickOnceGetOptions>(Configuration.GetSection("ClickOnceGet"));
+
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddHttpClient();

@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
-using System.Xml.XPath;
 using ClickOnceGet.Server.Services;
 using ClickOnceGet.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Toolbelt.Web;
@@ -134,47 +128,6 @@ namespace ClickOnceGet.Server.Controllers
             var buff = new byte[stream.Length];
             stream.Read(buff, 0, buff.Length);
             return buff;
-        }
-
-        private ActionResult CheckCodeBaseUrl(string appName, byte[] buff)
-        {
-            var appManifest = default(XDocument);
-            try
-            {
-                using var ms = new MemoryStream(buff);
-                appManifest = XDocument.Load(ms);
-            }
-            catch (XmlException)
-            {
-                return Error("The .application file that contained in .zip file you uploaded is may not be valid XML format.");
-            }
-
-            var xnm = new XmlNamespaceManager(new NameTable());
-            xnm.AddNamespace("asmv1", "urn:schemas-microsoft-com:asm.v1");
-            xnm.AddNamespace("asmv2", "urn:schemas-microsoft-com:asm.v2");
-            var codeBaseAttr = (appManifest.XPathEvaluate("/asmv1:assembly/asmv2:deployment/asmv2:deploymentProvider/@codebase", xnm) as IEnumerable).Cast<XAttribute>().FirstOrDefault();
-            if (codeBaseAttr != null)
-            {
-                var codebase = codeBaseAttr.Value.ToLower();
-                if (Regex.IsMatch(codebase, "^http(s)?://") == false)
-                    return Error("The .application file that contained in .zip file you uploaded has invalid format codebase url as HTTP(s) protocol.");
-
-                static string stripSchema(string url) => Regex.Replace(url, "^http(s)?:", "");
-
-                var appUrl = new Uri(this.Request.GetDisplayUrl()).AppUrl(forceSecure: true);
-                var actionUrl = this.Url.RouteUrl("Publish", new { appId = appName });
-                var baseUrl = appUrl + actionUrl;
-                if (stripSchema(codebase) != (stripSchema(baseUrl) + "/" + appName + ".application").ToLower())
-                    return Error("The install URL is invalid. You should re-publish the application with fix the install URL as \"{0}\".", baseUrl);
-            }
-
-            return null; // Valid/Success.
-        }
-
-        private ActionResult Error(string message, params string[] args)
-        {
-            this.ModelState.AddModelError("Error", string.Format(message, args));
-            return View();
         }
     }
 }

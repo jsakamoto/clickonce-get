@@ -31,5 +31,8 @@
     <ProjectReference Include="..\Shared\ClickOnceGet.Shared.csproj" />
   </ItemGroup>
 
+  <Target Name="CreateAppSettingDevelopmentDefault" BeforeTargets="Build">
+    <Copy SourceFiles=".defaults/appsettings.Development.json" DestinationFolder="." Condition="!Exists('appsettings.Development.json')"/>
+  </Target>
 
 </Project>

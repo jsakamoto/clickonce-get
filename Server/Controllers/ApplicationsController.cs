@@ -1,17 +1,24 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.XPath;
+using ClickOnceGet.Server.Options;
 using ClickOnceGet.Server.Services;
 using ClickOnceGet.Shared.Models;
 using ClickOnceGet.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ClickOnceGet.Server.Controllers
 {
@@ -19,6 +26,8 @@ namespace ClickOnceGet.Server.Controllers
     public class ApplicationsController : ControllerBase
     {
         private IWebHostEnvironment WebHostEnv { get; }
+
+        private IOptionsMonitor<ClickOnceGetOptions> Options { get; }
 
         private IClickOnceAppInfoProvider ClickOnceAppInfoProvider { get; }
 
@@ -28,11 +37,13 @@ namespace ClickOnceGet.Server.Controllers
 
         public ApplicationsController(
             IWebHostEnvironment webHostEnv,
+            IOptionsMonitor<ClickOnceGetOptions> options,
             IClickOnceAppInfoProvider clickOnceAppInfoProvider,
             IClickOnceFileRepository clickOnceFileRepository,
             ClickOnceAppContentManager appContentManager)
         {
             this.WebHostEnv = webHostEnv;
+            this.Options = options;
             this.ClickOnceAppInfoProvider = clickOnceAppInfoProvider;
             this.ClickOnceFileRepository = clickOnceFileRepository;
             this.AppContentManager = appContentManager;
@@ -134,13 +145,15 @@ namespace ClickOnceGet.Server.Controllers
                     using var reader = item.Open();
                     reader.Read(buff, 0, buff.Length);
                     this.ClickOnceFileRepository.SaveFileContent(appName, item.FullName, buff);
-#if !DEBUG
+
                     if (Path.GetExtension(item.FullName).ToLower() == ".application")
                     {
-                        var error = CheckCodeBaseUrl(appName, buff);
-                        if (error != null) return error;
+                        if (this.Options.CurrentValue.SkipCodeBaseValidation == false)
+                        {
+                            var error = CheckCodeBaseUrl(appName, buff);
+                            if (error != null) return error;
+                        }
                     }
-#endif
                 }
 
                 // Update certificate information.
@@ -204,6 +217,39 @@ namespace ClickOnceGet.Server.Controllers
                 appInfo.PublisherURL = null;
                 appInfo.PublisherAvatorImageURL = null;
             }
+        }
+
+        private ActionResult CheckCodeBaseUrl(string appName, byte[] buff)
+        {
+            var appManifest = default(XDocument);
+            try
+            {
+                using var ms = new MemoryStream(buff);
+                appManifest = XDocument.Load(ms);
+            }
+            catch (XmlException)
+            {
+                return this.BadRequest("The .application file that contained in .zip file you uploaded is may not be valid XML format.");
+            }
+
+            var xnm = new XmlNamespaceManager(new NameTable());
+            xnm.AddNamespace("asmv1", "urn:schemas-microsoft-com:asm.v1");
+            xnm.AddNamespace("asmv2", "urn:schemas-microsoft-com:asm.v2");
+            var codeBaseAttr = (appManifest.XPathEvaluate("/asmv1:assembly/asmv2:deployment/asmv2:deploymentProvider/@codebase", xnm) as IEnumerable).Cast<XAttribute>().FirstOrDefault();
+            if (codeBaseAttr == null) return BadRequest("The .application file that contained in .zip file you uploaded did not have \"codebase\" attribute.");
+
+            var codebaseIsValidUrl = Uri.TryCreate(codeBaseAttr.Value, UriKind.Absolute, out var codeBaseUri);
+            if (!codebaseIsValidUrl || (codeBaseUri.Scheme != "http" && codeBaseUri.Scheme != "https"))
+                return BadRequest("The .application file that contained in .zip file you uploaded has invalid format codebase url as HTTP(s) protocol.");
+
+            var appUrl = new Uri(this.Request.GetDisplayUrl()).AppUrl(forceSecure: true);
+            var installUrl = appUrl + $"/app/{appName}";
+            var expectedCodeBase = $"{installUrl}/{appName}.application";
+
+            if (codeBaseUri.AbsoluteUri != expectedCodeBase)
+                return BadRequest($"The install URL is invalid. You should re-publish the application with fix the install URL as \"{installUrl}\".");
+
+            return null; // Valid/Success.
         }
     }
 }

@@ -28,11 +28,6 @@ namespace ClickOnceGet
             return claimsIdentty.Claims.First(c => c.Type == CustomClaimTypes.HasedUserId).Value;
         }
 
-        public static string AppUrl(this Uri requestUrl)
-        {
-            return requestUrl.AppUrl(forceSecure: false);
-        }
-
         public static string AppUrl(this Uri requestUrl, bool forceSecure)
         {
             var appUrl = requestUrl.GetLeftPart(UriPartial.Scheme | UriPartial.Authority);
