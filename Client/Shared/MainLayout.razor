@@ -5,7 +5,7 @@
 
 <div>
     <MudAppBar Fixed="false" Elevation="0">
-        <h1><a href="/myapps/webstart.NET">ClickOnce Get</a></h1>
+        <h1><a href="/">ClickOnce Get</a></h1>
         <MudAppBarSpacer />
         <AuthorizeView>
             <Authorized>
@@ -19,7 +19,10 @@
     </MudAppBar>
 </div>
 
-<MudDrawer @ref="Drawer" @bind-Open="open" Elevation="1" Anchor="Anchor.Right">
+<div class="drawer-mask @CssClass(new { open, home })" @onclick="OnClickDrawerMask">
+</div>
+
+<div class="drawer @CssClass(new { open, home })">
     <MudNavMenu>
         <MudNavLink Href="/" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.Home" />Home</MudNavLink>
         <MudNavLink Href="/myapps/upload" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.Publish" />Upload your app</MudNavLink>
@@ -42,7 +45,7 @@
             </NotAuthorized>
         </AuthorizeView>
     </MudNavMenu>
-</MudDrawer>
+</div>
 
 <div class="main-container">
     @Body
@@ -62,22 +65,26 @@
 </footer>
 
 @code {
-    private MudDrawer Drawer;
-
     private bool open = false;
+
+    private bool home = false;
 
     protected override void OnInitialized()
     {
         this.NavigationManager.LocationChanged += OnLocationChanged;
+        this.UpdateHomeFlag();
     }
 
-    // HACK: Toggling MudDrawer open/close is strange.
-    private async void OnLocationChanged(object sender, EventArgs e)
+    private void OnLocationChanged(object sender, EventArgs e)
     {
-        this.Drawer.OnNavigation();
-        await Task.Delay(400);
         this.open = false;
+        this.UpdateHomeFlag();
         this.StateHasChanged();
+    }
+
+    private void UpdateHomeFlag()
+    {
+        this.home = new Uri(this.NavigationManager.Uri).PathAndQuery == "/";
     }
 
     private async Task OnClickSignOut()
@@ -86,11 +93,15 @@
         await this.HttpClient.PostAsync("auth/signout", new StringContent(""));
         await (AuthStateProvider as ClientSideAuthenticationStateProvider)?.RefreshAsync();
         this.NavigationManager.NavigateTo("/");
-        this.Drawer.OnNavigation();
     }
 
     private void ToggleDrawer()
     {
         this.open = !this.open;
+    }
+
+    private void OnClickDrawerMask()
+    {
+        this.open = false;
     }
 }

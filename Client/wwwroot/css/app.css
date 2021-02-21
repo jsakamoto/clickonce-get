@@ -18,19 +18,12 @@ h2 {
         padding: 0 24px 48px 24px;
     }
 
-.mud-drawer .mud-nav-link-text {
-    display: flex;
-}
-
-    .mud-drawer .mud-nav-link-text .mud-icon-size-medium {
-        margin-right: 8px;
-    }
-
 /* ---- application bar, and footer ---- */
 :root {
     --mud-appbar-slim-height: 56px;
     --coget-appbar-height: var(--mud-appbar-slim-height);
     --coget-footer-height: 48px;
+    --jumbo-tron-height: 40px;
 }
 
 @media (min-width: 600px) {

@@ -54,3 +54,55 @@ footer {
         footer a:hover {
             color: var(--mud-palette-primary-lighten);
         }
+
+/* Drawer */
+.drawer-mask {
+    position: fixed;
+    z-index: 1;
+    top: var(--coget-appbar-height);
+    bottom: var(--coget-footer-height);
+    left: 0;
+    right: 0;
+    background-color: #000;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity ease-out 0.2s;
+}
+
+    .drawer-mask.home {
+        top: calc(var(--coget-appbar-height) + var(--jumbo-tron-height));
+    }
+
+    .drawer-mask.open {
+        visibility: visible;
+        opacity: 0.2;
+    }
+
+.drawer {
+    --coget-drawer-width: 220px;
+    position: fixed;
+    z-index: 2;
+    top: var(--coget-appbar-height);
+    bottom: var(--coget-footer-height);
+    right: calc(-1 * var(--coget-drawer-width));
+    width: var(--coget-drawer-width);
+    background-color: var(--mud-palette-drawer-background);
+    border-left: solid 1px #ccc;
+    transition: right ease-out 0.2s;
+}
+
+    .drawer.home {
+        top: calc(var(--coget-appbar-height) + var(--jumbo-tron-height));
+    }
+
+    .drawer.open {
+        right: 0;
+    }
+
+    .drawer ::deep .mud-nav-link-text {
+        display: flex;
+    }
+
+        .drawer ::deep .mud-nav-link-text .mud-icon-size-medium {
+            margin-right: 8px;
+        }
