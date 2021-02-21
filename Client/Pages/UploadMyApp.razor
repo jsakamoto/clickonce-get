@@ -105,32 +105,22 @@
             this.Uploading = true;
             this.StateHasChanged();
 
-            await Task.Delay(3000);
-
             using var stream = this.LastSelectedFile.OpenReadStream(MaxAllowedSize);
             var content = new MultipartFormDataContent();
             content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
             content.Add(new StreamContent(stream, Convert.ToInt32(LastSelectedFile.Size)), "zipedPackage", LastSelectedFile.Name);
 
             var response = await this.HttpClient.PostAsync("api/myapps/zipedpackage", content);
+            await response.EnsureSuccessStatusCodeAsync();
+
+            this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
+            this.Snackbar.Add($"The zip packaged application file was uploaded.");
+
             var responseContent = await response.Content.ReadAsStringAsync();
-
-            this.Uploading = false;
-
-            if (response.IsSuccessStatusCode)
-            {
-                this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-                this.Snackbar.Add($"The zip packaged application file was uploaded.");
-                var url = $"myapps/{Uri.EscapeUriString(responseContent)}";
-                this.NavigationManager.NavigateTo(url);
-            }
-            else
-            {
-                var parameter = new DialogParameters();
-                parameter.Add("Message", responseContent);
-                await Dialog.Show<ErrorDialog>(title: "Error", parameter).Result;
-            }
+            var url = $"myapps/{Uri.EscapeUriString(responseContent)}";
+            this.NavigationManager.NavigateTo(url);
         }
+        catch (Exception e) { await Dialog.ShowErrorMessageAsync(e.Message); }
         finally { this.Uploading = false; }
     }
 }
