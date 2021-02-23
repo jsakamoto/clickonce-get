@@ -14,26 +14,30 @@ namespace ClickOnceGet.Server.Controllers
     [Authorize, ApiController]
     public class PublishController : Controller
     {
-        public IClickOnceFileRepository ClickOnceFileRepository { get; }
+        private IClickOnceFileRepository ClickOnceFileRepository { get; }
 
         private ClickOnceAppContentManager AppContentManager { get; }
 
+        private HttpsRedirecter HttpsRedirecter { get; }
+
         public PublishController(
             IClickOnceFileRepository clickOnceFileRepository,
-            ClickOnceAppContentManager appContentManager)
+            ClickOnceAppContentManager appContentManager,
+            HttpsRedirecter httpsRedirecter)
         {
             this.ClickOnceFileRepository = clickOnceFileRepository;
             this.AppContentManager = appContentManager;
+            this.HttpsRedirecter = httpsRedirecter;
         }
 
         // GET: /app/{appId}/{*pathInfo}
         [AllowAnonymous, HttpGet("/app/{appId}/{*pathInfo}")]
-        public ActionResult Get(string appId, string pathInfo)
+        public IActionResult Get(string appId, string pathInfo)
         {
             pathInfo = (pathInfo ?? "").Replace('/', '\\');
             if (pathInfo == "") return Redirect($"/app/{Uri.EscapeUriString(appId)}/{Uri.EscapeUriString(appId)}.application");
 
-            if (pathInfo == "detail") return View("Index");
+            if (pathInfo == "detail") return FallbackView();
 
             var fileBytes = this.ClickOnceFileRepository.GetFileContent(appId, pathInfo);
             if (fileBytes == null) return NotFound();
@@ -57,6 +61,12 @@ namespace ClickOnceGet.Server.Controllers
             }
 
             return File(fileBytes, contentType);
+        }
+
+        private IActionResult FallbackView()
+        {
+            if (this.HttpsRedirecter.ShouldRedirect(this.Request, out var actionResult)) return actionResult;
+            return View("Index");
         }
 
         // GET: /app/{appId}/icon/[{pxSize}]

@@ -40,6 +40,8 @@ namespace ClickOnceGet.Server
 
             services.AddSharedServices();
 
+            services.AddServerAddressesFeatureAccessor();
+            services.AddTransient<HttpsRedirecter>();
             services.AddSingleton<CertificateValidater>();
             services.AddSingleton<IClickOnceFileRepository, AppDataDirRepository>();
             services.AddScoped<IClickOnceAppInfoProvider, ServerSideClickOnceAppInfoProvider>();
@@ -77,11 +79,13 @@ namespace ClickOnceGet.Server
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            // DO NOT USE "UseHsts()" and "UseHttpsRedirection()"
+            // because the scheme of the codebase URL of old packages are "http".
+            // Instead, fall back action (FallbackViewsController.Index()) will redirects to https.
+            app.UseServerAddressesFeatureAccessor();
+
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 
