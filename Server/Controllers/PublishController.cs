@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ClickOnceGet.Server.Services;
 using ClickOnceGet.Shared.Models;
@@ -40,7 +41,7 @@ namespace ClickOnceGet.Server.Controllers
             if (pathInfo == "detail") return FallbackView();
 
             var fileBytes = this.ClickOnceFileRepository.GetFileContent(appId, pathInfo);
-            if (fileBytes == null) return NotFound();
+            if (fileBytes == null) return NotFoundView();
 
             var ext = Path.GetExtension(pathInfo).ToLower();
             var contentTypeProvider = new FileExtensionContentTypeProvider();
@@ -66,6 +67,12 @@ namespace ClickOnceGet.Server.Controllers
         private IActionResult FallbackView()
         {
             if (this.HttpsRedirecter.ShouldRedirect(this.Request, out var actionResult)) return actionResult;
+            return View("Index");
+        }
+
+        private IActionResult NotFoundView()
+        {
+            this.HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
             return View("Index");
         }
 
