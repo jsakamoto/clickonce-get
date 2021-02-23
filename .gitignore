@@ -2,8 +2,11 @@ App_Data/
 bin/
 obj/
 .vs/
+.config/
 *.user
 *.suo
+*.pubxml
+profile.arm.json
 appSettings.Development.json
 
 !**/.defaults/*
