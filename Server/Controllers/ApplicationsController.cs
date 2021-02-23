@@ -236,7 +236,7 @@ namespace ClickOnceGet.Server.Controllers
             xnm.AddNamespace("asmv1", "urn:schemas-microsoft-com:asm.v1");
             xnm.AddNamespace("asmv2", "urn:schemas-microsoft-com:asm.v2");
             var codeBaseAttr = (appManifest.XPathEvaluate("/asmv1:assembly/asmv2:deployment/asmv2:deploymentProvider/@codebase", xnm) as IEnumerable).Cast<XAttribute>().FirstOrDefault();
-            if (codeBaseAttr == null) return BadRequest("The .application file that contained in .zip file you uploaded did not have \"codebase\" attribute.");
+            if (codeBaseAttr == null) return null; // No <deploymentProvider> node is also valid/success.
 
             var codebaseIsValidUrl = Uri.TryCreate(codeBaseAttr.Value, UriKind.Absolute, out var codeBaseUri);
             if (!codebaseIsValidUrl || (codeBaseUri.Scheme != "http" && codeBaseUri.Scheme != "https"))
