@@ -24,6 +24,7 @@
     <PackageReference Include="IconExtractor" Version="1.0.1" />
     <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="5.0.0" />
     <PackageReference Include="Toolbelt.AspNetCore.CssLiveReloader" Version="1.1.4" />
+    <PackageReference Include="SkiaSharp" Version="2.80.2" />
   </ItemGroup>
 
   <ItemGroup>

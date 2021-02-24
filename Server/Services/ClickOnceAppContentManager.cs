@@ -1,16 +1,18 @@
 ﻿#nullable enable
 using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using ClickOnceGet.Shared.Models;
 using Microsoft.AspNetCore.Hosting;
 using Polly;
+using SkiaSharp;
 using Toolbelt.Drawing;
 
 namespace ClickOnceGet.Server.Services
@@ -157,24 +159,28 @@ namespace ClickOnceGet.Server.Services
                 if (msIco.Length == 0) return null;
 
                 msIco.Seek(0, SeekOrigin.Begin);
-                using var icon = new Icon(msIco, pxSize, pxSize);
+                var iconSizes = GetIconSizes(msIco);
+                if (iconSizes.Count == 0) return null;
 
-                var iconBmp = icon.ToBitmap();
-                var iconSize = iconBmp.Size.Width;
-                if (iconSize < pxSize)
+                var bestIconSize = iconSizes.FirstOrDefault(sz => sz.Width == pxSize);
+                if (bestIconSize.IsEmpty)
+                    bestIconSize = iconSizes.Where(sz => sz.Width > pxSize).OrderBy(sz => sz.Width).FirstOrDefault();
+                if (bestIconSize.IsEmpty)
+                    bestIconSize = iconSizes.Where(sz => sz.Width < pxSize).OrderByDescending(sz => sz.Width).FirstOrDefault();
+
+                msIco.Seek(0, SeekOrigin.Begin);
+                using var iconBmp = SKBitmap.Decode(msIco, new SKImageInfo(bestIconSize.Width, bestIconSize.Height));
+                if (iconBmp == null) return null;
+
+                if (bestIconSize.Width != pxSize)
                 {
-                    //var margin = (pxSize - iconSize) / 2;
-                    var newBmp = new Bitmap(width: pxSize, height: pxSize);
-                    using (var g = Graphics.FromImage(newBmp))
-                    {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(iconBmp, 0, 0, pxSize, pxSize);
-                    }
-                    iconBmp.Dispose();
-                    iconBmp = newBmp;
+                    using var resizedIconBmp = iconBmp.Resize(new SKSizeI(width: pxSize, height: pxSize), SKFilterQuality.High);
+                    resizedIconBmp.Encode(msPng, SKEncodedImageFormat.Png, quality: 100);
                 }
-                iconBmp.Save(msPng, ImageFormat.Png);
-                iconBmp.Dispose();
+                else
+                {
+                    iconBmp.Encode(msPng, SKEncodedImageFormat.Png, quality: 100);
+                }
 
                 return msPng.ToArray();
             }
@@ -188,6 +194,28 @@ namespace ClickOnceGet.Server.Services
                     .WaitAndRetry(retryCount: 3, _ => TimeSpan.FromMilliseconds(400))
                     .ExecuteAndCapture(() => File.Delete(tmpPath));
             }
+        }
+
+        private static IReadOnlyList<Size> GetIconSizes(Stream iconStream)
+        {
+            var sizeList = new List<Size>();
+            using (var icoBinReader = new BinaryReader(iconStream, Encoding.UTF8, leaveOpen: true))
+            {
+                icoBinReader.ReadInt32(); // skip Reserved:int16, Type:int16
+                var numberOfImages = icoBinReader.ReadInt16();
+                for (var i = 0; i < numberOfImages; i++)
+                {
+                    var width = icoBinReader.ReadByte();
+                    var height = icoBinReader.ReadByte();
+                    sizeList.Add(new Size(width, height));
+
+                    icoBinReader.ReadInt16(); // skip ColorCount:byte, Reserved:byte,
+                    icoBinReader.ReadInt32(); // skip Planes:int16, BitCount:int16
+                    icoBinReader.ReadInt32(); // skip BytesInRes:int32
+                    icoBinReader.ReadInt32(); // skip ImageOffset:int32
+                }
+            }
+            return sizeList;
         }
     }
 }
