@@ -32,7 +32,7 @@
     private async Task OnClickDelete(ClickOnceAppInfo appInfo)
     {
         var param = new DialogParameters();
-        param.Add("Message", $"This operation delete the \"{appInfo.Title}\" application from this site. This operation cannot rollback. Are you sure?");
+        param.Add("Message", $"This operation delete the \"{appInfo.GetTitleOrName()}\" application from this site. This operation cannot rollback. Are you sure?");
         var confirm = await this.Dialog.Show<ConfirmDialog>(title: "Delete the application", param).Result;
         if (confirm.Cancelled) return;
 
@@ -43,7 +43,7 @@
             this.Apps.Remove(appInfo);
 
             this.Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            this.Snackbar.Add($"The \"{appInfo.Title}\" application was deleted.");
+            this.Snackbar.Add($"The \"{appInfo.GetTitleOrName()}\" application was deleted.");
         }
         catch (Exception e)
         {
