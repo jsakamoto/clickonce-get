@@ -3,9 +3,11 @@
     <h2><MudIcon Icon="@Icons.Material.Block" /> Not Authorized</h2>
 
     <p>
-        <MudButton Link="auth/signin" Target="_top" Variant="Variant.Outlined">
-            <MudIcon Icon="@Icons.Material.Login" />&nbsp;
-            Sign in with GitHub
-        </MudButton>
+        <SignInUrlProvider Context="SignInUrl">
+            <MudButton Link="@SignInUrl" Target="_top" Variant="Variant.Outlined">
+                <MudIcon Icon="@Icons.Material.Login" />&nbsp;
+                Sign in with GitHub
+            </MudButton>
+        </SignInUrlProvider>
     </p>
 </div>

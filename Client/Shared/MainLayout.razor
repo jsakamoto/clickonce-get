@@ -38,9 +38,11 @@
             </Authorized>
             <NotAuthorized>
                 <div class="mud-nav-item mud-ripple sign-in">
-                    <a class="mud-nav-link" href="auth/signin" target="_top">
-                        <div class="mud-nav-link-text"><MudIcon Icon="@Icons.Material.Login" />Sign in with GitHub</div>
-                    </a>
+                    <SignInUrlProvider Context="SignInUrl">
+                        <a class="mud-nav-link" href="@SignInUrl" target="_top">
+                            <div class="mud-nav-link-text"><MudIcon Icon="@Icons.Material.Login" />Sign in with GitHub</div>
+                        </a>
+                    </SignInUrlProvider>
                 </div>
             </NotAuthorized>
         </AuthorizeView>

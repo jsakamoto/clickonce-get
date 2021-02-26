@@ -11,10 +11,10 @@ namespace ClickOnceGet.Server.Controllers
     public class AuthenticationController : Controller
     {
         [HttpGet("/auth/signin")]
-        public IActionResult OnGetSignIn()
+        public IActionResult OnGetSignIn([FromQuery] string? returnUri)
         {
             return Challenge(
-                new AuthenticationProperties { RedirectUri = "/" },
+                new AuthenticationProperties { RedirectUri = returnUri ?? "/" },
                 GitHubAuthenticationDefaults.AuthenticationScheme);
         }
 

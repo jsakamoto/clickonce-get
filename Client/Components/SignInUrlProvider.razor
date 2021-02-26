@@ -1,0 +1,31 @@
+﻿@inject NavigationManager NavigationManager
+@implements IDisposable
+
+@ChildContent(GetSignInUrl())
+
+@code
+{
+    [Parameter]
+    public RenderFragment<string> ChildContent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        this.NavigationManager.LocationChanged += NavigationManager_LocationChanged;
+    }
+
+    private string GetSignInUrl()
+    {
+        var u = new Uri(this.NavigationManager.Uri);
+        return "auth/signin?returnUri=" + Uri.EscapeDataString(u.PathAndQuery);
+    }
+
+    private void NavigationManager_LocationChanged(object sender, EventArgs e)
+    {
+        this.StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        this.NavigationManager.LocationChanged += NavigationManager_LocationChanged;
+    }
+}
