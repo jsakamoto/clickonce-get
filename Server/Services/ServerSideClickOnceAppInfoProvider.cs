@@ -25,7 +25,7 @@ namespace ClickOnceGet.Server.Services
 
         public Task<IEnumerable<ClickOnceAppInfo>> GetAllAppsAsync()
         {
-            return Task.FromResult(this.ClickOnceFileRepository.EnumAllApps());
+            return Task.FromResult(this.ClickOnceFileRepository.EnumAllApps().OrderByDescending(appInfo => appInfo.RegisteredAt).AsEnumerable());
         }
 
         public Task<ClickOnceAppInfo?> GetAppAsync(string appName)
