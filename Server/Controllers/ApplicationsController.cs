@@ -137,23 +137,26 @@ namespace ClickOnceGet.Server.Controllers
                     };
                 }
                 appInfo.RegisteredAt = DateTime.UtcNow;
-                this.ClickOnceFileRepository.ClearUpFiles(appName);
 
+                // Check codebase in .application file
+                if (this.Options.CurrentValue.SkipCodeBaseValidation == false)
+                {
+                    foreach (var item in zip.Entries.Where(_ => Path.GetExtension(_.FullName).ToLower() == ".application"))
+                    {
+                        using var reader = item.Open();
+                        var error = CheckCodeBaseUrl(appName, reader);
+                        if (error != null) return error;
+                    }
+                }
+
+                // Save to the repository.
+                this.ClickOnceFileRepository.ClearUpFiles(appName);
                 foreach (var item in zip.Entries.Where(_ => _.Name != ""))
                 {
                     var buff = new byte[item.Length];
                     using var reader = item.Open();
                     reader.Read(buff, 0, buff.Length);
                     this.ClickOnceFileRepository.SaveFileContent(appName, item.FullName, buff);
-
-                    if (Path.GetExtension(item.FullName).ToLower() == ".application")
-                    {
-                        if (this.Options.CurrentValue.SkipCodeBaseValidation == false)
-                        {
-                            var error = CheckCodeBaseUrl(appName, buff);
-                            if (error != null) return error;
-                        }
-                    }
                 }
 
                 // Update certificate information.
@@ -219,13 +222,12 @@ namespace ClickOnceGet.Server.Controllers
             }
         }
 
-        private ActionResult CheckCodeBaseUrl(string appName, byte[] buff)
+        private ActionResult CheckCodeBaseUrl(string appName, Stream stream)
         {
             var appManifest = default(XDocument);
             try
             {
-                using var ms = new MemoryStream(buff);
-                appManifest = XDocument.Load(ms);
+                appManifest = XDocument.Load(stream);
             }
             catch (XmlException)
             {
