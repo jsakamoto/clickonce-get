@@ -157,30 +157,7 @@ namespace ClickOnceGet.Server.Services
 
                 IconExtractor.Extract1stIconTo(tmpPath, msIco);
                 if (msIco.Length == 0) return null;
-
-                msIco.Seek(0, SeekOrigin.Begin);
-                var iconSizes = GetIconSizes(msIco);
-                if (iconSizes.Count == 0) return null;
-
-                var bestIconSize = iconSizes.FirstOrDefault(sz => sz.Width == pxSize);
-                if (bestIconSize.IsEmpty)
-                    bestIconSize = iconSizes.Where(sz => sz.Width > pxSize).OrderBy(sz => sz.Width).FirstOrDefault();
-                if (bestIconSize.IsEmpty)
-                    bestIconSize = iconSizes.Where(sz => sz.Width < pxSize).OrderByDescending(sz => sz.Width).FirstOrDefault();
-
-                msIco.Seek(0, SeekOrigin.Begin);
-                using var iconBmp = SKBitmap.Decode(msIco, new SKImageInfo(bestIconSize.Width, bestIconSize.Height));
-                if (iconBmp == null) return null;
-
-                if (bestIconSize.Width != pxSize)
-                {
-                    using var resizedIconBmp = iconBmp.Resize(new SKSizeI(width: pxSize, height: pxSize), SKFilterQuality.High);
-                    resizedIconBmp.Encode(msPng, SKEncodedImageFormat.Png, quality: 100);
-                }
-                else
-                {
-                    iconBmp.Encode(msPng, SKEncodedImageFormat.Png, quality: 100);
-                }
+                if (ConvertIconToPng(msIco, msPng, pxSize) == false) return null;
 
                 return msPng.ToArray();
             }
@@ -196,25 +173,51 @@ namespace ClickOnceGet.Server.Services
             }
         }
 
-        private static IReadOnlyList<Size> GetIconSizes(Stream iconStream)
+        internal static bool ConvertIconToPng(Stream iconStream, Stream pngStream, int pxSize)
+        {
+            var iconSizes = GetIconSizes(iconStream);
+            if (iconSizes.Count == 0) return false;
+
+            var bestIconSize = iconSizes.FirstOrDefault(sz => sz.Width == pxSize);
+            if (bestIconSize.IsEmpty)
+                bestIconSize = iconSizes.Where(sz => sz.Width > pxSize).OrderBy(sz => sz.Width).FirstOrDefault();
+            if (bestIconSize.IsEmpty)
+                bestIconSize = iconSizes.Where(sz => sz.Width < pxSize).OrderByDescending(sz => sz.Width).FirstOrDefault();
+
+            iconStream.Seek(0, SeekOrigin.Begin);
+            using var iconBmp = SKBitmap.Decode(iconStream, new SKImageInfo(bestIconSize.Width, bestIconSize.Height));
+            if (iconBmp == null) return false;
+
+            if (bestIconSize.Width != pxSize)
+            {
+                using var resizedIconBmp = iconBmp.Resize(new SKSizeI(width: pxSize, height: pxSize), SKFilterQuality.High);
+                resizedIconBmp.Encode(pngStream, SKEncodedImageFormat.Png, quality: 100);
+            }
+            else
+            {
+                iconBmp.Encode(pngStream, SKEncodedImageFormat.Png, quality: 100);
+            }
+            return true;
+        }
+
+        internal static IReadOnlyList<Size> GetIconSizes(Stream iconStream)
         {
             var sizeList = new List<Size>();
-            using (var icoBinReader = new BinaryReader(iconStream, Encoding.UTF8, leaveOpen: true))
-            {
-                icoBinReader.ReadInt32(); // skip Reserved:int16, Type:int16
-                var numberOfImages = icoBinReader.ReadInt16();
-                for (var i = 0; i < numberOfImages; i++)
-                {
-                    var width = icoBinReader.ReadByte();
-                    var height = icoBinReader.ReadByte();
-                    sizeList.Add(new Size(width, height));
 
-                    icoBinReader.ReadInt16(); // skip ColorCount:byte, Reserved:byte,
-                    icoBinReader.ReadInt32(); // skip Planes:int16, BitCount:int16
-                    icoBinReader.ReadInt32(); // skip BytesInRes:int32
-                    icoBinReader.ReadInt32(); // skip ImageOffset:int32
-                }
+            iconStream.Seek(offset: 4, SeekOrigin.Begin);
+            Span<byte> buff = stackalloc byte[2];
+            iconStream.Read(buff);
+            var numberOfImages = BitConverter.ToUInt16(buff);
+            for (var i = 0; i < numberOfImages; i++)
+            {
+                var width = iconStream.ReadByte();
+                var height = iconStream.ReadByte();
+                sizeList.Add(new Size(
+                    width == 0 ? 256 : width,
+                    height == 0 ? 256 : height));
+                iconStream.Seek(offset: 14, SeekOrigin.Current);
             }
+
             return sizeList;
         }
     }
