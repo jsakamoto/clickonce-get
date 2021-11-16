@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Toolbelt.Extensions.DependencyInjection;
 
 namespace ClickOnceGet.Server
 {
@@ -21,7 +20,7 @@ namespace ClickOnceGet.Server
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
 
         private IConfiguration Configuration { get; }
@@ -30,7 +29,7 @@ namespace ClickOnceGet.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<ClickOnceGetOptions>(Configuration.GetSection("ClickOnceGet"));
+            services.Configure<ClickOnceGetOptions>(this.Configuration.GetSection("ClickOnceGet"));
 
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -51,8 +50,8 @@ namespace ClickOnceGet.Server
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddGitHub(options =>
                 {
-                    options.ClientId = Configuration.GetValue<string>("Authentication:GitHub:ClientId");
-                    options.ClientSecret = Configuration.GetValue<string>("Authentication:GitHub:ClientSecret");
+                    options.ClientId = this.Configuration.GetValue<string>("Authentication:GitHub:ClientId");
+                    options.ClientSecret = this.Configuration.GetValue<string>("Authentication:GitHub:ClientSecret");
                 })
                 .AddCookie(options =>
                 {
@@ -61,7 +60,7 @@ namespace ClickOnceGet.Server
                         var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
                         var providerKey = claimsIdentity.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                         claimsIdentity.AddClaim(new Claim(CustomClaimTypes.IdentityProvider, "GitHub"));
-                        claimsIdentity.AddClaim(new Claim(CustomClaimTypes.HasedUserId, $"GitHub|{providerKey}|{Configuration["Authentication:Salt"]}".ToMD5()));
+                        claimsIdentity.AddClaim(new Claim(CustomClaimTypes.HasedUserId, $"GitHub|{providerKey}|{this.Configuration["Authentication:Salt"]}".ToMD5()));
                         return Task.CompletedTask;
                     };
                 });
@@ -74,7 +73,6 @@ namespace ClickOnceGet.Server
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
-                app.UseCssLiveReload();
             }
             else
             {

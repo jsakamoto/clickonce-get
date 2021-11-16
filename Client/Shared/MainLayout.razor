@@ -6,7 +6,7 @@
 <div>
     <MudAppBar Fixed="false" Elevation="0">
         <h1><a href="/">ClickOnce Get</a></h1>
-        <MudAppBarSpacer />
+        <MudSpacer />
         <AuthorizeView>
             <Authorized>
                 <span class="user-view">
@@ -15,7 +15,7 @@
                 </span>
             </Authorized>
         </AuthorizeView>
-        <MudIconButton Icon="@Icons.Material.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+        <MudIconButton Icon="@Icons.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
     </MudAppBar>
 </div>
 
@@ -24,15 +24,15 @@
 
 <div class="drawer @CssClass(new { open, home })">
     <MudNavMenu>
-        <MudNavLink Href="/" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.Home" />Home</MudNavLink>
-        <MudNavLink Href="/myapps/upload" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.Publish" />Upload your app</MudNavLink>
-        <MudNavLink Href="/myapps" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Material.ViewList" />Manage your apps</MudNavLink>
-        <MudNavLink Href="/documents" Match="NavLinkMatch.Prefix"><MudIcon Icon="@Icons.Material.ImportContacts" />Documents</MudNavLink>
+        <MudNavLink Href="/" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Filled.Home" />Home</MudNavLink>
+        <MudNavLink Href="/myapps/upload" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Filled.Publish" />Upload your app</MudNavLink>
+        <MudNavLink Href="/myapps" Match="NavLinkMatch.All"><MudIcon Icon="@Icons.Filled.ViewList" />Manage your apps</MudNavLink>
+        <MudNavLink Href="/documents" Match="NavLinkMatch.Prefix"><MudIcon Icon="@Icons.Filled.ImportContacts" />Documents</MudNavLink>
         <AuthorizeView>
             <Authorized>
                 <div class="mud-nav-item mud-ripple sign-out">
                     <a class="mud-nav-link" @onclick="OnClickSignOut">
-                        <div class="mud-nav-link-text"><MudIcon Icon="@Icons.Material.ExitToApp" />Sign out</div>
+                        <div class="mud-nav-link-text"><MudIcon Icon="@Icons.Filled.ExitToApp" />Sign out</div>
                     </a>
                 </div>
             </Authorized>
@@ -40,7 +40,7 @@
                 <div class="mud-nav-item mud-ripple sign-in">
                     <SignInUrlProvider Context="SignInUrl">
                         <a class="mud-nav-link" href="@SignInUrl" target="_top">
-                            <div class="mud-nav-link-text"><MudIcon Icon="@Icons.Material.Login" />Sign in with GitHub</div>
+                            <div class="mud-nav-link-text"><MudIcon Icon="@Icons.Filled.Login" />Sign in with GitHub</div>
                         </a>
                     </SignInUrlProvider>
                 </div>
@@ -60,9 +60,9 @@
             with <a href="https://asp.net" target="_blank">ASP.NET Core Hosted</a>
         </span>
         <span> | </span>
-        <span><a href="https://mudblazor.com/" target="_blank"><MudIcon Icon="@Icons.Custom.MudBlazor" Size="Size.Small" /> MudBlazor</a></span>
+        <span><a href="https://mudblazor.com/" target="_blank"><MudIcon Icon="@Icons.Custom.Brands.MudBlazor" Size="Size.Small" /> MudBlazor</a></span>
         <span> | </span>
-        <span><a href="https://github.com/jsakamoto/clickonce-get" target="_blank"><MudIcon Icon="@Icons.Custom.GitHub" Size="Size.Small" /> GNU General Public License V3.0</a></span>
+        <span><a href="https://github.com/jsakamoto/clickonce-get" target="_blank"><MudIcon Icon="@Icons.Custom.Brands.GitHub" Size="Size.Small" /> GNU General Public License V3.0</a></span>
     </div>
 </footer>
 

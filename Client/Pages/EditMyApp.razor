@@ -11,7 +11,7 @@
 
     @if (AppInfo != null)
     {
-        <h2><MudIcon Icon="@Icons.Material.Edit" /> Edit My App</h2>
+        <h2><MudIcon Icon="@Icons.Filled.Edit" /> Edit My App</h2>
 
         <EditForm Model="AppInfo" OnValidSubmit="OnValidSubmit">
             <DataAnnotationsValidator />
@@ -109,7 +109,7 @@
     {
         try
         {
-            var url = $"api/myapps/{Uri.EscapeUriString(AppInfo.Name)}?disclosePublisher={DisclosePublisher}";
+            var url = $"api/myapps/{Uri.EscapeDataString(AppInfo.Name)}?disclosePublisher={DisclosePublisher}";
             var response = await this.HttpClient.PutAsJsonAsync(url, AppInfo);
             await response.EnsureSuccessStatusCodeAsync();
 

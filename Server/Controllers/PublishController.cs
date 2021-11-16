@@ -36,12 +36,12 @@ namespace ClickOnceGet.Server.Controllers
         public IActionResult Get(string appId, string pathInfo)
         {
             pathInfo = (pathInfo ?? "").Replace('/', '\\');
-            if (pathInfo == "") return Redirect($"/app/{Uri.EscapeUriString(appId)}/{Uri.EscapeUriString(appId)}.application");
+            if (pathInfo == "") return this.Redirect($"/app/{Uri.EscapeDataString(appId)}/{Uri.EscapeDataString(appId)}.application");
 
-            if (pathInfo == "detail") return FallbackView();
+            if (pathInfo == "detail") return this.FallbackView();
 
             var fileBytes = this.ClickOnceFileRepository.GetFileContent(appId, pathInfo);
-            if (fileBytes == null) return NotFoundView();
+            if (fileBytes == null) return this.NotFoundView();
 
             var ext = Path.GetExtension(pathInfo).ToLower();
             var contentTypeProvider = new FileExtensionContentTypeProvider();
@@ -61,19 +61,19 @@ namespace ClickOnceGet.Server.Controllers
                 }
             }
 
-            return File(fileBytes, contentType);
+            return this.File(fileBytes, contentType);
         }
 
         private IActionResult FallbackView()
         {
             if (this.HttpsRedirecter.ShouldRedirect(this.Request, out var actionResult)) return actionResult;
-            return View("Index");
+            return this.View("Index");
         }
 
         private IActionResult NotFoundView()
         {
             this.HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            return View("Index");
+            return this.View("Index");
         }
 
         // GET: /app/{appId}/icon/[{pxSize}]
@@ -81,7 +81,7 @@ namespace ClickOnceGet.Server.Controllers
         public ActionResult GetIcon(string appId, int pxSize = 48)
         {
             var appInfo = this.ClickOnceFileRepository.GetAppInfo(appId);
-            if (appInfo == null) return NotFound();
+            if (appInfo == null) return this.NotFound();
 
             var etag = appInfo.RegisteredAt.Ticks.ToString() + "." + pxSize;
             return new CacheableContentResult(
@@ -89,7 +89,7 @@ namespace ClickOnceGet.Server.Controllers
                     lastModified: appInfo.RegisteredAt,
                     etag: etag,
                     contentType: "image/png",
-                    getContent: () => this.AppContentManager.GetIcon(appId, pxSize) ?? NoImagePng()
+                    getContent: () => this.AppContentManager.GetIcon(appId, pxSize) ?? this.NoImagePng()
                 );
         }
 
@@ -98,7 +98,7 @@ namespace ClickOnceGet.Server.Controllers
         public ActionResult GetCertificate(string appId)
         {
             var appInfo = this.ClickOnceFileRepository.GetAppInfo(appId);
-            if (appInfo == null) return NotFound();
+            if (appInfo == null) return this.NotFound();
             var etag = appInfo.RegisteredAt.Ticks.ToString() + ".cer";
 
             return new CacheableContentResult(
@@ -106,7 +106,7 @@ namespace ClickOnceGet.Server.Controllers
                     lastModified: appInfo.RegisteredAt,
                     etag: etag,
                     contentType: "application/x-x509-ca-cert",
-                    getContent: () => GetCertificateCore(appInfo).ConfigureAwait(false).GetAwaiter().GetResult()
+                    getContent: () => this.GetCertificateCore(appInfo).ConfigureAwait(false).GetAwaiter().GetResult()
                 );
         }
 
@@ -135,7 +135,7 @@ namespace ClickOnceGet.Server.Controllers
                 lastModified: timeStamp,
                 etag: timeStamp.Ticks.ToString(),
                 contentType: "image/png",
-                getContent: () => NoImagePng()
+                getContent: () => this.NoImagePng()
             );
         }
 

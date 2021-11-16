@@ -17,7 +17,7 @@
 
 <div class="form-container">
 
-    <h2><MudIcon Icon="@Icons.Material.Publish" /> Upload Your Application</h2>
+    <h2><MudIcon Icon="@Icons.Filled.Publish" /> Upload Your Application</h2>
 
     <div class="caption @CssClass(new { HasError })">
         <MudText Typo="Typo.caption">Zip packaged application file</MudText>
@@ -40,7 +40,7 @@
     }
 
     <div class="information my-6">
-        <MudIcon Icon="@Icons.Material.Info" />
+        <MudIcon Icon="@Icons.Filled.Info" />
         If you upload the package of a new version of an application that was already registered, it will replace/update the package of that application.
     </div>
 
@@ -54,7 +54,7 @@
     <div class="my-12">
         <MudButton Link="/documents/how-to-package" Target="_blank" Variant="Variant.Outlined" Size="Size.Medium">
             Learn more about how to package your app&nbsp;
-            <MudIcon Icon="@Icons.Material.OpenInNew" Size="Size.Small" />
+            <MudIcon Icon="@Icons.Filled.OpenInNew" Size="Size.Small" />
         </MudButton>
     </div>
 </div>
@@ -117,7 +117,7 @@
             this.Snackbar.Add($"The zip packaged application file was uploaded.");
 
             var responseContent = await response.Content.ReadAsStringAsync();
-            var url = $"myapps/{Uri.EscapeUriString(responseContent)}";
+            var url = $"myapps/{Uri.EscapeDataString(responseContent)}";
             this.NavigationManager.NavigateTo(url);
         }
         catch (Exception e) { await Dialog.ShowErrorMessageAsync(e.Message); }

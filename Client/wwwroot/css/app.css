@@ -21,15 +21,9 @@ h2 {
 /* ---- application bar, and footer ---- */
 :root {
     --mud-appbar-slim-height: 56px;
-    --coget-appbar-height: var(--mud-appbar-slim-height);
+    --coget-appbar-height: var(--mud-appbar-height);
     --coget-footer-height: 48px;
     --jumbo-tron-height: 40px;
-}
-
-@media (min-width: 600px) {
-    :root {
-        --coget-appbar-height: var(--mud-appbar-min-height);
-    }
 }
 
 /* ---- application list ---- */

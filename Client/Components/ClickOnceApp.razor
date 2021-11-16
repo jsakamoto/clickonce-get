@@ -62,7 +62,9 @@
                     }
                 </span>
                 <span class="code-signing status">
-                    @{var certUrl = BaseUrl + $"/cert/{Uri.EscapeUriString(AppInfo.Name)}.cer"; }
+                    @{
+                        var certUrl = BaseUrl + $"/cert/{Uri.EscapeDataString(AppInfo.Name)}.cer";
+                    }
                     @if (AppInfo.HasCodeSigning == false)
                     {
                         <span class="cert-icon invalid">No Valid Code Signing</span>
@@ -87,25 +89,25 @@
         <MudCardActions>
             @if (this.EnableHomeLink)
             {
-                <MudButton Link="/" Variant="Variant.Text" Size="Size.Medium" StartIcon="@Icons.Material.Home">
+                <MudButton Link="/" Variant="Variant.Text" Size="Size.Medium" StartIcon="@Icons.Filled.Home">
                     Back to home
                 </MudButton>
             }
             @if (Manage)
             {
                 <MudButton OnClick="@(()=> OnClickDelete.InvokeAsync(AppInfo))"
-                           Variant="Variant.Text" Color="Color.Secondary" Size="Size.Medium" StartIcon="@Icons.Material.Delete">
+                       Variant="Variant.Text" Color="Color.Secondary" Size="Size.Medium" StartIcon="@Icons.Filled.Delete">
                     Delete
                 </MudButton>
                 <MudButton OnClick="@(()=> OnClickEdit.InvokeAsync(AppInfo))"
-                           Variant="Variant.Text" Color="Color.Default" Size="Size.Medium" StartIcon="@Icons.Material.Edit">
+                       Variant="Variant.Text" Color="Color.Default" Size="Size.Medium" StartIcon="@Icons.Filled.Edit">
                     Edit
                 </MudButton>
             }
             else
             {
                 <MudButton OnClick="OnClickCliclOnceButton" title="Click here to start download, install, and launch the app."
-                           Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Medium" EndIcon="@Icons.Material.GetApp">
+                       Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Medium" EndIcon="@Icons.Filled.GetApp">
                     ClickOnce
                 </MudButton>
             }
@@ -134,7 +136,7 @@
 
     private string _BaseUrl = null;
 
-    private string BaseUrl { get { if (_BaseUrl == null) _BaseUrl = "app/" + Uri.EscapeUriString(AppInfo.Name); return _BaseUrl; } }
+    private string BaseUrl { get { if (_BaseUrl == null) _BaseUrl = "app/" + Uri.EscapeDataString(AppInfo.Name); return _BaseUrl; } }
 
     private async Task OnClickCliclOnceButton()
     {

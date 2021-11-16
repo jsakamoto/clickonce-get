@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using MudBlazor;
 using MudBlazor.Services;
 
 namespace ClickOnceGet.Shared
@@ -8,9 +7,7 @@ namespace ClickOnceGet.Shared
     {
         public static void AddSharedServices(this IServiceCollection services)
         {
-            services.AddMudBlazorDialog();
-            services.AddMudBlazorSnackbar();
-            services.AddMudBlazorResizeListener();
+            services.AddMudServices();
         }
     }
 }

@@ -8,7 +8,7 @@
 
 <div class="my-apps">
     <MudContainer>
-        <h2><MudIcon Icon="@Icons.Material.ViewList" /> Manage Applications</h2>
+        <h2><MudIcon Icon="@Icons.Filled.ViewList" /> Manage Applications</h2>
     </MudContainer>
 
     <ClickOnceAppList AppList="this.Apps" Manage="true" OnClickEdit="OnClickEdit" OnClickDelete="OnClickDelete" />
@@ -26,7 +26,7 @@
 
     private void OnClickEdit(ClickOnceAppInfo appInfo)
     {
-        NavigationManager.NavigateTo($"myapps/{Uri.EscapeUriString(appInfo.Name)}");
+        NavigationManager.NavigateTo($"myapps/{Uri.EscapeDataString(appInfo.Name)}");
     }
 
     private async Task OnClickDelete(ClickOnceAppInfo appInfo)
@@ -38,7 +38,7 @@
 
         try
         {
-            var response = await this.HttpClient.DeleteAsync($"api/myapps/{Uri.EscapeUriString(appInfo.Name)}");
+            var response = await this.HttpClient.DeleteAsync($"api/myapps/{Uri.EscapeDataString(appInfo.Name)}");
             await response.EnsureSuccessStatusCodeAsync();
             this.Apps.Remove(appInfo);
 
