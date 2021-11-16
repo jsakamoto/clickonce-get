@@ -1,18 +1,15 @@
 ﻿#nullable enable
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using ClickOnceGet.Shared.Models;
 
-namespace ClickOnceGet.Shared.Services
+namespace ClickOnceGet.Shared.Services;
+
+public interface IClickOnceAppInfoProvider
 {
-    public interface IClickOnceAppInfoProvider
-    {
-        Task<IEnumerable<ClickOnceAppInfo>> GetAllAppsAsync();
+    Task<IEnumerable<ClickOnceAppInfo>> GetAllAppsAsync();
 
-        Task<ClickOnceAppInfo?> GetAppAsync(string appName);
+    Task<ClickOnceAppInfo?> GetAppAsync(string appName);
 
-        Task<ClickOnceAppInfo?> GetOwnedAppAsync(string appName);
+    Task<ClickOnceAppInfo?> GetOwnedAppAsync(string appName);
 
-        Task<IEnumerable<ClickOnceAppInfo>> GetOwnedAppsAsync();
-    }
+    Task<IEnumerable<ClickOnceAppInfo>> GetOwnedAppsAsync();
 }

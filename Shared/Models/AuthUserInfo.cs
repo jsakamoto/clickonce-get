@@ -1,8 +1,7 @@
 ﻿#nullable enable
-namespace ClickOnceGet.Shared.Models
+namespace ClickOnceGet.Shared.Models;
+
+public class AuthUserInfo
 {
-    public class AuthUserInfo
-    {
-        public string Name { get; set; } = "";
-    }
+    public string Name { get; set; } = "";
 }

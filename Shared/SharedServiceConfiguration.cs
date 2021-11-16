@@ -1,13 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 
-namespace ClickOnceGet.Shared
+namespace ClickOnceGet.Shared;
+
+public static class SharedServiceConfiguration
 {
-    public static class SharedServiceConfiguration
+    public static void AddSharedServices(this IServiceCollection services)
     {
-        public static void AddSharedServices(this IServiceCollection services)
-        {
-            services.AddMudServices();
-        }
+        services.AddMudServices();
     }
 }
