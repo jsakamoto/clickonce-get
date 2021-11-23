@@ -1,5 +1,8 @@
 ﻿@page "/"
+@implements IDisposable
 @inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
+@inject PersistentComponentState ApplicationState
+
 <div class="home">
     <div class="jumbo-tron">
         <p>"ClickOnce Get" is a web site for publishing your ClickOnce applications.</p>
@@ -12,8 +15,29 @@
 @code {
     private IEnumerable<ClickOnceAppInfo> Apps = Enumerable.Empty<ClickOnceAppInfo>();
 
+    private PersistingComponentStateSubscription? PersistingSubscription;
+
     protected override async Task OnInitializedAsync()
     {
-        this.Apps = await this.ClickOnceAppInfoProvider.GetAllAppsAsync();
+        this.PersistingSubscription = this.ApplicationState.RegisterOnPersisting(PersistAppsAsync);
+        if (this.ApplicationState.TryTakeFromJson<IEnumerable<ClickOnceAppInfo>>("Apps", out var apps))
+        {
+            this.Apps = apps;
+        }
+        else
+        {
+            this.Apps = await this.ClickOnceAppInfoProvider.GetAllAppsAsync();
+        }
+    }
+
+    private async Task PersistAppsAsync()
+    {
+        var apps = await this.ClickOnceAppInfoProvider.GetAllAppsAsync();
+        this.ApplicationState.PersistAsJson("Apps", apps);
+    }
+
+    public void Dispose()
+    {
+        this.PersistingSubscription?.Dispose();
     }
 }

@@ -1,0 +1,29 @@
+﻿<div class="lazy-mud-button">
+    <MudButton Variant="this.Variant"
+               Color="this.Color"
+               Size="this.Size"
+               StartIcon="@this.StartIcon"
+               EndIcon="@this.EndIcon"
+               OnClick="this.OnClick"
+               UserAttributes="this.UserAttributes"
+               ChildContent="this.ChildContent">
+    </MudButton>
+</div>
+
+@code {
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object> UserAttributes { get; set; }
+
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    [Parameter] public Variant Variant { get; set; }
+
+    [Parameter] public Color Color { get; set; }
+
+    [Parameter] public Size Size { get; set; }
+
+    [Parameter] public string StartIcon { get; set; }
+    
+    [Parameter] public string EndIcon { get; set; }
+
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+}

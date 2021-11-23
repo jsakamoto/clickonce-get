@@ -1,0 +1,77 @@
+﻿.lazy-mud-button {
+    display: inline-block;
+    position: relative;
+}
+
+.page-not-available .lazy-mud-button::before {
+    content: "";
+    /*border: solid 1px #00ff00;*/
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+    cursor:wait;
+    background-color: rgba(255,255,255,0.8);
+}
+
+.page-not-available .lazy-mud-button::after {
+    content: "";
+    position: absolute;
+    border: solid 4px var(--mud-palette-primary-lighten);
+    border-top-color: var(--mud-palette-primary-hover);
+    border-radius: 16px;
+    width: 16px;
+    height: 16px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    z-index: 1;
+    /*cursor:wait;*/
+    /*background-color: #fff;*/
+    animation: lazy-mud-button-loading 1.5s linear 0s infinite
+}
+
+/*.loading {
+    font-family: 'Franklin Gothic Medium','Arial Narrow',Arial,sans-serif;
+    color: #88a;
+    font-size: 18px;
+    text-align: center;
+    width: 150px;
+    height: 150px;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto
+}
+
+    .loading::after {
+        content: '';
+        border: solid 10px;
+        border-color: #88a #eee #eee;
+        border-radius: 60px;
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        animation: rotation 1.5s linear 0s infinite
+    }
+*/
+@keyframes lazy-mud-button-loading {
+    0% {
+        transform: rotate(45deg)
+    }
+
+    100% {
+        transform: rotate(405deg)
+    }
+}

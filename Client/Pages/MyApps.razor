@@ -1,10 +1,12 @@
 ﻿@page "/myapps"
 @attribute [Authorize]
+@implements IDisposable
 @inject ISnackbar Snackbar
 @inject HttpClient HttpClient
 @inject IDialogService Dialog
 @inject NavigationManager NavigationManager
 @inject IClickOnceAppInfoProvider ClickOnceAppInfoProvider
+@inject PersistentComponentState ApplicationState
 
 <div class="my-apps">
     <MudContainer>
@@ -18,10 +20,26 @@
 {
     private List<ClickOnceAppInfo> Apps = new List<ClickOnceAppInfo>();
 
+    private PersistingComponentStateSubscription? PersistingSubscription;
+
     protected override async Task OnInitializedAsync()
     {
-        var myApps = await this.ClickOnceAppInfoProvider.GetOwnedAppsAsync();
-        this.Apps.AddRange(myApps);
+        this.PersistingSubscription = this.ApplicationState.RegisterOnPersisting(PersistAppsAsync);
+        if (this.ApplicationState.TryTakeFromJson<IEnumerable<ClickOnceAppInfo>>("Apps", out var apps))
+        {
+            this.Apps.AddRange(apps);
+        }
+        else
+        {
+            var myApps = await this.ClickOnceAppInfoProvider.GetOwnedAppsAsync();
+            this.Apps.AddRange(myApps);
+        }
+    }
+
+    private async Task PersistAppsAsync()
+    {
+        var apps = await this.ClickOnceAppInfoProvider.GetOwnedAppsAsync();
+        this.ApplicationState.PersistAsJson("Apps", apps);
     }
 
     private void OnClickEdit(ClickOnceAppInfo appInfo)
@@ -49,5 +67,10 @@
         {
             await this.Dialog.ShowErrorMessageAsync(e.Message);
         }
+    }
+
+    public void Dispose()
+    {
+        this.PersistingSubscription?.Dispose();
     }
 }

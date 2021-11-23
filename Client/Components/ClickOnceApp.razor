@@ -95,21 +95,21 @@
             }
             @if (Manage)
             {
-                <MudButton OnClick="@(()=> OnClickDelete.InvokeAsync(AppInfo))"
+                <LazyMudButton OnClick="@(()=> OnClickDelete.InvokeAsync(AppInfo))"
                        Variant="Variant.Text" Color="Color.Secondary" Size="Size.Medium" StartIcon="@Icons.Filled.Delete">
                     Delete
-                </MudButton>
-                <MudButton OnClick="@(()=> OnClickEdit.InvokeAsync(AppInfo))"
+                </LazyMudButton>
+                <LazyMudButton OnClick="@(()=> OnClickEdit.InvokeAsync(AppInfo))"
                        Variant="Variant.Text" Color="Color.Default" Size="Size.Medium" StartIcon="@Icons.Filled.Edit">
                     Edit
-                </MudButton>
+                </LazyMudButton>
             }
             else
             {
-                <MudButton OnClick="OnClickCliclOnceButton" title="Click here to start download, install, and launch the app."
+                <LazyMudButton OnClick="OnClickCliclOnceButton" title="Click here to start download, install, and launch the app."
                        Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Medium" EndIcon="@Icons.Filled.GetApp">
                     ClickOnce
-                </MudButton>
+                </LazyMudButton>
             }
         </MudCardActions>
     </MudCard>

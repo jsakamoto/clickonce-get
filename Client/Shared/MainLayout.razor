@@ -49,7 +49,7 @@
     </MudNavMenu>
 </div>
 
-<div class="main-container">
+<div class="main-container @CssClass(new { PageNotAvailable })">
     @Body
 </div>
 
@@ -71,10 +71,22 @@
 
     private bool home = false;
 
+    private bool PageNotAvailable = true;
+
     protected override void OnInitialized()
     {
         this.NavigationManager.LocationChanged += OnLocationChanged;
         this.UpdateHomeFlag();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            this.PageNotAvailable = false;
+            this.StateHasChanged();
+        }
     }
 
     private void OnLocationChanged(object sender, EventArgs e)
